@@ -13,8 +13,8 @@ class Login extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            username: "admin",
-            password: "admin"
+            username: "",
+            password: ""
         }
     }
 
@@ -54,21 +54,21 @@ class Login extends Component {
         let {username,password} = this.state
         return (
             <div className={"main-container row h-100 justify-content-center align-items-center"}>
-                <div className={"col-md-3 col-sm-6"}>
-                    <div className={"text-center"}>
-                        <span className={"h3"}>Sign in to pos</span>
+                <div className={"col-md-4"}>
+                    <div className={"text-center my-4"}>
+                        <span className={"h3 welcome-heading"}>Login to pos</span>
                     </div>
-                    <form className={"login-form m-2 p-2"} onSubmit={this.handleSubmit}>
+                    <form className={"login-form m-4 px-5 py-5"} onSubmit={this.handleSubmit}>
                         <div className={"form-group"}>
-                            <label>Username</label>
-                            <input name="username" value={username} onChange={this.handleInput} type="text" className={"form-control"}/>
+                            {/* <label>Username</label> */}
+                            <input name="username" placeholder="username" value={username} onChange={this.handleInput} type="text" className={"form-control input"}/>
                         </div>
                         <div className={"form-group"}>
-                            <label>Password</label>
-                            <input name="password"  value={password} onChange={this.handleInput} type="password" className={"form-control"}/>
+                            {/* <label>Password</label> */}
+                            <input name="password" placeholder="password" value={password} onChange={this.handleInput} type="password" className={"form-control input"}/>
                         </div>
                         <div>
-                            <input type="submit" className={"btn btn-success btn-block"} value="Login"/>
+                            <input type="submit" className={"login-btn btn btn-block grow"} value="Login"/>
                         </div>
                         <div className={"mt-2"}>
                             <span>Don't have an account? <Link to="/signup">Sign up</Link></span>
