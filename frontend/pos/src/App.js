@@ -5,9 +5,11 @@ import CustomersPage from "../src/pages/CustomersPage/CustomersPage";
 import Navbar from "../src/Components/Navbar";
 import "./App.css";
 import Login from "./pages/login/login";
+import Sales from "./pages/sales/sales";
 
 class App extends Component {
-  render() {
+
+  render(){
     return (
       <div className="app">
         <Router>
@@ -17,7 +19,7 @@ class App extends Component {
             <Route path="/login" component={Login} />
             <Route path="/items" component={Items} />
             <Route path="/customers" component={CustomersPage} />
-            <Route path="/sales" component={Items} />
+            <Route path="/sales" component={Sales} />
           </Switch>
         </Router>
       </div>

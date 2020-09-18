@@ -1,0 +1,10 @@
+.x:hover {
+  cursor: pointer;
+}
+
+.action-modal-header {
+  background-color: #2980B9;
+  border-radius: 0px;
+  color: #fcfbfb;
+  font-weight: 700;
+}

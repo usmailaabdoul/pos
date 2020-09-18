@@ -1,0 +1,23 @@
+.cancel-btn {
+  background-color: #AA1F00;
+  color: #fcfbfb;
+  font-weight: 700;
+  padding: 7px 1rem;
+  margin: 0rem 10px;
+}
+
+.cancel-btn:hover {
+  cursor: pointer;
+}
+
+.complete-btn {
+  background-color: #288C26;
+  color: #fcfbfb;
+  font-weight: 700;
+  padding: 7px 1rem;
+  margin: 0rem 10px;
+}
+
+.complete-btn:hover {
+  cursor: pointer;
+}
