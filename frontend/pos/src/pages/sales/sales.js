@@ -14,7 +14,7 @@ const Sales = () => {
   return (
     <div className="d-flex container">
       <div className="" style={{ width: '70%' }}>
-        <div className="row ml-0 my-3 sales-header align-items-center">
+        <div className="row ml-0 my-3 band-header align-items-center">
           <div className="d-flex justify-content-end align-items-center">
             <div className="mr-3 ml-3"><span>Find or Scan item</span></div>
             <div className="">

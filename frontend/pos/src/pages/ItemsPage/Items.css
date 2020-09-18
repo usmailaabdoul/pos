@@ -12,11 +12,6 @@
   align-items: flex-end;
 }
 
-.btn-primary {
-  background: #2980b9;
-  border: 1px solid #2980b9;
-}
-
 .form__field {
   display: flex;
   justify-content: center;
@@ -50,10 +45,6 @@
 
 .items__topRight > button {
   margin: 0.2rem;
-}
-
-.items__table {
-  margin: 0 4rem;
 }
 
 .modal__container {

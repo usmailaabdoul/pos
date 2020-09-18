@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Tables from "../../Components/Table/Table";
 import Modal from "react-modal";
 import CloseIcon from "@material-ui/icons/Close";
 import "./Items.css";
+import ItemsTable from "./ItemsTable";
 
 const customStyles = {
   content: {
@@ -28,41 +28,31 @@ export default function Items() {
   };
 
   return (
-    <div className="items container">
-      <div className="items__top">
-        <div className="items__topLeft">
-          <button class="btn btn-primary custom" type="submit">
-            Bulk Delete
-          </button>
-
-          <div className="form__field">
-            <p>Search Items</p>
-            <form>
-              <input type="text" placeholder="Name, Category, Barcode" />
-            </form>
+    <div className="container">
+      <div className="ml-0 my-3 band-header align-items-center">
+        <div className="d-flex justify-content-end align-items-center">
+          <button className="btn btn-primary ml-3 mr-5">Bulk Delete</button>
+          <div>
+            <span className="mr-3">Filter</span>
+          </div>
+          <div>
+            <input type="text" className="form-control"/>
+          </div>
+          <div className="col d-flex justify-content-end align-items-center">
+            <div className="ml-2">
+              <button className="btn btn-primary">New Item</button>
+            </div>
+            <div className="ml-2">
+              <button className="btn btn-primary">Import Excel</button>
+            </div>
+            <div className="ml-2">
+              <button className="btn btn-primary">Export</button>
+            </div>
           </div>
         </div>
-        <div className="items__topRight">
-          <button
-            class="btn btn-primary"
-            color=""
-            type="submit"
-            onClick={handleOpen}
-          >
-            New Item
-          </button>
-          <button class="btn btn-primary" type="submit" onClick={handleOpen}>
-            Import Excel
-          </button>
-          <button class="btn btn-primary" type="submit" onClick={handleOpen}>
-            Export
-          </button>
-        </div>
       </div>
 
-      <div className="items__table">
-        <Tables />
-      </div>
+      <ItemsTable/>
 
       <Modal
         isOpen={openModal}

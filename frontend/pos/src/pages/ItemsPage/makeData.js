@@ -1,5 +1,5 @@
 import namor from "namor";
-import Items from "../../pages/ItemsPage/Items";
+import Items from "./Items";
 
 const range = (len) => {
   const arr = [];
