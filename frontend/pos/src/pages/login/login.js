@@ -7,7 +7,7 @@ import apis from '../../apis/apis'
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './login.css'
-
+import {PrimaryButton} from '../../components';
 
 class Login extends Component {
     constructor(props) {
@@ -66,7 +66,9 @@ class Login extends Component {
                             <input name="password" placeholder="password" value={password} onChange={this.handleInput} type="password" className={"form-control input"}/>
                         </div>
                         <div>
-                            <input type="submit" className={"login-btn btn btn-block grow"} value="Login"/>
+                            {/* <input type="submit" className={"login-btn btn btn-block grow"} value="Login"/> */}
+                            {/* <PrimaryButton title="" onClick/> */}
+                            <button className="btn btn btn-primary btn-block mt-2"><span className="h5">Login</span></button>
                         </div>
                     </form>
                 </div>

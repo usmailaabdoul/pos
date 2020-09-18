@@ -3,18 +3,6 @@
   padding: 0.5rem 0rem;
 }
 
-.items-btn {
-  background-color: #2980B9;
-  margin: 10px 4px;
-  padding: 7px 1rem;
-  color: #fcfbfb;
-  font-weight: 500;
-}
-
-.items-btn:hover {
-  cursor: pointer;
-}
-
 .items-table-header {
   background-color: #2980B9;
   color: #fcfbfb;
@@ -57,4 +45,14 @@
 
 .text {
   color: #4B4B4B;
+}
+
+.amt-text {
+  color: #4B4B4B;
+  font-weight: 700;
+}
+
+.table-row {
+  /* height: 5px; */
+  line-height: 1;
 }

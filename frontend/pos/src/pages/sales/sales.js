@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {ActionButton, ActionModal, PrimaryButton} from '../../components';
+import {  ActionModal } from '../../components';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './sales.css';
@@ -12,18 +12,28 @@ const Sales = () => {
   }
 
   return (
-    <div className="d-flex">
+    <div className="d-flex container">
       <div className="" style={{ width: '70%' }}>
         <div className="row ml-0 my-3 sales-header align-items-center">
-            <div className="mr-5 col col-lg"><span>Find or Scan item</span></div>
-            <div className="col-md-auto ">
+          <div className="d-flex justify-content-end align-items-center">
+            <div className="mr-3 ml-3"><span>Find or Scan item</span></div>
+            <div className="">
               <input type="text" onChange={handleSearchInput} placeholder="search" name="searchInput" className={"form-control input"} />
             </div>
+          </div>
           <div className="col d-flex justify-content-end align-items-center">
-            <PrimaryButton title="Print" onClick={() => console.log('hello')} />
-            <PrimaryButton title="Photocopy" onClick={() => console.log('hello')} />
-            <PrimaryButton title="Spiral" onClick={() => console.log('hello')} />
-            <PrimaryButton title="Scan" onClick={() => console.log('hello')} />
+            <div className="ml-2">
+              <button className="btn btn-primary">Print</button>
+            </div>
+            <div className="ml-2">
+              <button className="btn btn-primary">Photocopy</button>
+            </div>
+            <div className="ml-2">
+              <button className="btn btn-primary">Spiral</button>
+            </div>
+            <div className="ml-2">
+              <button className="btn btn-primary">Scan</button>
+            </div>
           </div>
         </div>
 
@@ -40,19 +50,19 @@ const Sales = () => {
               </tr>
             </thead>
             <tbody>
-              <tr>
+              <tr className="table-row">
                 <td className="text-center text">1</td>
                 <td className="text-center text" >Mark</td>
-                <td className="text-center" >
-                  <input className={"items-table-input input text"} type="text" onChange={handleSearchInput} />
-                </td>
                 <td className="text-center">
                   <input className={"items-table-input input text"} type="text" onChange={handleSearchInput} />
                 </td>
                 <td className="text-center">
                   <input className={"items-table-input input text"} type="text" onChange={handleSearchInput} />
                 </td>
-                <td className="text-center text" >20,000 XAF</td>
+                <td className="text-center">
+                  <input className={"items-table-input input text"} type="text" onChange={handleSearchInput} />
+                </td>
+                <td className="text-center amt-text" >20,000 XAF</td>
               </tr>
             </tbody>
           </table>
@@ -62,12 +72,12 @@ const Sales = () => {
       <div className="items-side-bar my-3 ml-5 pb-4">
         <div className="mx-5 my-3">
           <input className={"form-control input"} placeholder="name" type="text" />
-          <PrimaryButton title="New Customer" onClick={() => console.log('hello')} />
+          <button className="btn btn-primary btn-block mt-2"><span className="h5">New Customer</span></button>
         </div>
         <div className="separator"></div>
         <div className="d-flex justify-content-between align-items-center mx-4">
           <div className="text">Total</div>
-          <div className="text">55,005 XAF</div>
+          <div className="amt-text">55,005 XAF</div>
         </div>
         <div className="d-flex justify-content-between align-items-center mx-4 my-2">
           <div className="text">Paid</div>
@@ -75,20 +85,20 @@ const Sales = () => {
         </div>
         <div className="d-flex justify-content-between align-items-center mx-4">
           <div className="text">Change</div>
-          <div className="text">3,000 XAF</div>
+          <div className="amt-text">3,000 XAF</div>
         </div>
         <div className="separator"></div>
         <div className="mx-4">
-          <div className="text">Comments</div>
+          <div className="text mb-2">Comments</div>
           <textarea className="input rounded w-100 text-sm-left" rows="5" cols="50" onChange={handleSearchInput}></textarea>
         </div>
-        <div className="mx-4 my-1">
-          <input className="mr-4" type="checkbox" aria-label="Checkbox for following text input"></input>
+        <div className="mx-4 my-1 d-flex justify-content-start align-items-center">
+          <input className="mr-2" type="checkbox" aria-label="Checkbox for following text input"></input>
           <span className="text">Print reciept</span>
         </div>
         <div className="d-flex justify-content-end align-items-center mr-3 mt-4" >
-          <ActionButton type="cancel" text="Cancel" onClickBtn={() => console.log('cancelled')} />
-          <ActionButton text="Complete" onClickBtn={() => setIsModalVisible(true)} />
+          <button className="btn btn-danger mr-2"><span className="h5">Cancel</span></button>
+          <button onClick={() => setIsModalVisible(true)} className="btn btn-success mr-2"><span className="h5">Complete</span></button>
         </div>
       </div>
 
@@ -97,8 +107,8 @@ const Sales = () => {
           Are you sure you want to confirm this sale?
         </div>
         <div className="d-flex justify-content-center align-items-center mr-3 mt-4">
-          <ActionButton type="cancel" text="No" onClickBtn={() => console.log('action clicked')} />
-          <ActionButton text="Yes" onClickBtn={() => setIsModalVisible(false)} />
+          <button className="btn btn-danger mr-2"><span className="h5 px-2">No</span></button>
+          <button onClickBtn={() => setIsModalVisible(false)} className="btn btn-success mr-2"><span className="h5 px-2">Yes</span></button>
         </div>
       </ActionModal>
     </div>
