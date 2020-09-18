@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import {ActionModal} from "../../Components";
+import {ActionModal} from "../../components";
+import Print from "@material-ui/icons/Print";
+import PeopleAltIcon from "@material-ui/icons/PeopleAlt";
+import DeleteIcon from '@material-ui/icons/Delete';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './sales.css';
@@ -22,18 +25,10 @@ const Sales = () => {
             </div>
           </div>
           <div className="col d-flex justify-content-end align-items-center">
-            <div className="ml-2">
-              <button className="btn btn-primary">Print</button>
-            </div>
-            <div className="ml-2">
-              <button className="btn btn-primary">Photocopy</button>
-            </div>
-            <div className="ml-2">
-              <button className="btn btn-primary">Spiral</button>
-            </div>
-            <div className="ml-2">
-              <button className="btn btn-primary">Scan</button>
-            </div>
+              <button className="btn btn-primary ml-2"><span className="mr-2"><Print style={{fontSize: 20}}/></span>Print</button>
+              <button className="btn btn-primary ml-2"><span className="mr-2"><Print style={{fontSize: 20}}/></span>Photocopy</button>
+              <button className="btn btn-primary ml-2"><span className="mr-2"><Print style={{fontSize: 20}}/></span>Spiral</button>
+              <button className="btn btn-primary ml-2"><span className="mr-2"><Print style={{fontSize: 20}}/></span>Scan</button>
           </div>
         </div>
 
@@ -51,7 +46,7 @@ const Sales = () => {
             </thead>
             <tbody>
               <tr className="table-row">
-                <td className="text-center text">1</td>
+                <td onClick={() => console.log('clicked')} className="text-center text trash-icon"><DeleteIcon style={{fontSize: 20}} /></td>
                 <td className="text-center text" >Mark</td>
                 <td className="text-center">
                   <input className={"items-table-input input text"} type="text" onChange={handleSearchInput} />
@@ -72,7 +67,7 @@ const Sales = () => {
       <div className="items-side-bar my-3 ml-5 pb-4">
         <div className="mx-5 my-3">
           <input className={"form-control input"} placeholder="name" type="text" />
-          <button className="btn btn-primary btn-block mt-2"><span className="h5">New Customer</span></button>
+          <button className="btn btn-primary btn-block mt-2"><PeopleAltIcon style={{position: 'relative', bottom: '2'}}/><span className="h5 ml-2">New Customer</span></button>
         </div>
         <div className="separator"></div>
         <div className="d-flex justify-content-between align-items-center mx-4">
@@ -102,7 +97,7 @@ const Sales = () => {
         </div>
       </div>
 
-      <ActionModal isVisible={isModalVisible} setIsVisible={() => setIsModalVisible(false)}>
+      <ActionModal isVisible={isModalVisible} setIsVisible={() => setIsModalVisible(false)} title="Confirm">
         <div className="modal-body-text d-flex justify-content-center align-items-center h5">
           Are you sure you want to confirm this sale?
         </div>
