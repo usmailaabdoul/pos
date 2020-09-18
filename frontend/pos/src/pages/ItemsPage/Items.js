@@ -1,10 +1,20 @@
 import React, { useState } from "react";
-import Navbar from "../../Components/Navbar";
-import Button from "../../Components/Button";
-import Tables from "../../Components/Table";
-import Modal from "@material-ui/core/Modal";
+import "bootstrap/dist/css/bootstrap.min.css";
+import Tables from "../../Components/Table/Table";
+import Modal from "react-modal";
 import CloseIcon from "@material-ui/icons/Close";
 import "./Items.css";
+
+const customStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+  },
+};
 
 export default function Items() {
   const [openModal, setOpenModal] = useState(false);
@@ -13,16 +23,18 @@ export default function Items() {
     console.log("the modal should open");
     setOpenModal(true);
   };
-
   const handleClose = () => {
     setOpenModal(false);
   };
 
   return (
-    <div className="items">
+    <div className="items container">
       <div className="items__top">
         <div className="items__topLeft">
-          <Button title="Bulk Delete" />
+          <button class="btn btn-primary custom" type="submit">
+            Bulk Delete
+          </button>
+
           <div className="form__field">
             <p>Search Items</p>
             <form>
@@ -31,9 +43,20 @@ export default function Items() {
           </div>
         </div>
         <div className="items__topRight">
-          <Button title="New Item" onClick={handleOpen} />
-          <Button title="Import Excel" />
-          <Button title="Export" />
+          <button
+            class="btn btn-primary"
+            color=""
+            type="submit"
+            onClick={handleOpen}
+          >
+            New Item
+          </button>
+          <button class="btn btn-primary" type="submit" onClick={handleOpen}>
+            Import Excel
+          </button>
+          <button class="btn btn-primary" type="submit" onClick={handleOpen}>
+            Export
+          </button>
         </div>
       </div>
 
@@ -42,49 +65,60 @@ export default function Items() {
       </div>
 
       <Modal
-        open={openModal}
-        onClose={handleClose}
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
+        isOpen={openModal}
+        onRequestClose={handleClose}
+        contentLabel="Example Modal"
+        className="modal__container"
       >
-        <div className="modal__container">
-          <div className="modal__head">
-            <p>New Item</p>
-            <CloseIcon onClick={handleClose} />
-          </div>
-          <div className="modal__body">
-            <form className="modal_form">
-              <div className="modal__formControl">
-                <label for="barcode">Bar Code</label>
-                <input type="text" name="barcode" />
-              </div>
-              <div className="modal__formControl">
-                <label for="name">Item Name</label>
-                <input type="text" name="name" required />
-              </div>
-              <div className="modal__formControl">
-                <label for="category">Category</label>
-                <input type="text" name="category" required />
-              </div>
-              <div className="modal__formControl">
-                <label for="image">Image</label>
-                <input type="text" name="image" placeholder="Select Image" />
-              </div>
-              <div className="modal__formControl">
-                <label for="name">Cost Price</label>
-                <input type="text" name="cp" placeholder="0.00" />
-              </div>
-              <div className="modal__formControl">
-                <label for="name">Retail</label>
-                <input type="text" name="retail" placeholder="0.00" />
-              </div>
-            </form>
-            <div className="modal__Action">
-              <button className="modal__buttonCancel" onClick={handleClose}>
-                Cancel
-              </button>
-              <button className="modal__buttonAdd">Add</button>
+        <div className="modal__head">
+          <p>New Item</p>
+          <CloseIcon onClick={handleClose} />
+        </div>
+        <div className="modal__body">
+          <form className="modal_form">
+            <div className="modal__formControl">
+              <label for="barcode">Bar Code</label>
+              <input type="text" name="barcode" />
             </div>
+            <div className="modal__formControl">
+              <label for="name">
+                Item Name
+                <span style={{ color: "red", margin: ".1rem" }}>*</span>
+              </label>
+              <input type="text" name="name" required />
+            </div>
+            <div className="modal__formControl">
+              <label for="category" required>
+                Category
+                <span style={{ color: "red", margin: ".1rem" }}>*</span>
+              </label>
+              <select class="custom-select" id="category" required>
+                <option selected>Choose...</option>
+                <option value="1">One</option>
+                <option value="2">Two</option>
+                <option value="3">Three</option>
+              </select>
+            </div>
+
+            <div className="modal__formControl">
+              <label for="name">
+                Cost Price
+                <span style={{ color: "red", margin: ".1rem" }}>*</span>
+              </label>
+              <input type="text" name="cp" placeholder="0.00" />
+            </div>
+            <div className="modal__formControl">
+              <label for="name">Retail Price</label>
+              <input type="text" name="retail" placeholder="0.00" />
+            </div>
+          </form>
+          <div className="modal__Action">
+            <button class="btn btn-danger" onClick={handleClose}>
+              Cancel
+            </button>
+            <button class="btn btn-success" type="submit">
+              Add
+            </button>
           </div>
         </div>
       </Modal>
