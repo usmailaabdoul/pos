@@ -12,6 +12,10 @@
     border: solid 1px #E1E4E8;
 }
 
+.form {
+  padding: 4rem 3.5rem;
+  margin: 3rem 2.5rem;
+}
 .login-btn {
   background-color: #2980B9;
   color: #fcfbfb;

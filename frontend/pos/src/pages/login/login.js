@@ -58,20 +58,15 @@ class Login extends Component {
                     <div className={"text-center my-4"}>
                         <span className={"h3 welcome-heading"}>Login to pos</span>
                     </div>
-                    <form className={"login-form m-4 px-5 py-5"} onSubmit={this.handleSubmit}>
+                    <form className={"login-form form"} onSubmit={this.handleSubmit}>
                         <div className={"form-group"}>
-                            {/* <label>Username</label> */}
                             <input name="username" placeholder="username" value={username} onChange={this.handleInput} type="text" className={"form-control input"}/>
                         </div>
                         <div className={"form-group"}>
-                            {/* <label>Password</label> */}
                             <input name="password" placeholder="password" value={password} onChange={this.handleInput} type="password" className={"form-control input"}/>
                         </div>
                         <div>
                             <input type="submit" className={"login-btn btn btn-block grow"} value="Login"/>
-                        </div>
-                        <div className={"mt-2"}>
-                            <span>Don't have an account? <Link to="/signup">Sign up</Link></span>
                         </div>
                     </form>
                 </div>
