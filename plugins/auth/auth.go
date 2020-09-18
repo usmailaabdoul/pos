@@ -6,8 +6,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/prometheus/common/log"
-
 	"github.com/acha-bill/pos/common"
 	"github.com/acha-bill/pos/models"
 	userService "github.com/acha-bill/pos/packages/dblayer/user"
@@ -21,9 +19,7 @@ import (
 
 const (
 	// PluginName defines the name of the plugin
-	PluginName   = "auth"
-	seedUsername = "admin"
-	seedPassword = "password"
+	PluginName = "auth"
 )
 
 var (
@@ -35,6 +31,13 @@ var (
 type Auth struct {
 	name     string
 	handlers []*plugins.PluginHandler
+}
+
+var defaultUsers = []models.User{
+	{
+		Username: "admin",
+		Password: "admin",
+	},
 }
 
 // AddHandler Method definition from interface
@@ -78,22 +81,21 @@ func Plugin() *Auth {
 }
 
 // Seed creates a default user.
-func Seed() (*models.User, error) {
+func Seed() (res []*models.User, err error) {
 	if users, err := userService.FindAll(); err == nil && len(users) == 0 {
-		log.Info(users)
-		hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(seedPassword), bcrypt.DefaultCost)
-		u := models.User{
-			ID:         primitive.NewObjectID(),
-			Username:   seedUsername,
-			Password:   string(hashedPassword),
-			CreatedAt:  time.Now(),
-			UpdatedAt:  time.Now(),
-			ProfileURL: "",
-			IsAdmin:    true,
+		for _, u := range defaultUsers {
+			hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+			_u, _ := userService.Create(models.User{
+				ID:        primitive.NewObjectID(),
+				Username:  u.Username,
+				Password:  string(hashedPassword),
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			})
+			res = append(res, _u)
 		}
-		return userService.Create(u)
 	}
-	return nil, nil
+	return
 }
 
 func init() {
@@ -110,10 +112,10 @@ func init() {
 // @Router /auth/login [post]
 // @Tags Auth
 // @Param login body LoginRequest true "login"
-func login(ctx echo.Context) error {
+func login(c echo.Context) error {
 	var req LoginRequest
-	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, LoginResponse{
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, LoginResponse{
 			Error: err.Error(),
 		})
 	}
@@ -121,12 +123,12 @@ func login(ctx echo.Context) error {
 	filter := bson.D{primitive.E{Key: "username", Value: req.Username}}
 	users, err := userService.Find(filter)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, LoginResponse{
+		return c.JSON(http.StatusBadRequest, LoginResponse{
 			Error: err.Error(),
 		})
 	}
 	if len(users) == 0 {
-		return ctx.JSON(http.StatusBadRequest, LoginResponse{
+		return c.JSON(http.StatusBadRequest, LoginResponse{
 			Error: "user not found",
 		})
 	}
@@ -134,7 +136,6 @@ func login(ctx echo.Context) error {
 
 	claims := &common.JWTCustomClaims{
 		Username: u.Username,
-		IsAdmin:  u.IsAdmin,
 		Id:       u.ID.String(),
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
@@ -144,7 +145,7 @@ func login(ctx echo.Context) error {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	t, _ := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 
-	return ctx.JSON(http.StatusOK, LoginResponse{
+	return c.JSON(http.StatusOK, LoginResponse{
 		Token: t,
 	})
 }
@@ -156,17 +157,17 @@ func login(ctx echo.Context) error {
 // @Tags Auth
 // @Param register body RegisterRequest true "register"
 // @Success 201 {object} RegisterResponse
-func register(ctx echo.Context) error {
+func register(c echo.Context) error {
 	var req RegisterRequest
-	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, LoginResponse{
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, LoginResponse{
 			Error: err.Error(),
 		})
 	}
 
 	// Basic validation
 	if len(req.Username) <= 0 && len(req.Password) <= 0 {
-		return ctx.JSON(http.StatusBadRequest, RegisterErrorResponse{
+		return c.JSON(http.StatusBadRequest, RegisterErrorResponse{
 			Error: "Empty values for username and password",
 		})
 	}
@@ -174,34 +175,32 @@ func register(ctx echo.Context) error {
 	filter := bson.D{primitive.E{Key: "username", Value: req.Username}}
 	users, err := userService.Find(filter)
 	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, RegisterErrorResponse{
+		return c.JSON(http.StatusInternalServerError, RegisterErrorResponse{
 			Error: err.Error(),
 		})
 	}
 	if len(users) != 0 {
-		return ctx.JSON(http.StatusBadRequest, RegisterErrorResponse{
+		return c.JSON(http.StatusBadRequest, RegisterErrorResponse{
 			Error: "username already taken",
 		})
 	}
 
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	u := models.User{
-		ID:         primitive.NewObjectID(),
-		Username:   req.Username,
-		Password:   string(hashedPassword),
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
-		ProfileURL: "",
-		IsAdmin:    req.IsAdmin,
+		ID:        primitive.NewObjectID(),
+		Username:  req.Username,
+		Password:  string(hashedPassword),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 	created, err := userService.Create(u)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, RegisterErrorResponse{
+		return c.JSON(http.StatusBadRequest, RegisterErrorResponse{
 			Error: err.Error(),
 		})
 	}
 
-	return ctx.JSON(http.StatusOK, created)
+	return c.JSON(http.StatusOK, created)
 }
 
 // LoginRequest represents the Request object for Login

@@ -8,6 +8,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/acha-bill/pos/plugins/role"
+
 	"github.com/acha-bill/pos/common"
 	"github.com/acha-bill/pos/plugins"
 	"github.com/acha-bill/pos/plugins/auth"
@@ -30,6 +32,7 @@ var (
 var (
 	Plugins = []plugins.Plugin{
 		auth.Plugin(),
+		role.Plugin(),
 	}
 )
 
