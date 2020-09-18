@@ -93,7 +93,7 @@ const Sales = () => {
       </div>
 
       <ActionModal isVisible={isModalVisible} setIsVisible={() => setIsModalVisible(false)}>
-        <div className="modal-body-text d-flex justify-content-center align-items-center">
+        <div className="modal-body-text d-flex justify-content-center align-items-center h5">
           Are you sure you want to confirm this sale?
         </div>
         <div className="d-flex justify-content-center align-items-center mr-3 mt-4">

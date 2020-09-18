@@ -56,7 +56,7 @@ class Login extends Component {
             <div className={"main-container row h-100 justify-content-center align-items-center"}>
                 <div className={"col-md-4"}>
                     <div className={"text-center my-4"}>
-                        <span className={"h3 welcome-heading"}>Login to pos</span>
+                        <span className={"h2 welcome-heading"}>Login to POS</span>
                     </div>
                     <form className={"login-form form"} onSubmit={this.handleSubmit}>
                         <div className={"form-group"}>

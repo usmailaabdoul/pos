@@ -16,7 +16,7 @@ const ActionModal = (props) => {
       ariaHideApp={false}
     >
 
-      <div className="d-flex justify-content-between align-items-center modal-header">
+      <div className="d-flex justify-content-between align-items-center action-modal-header p-3 h5">
         <div>Confirm</div>
         <div onClick={() => setIsVisible(false)} className="x">x</div>
       </div>

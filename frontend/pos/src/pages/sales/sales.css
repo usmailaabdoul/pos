@@ -1,10 +1,6 @@
 .sales-header {
   background-color: #EBEBEB;
-  /* display: flex; */
-  /* justify-content: center; */
-  /* align-self: center; */
   padding: 0.5rem 0rem;
-  /* margin: 1rem 0; */
 }
 
 .items-btn {
@@ -31,10 +27,8 @@
 
 .items-side-bar {
   background-color: #EBEBEB;
-  /* flex: 1; */
   width: 27%;
   height: auto;
-  /* margin: 10px 5px; */
 }
 
 .new-customer-btn {
@@ -55,18 +49,9 @@
   margin: 1.5rem 1.5rem;
 }
 
-.modal-header {
-  background-color: #2980B9;
-  border-radius: 0px;
-  color: #fcfbfb;
-  font-weight: 700;
-  font-size: 20px;
-}
-
 .modal-body-text {
   text-align: center;
   color: #4B4B4B;
-  font-size: 18px;
   font-weight: 500;
 }
 
