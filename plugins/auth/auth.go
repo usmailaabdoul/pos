@@ -6,6 +6,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/acha-bill/pos/packages/dblayer/role"
+
 	"github.com/acha-bill/pos/common"
 	"github.com/acha-bill/pos/models"
 	userService "github.com/acha-bill/pos/packages/dblayer/user"
@@ -134,12 +136,19 @@ func login(c echo.Context) error {
 	}
 	u := users[0]
 
+	var roles []string
+	for _, r := range u.Roles {
+		if _r, err := role.FindById(r.String()); err != nil {
+			roles = append(roles, _r.Name)
+		}
+	}
 	claims := &common.JWTCustomClaims{
 		Username: u.Username,
 		Id:       u.ID.String(),
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
 		},
+		Roles: roles,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

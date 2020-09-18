@@ -93,7 +93,7 @@ func DeleteByID(id string) error {
 }
 
 func filterUsers(filter interface{}) ([]*models.User, error) {
-	var users []*models.User
+	users := []*models.User{}
 
 	cur, err := collection().Find(ctx, filter)
 	if err != nil {

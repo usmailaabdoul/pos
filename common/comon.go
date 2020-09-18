@@ -9,17 +9,22 @@ import (
 )
 
 type JWTCustomClaims struct {
-	Username string `json:"username"`
-	IsAdmin  bool   `json:"isAdmin"`
-	Id       string `json:"_id"`
+	Username string   `json:"username"`
+	Roles    []string `json:"roles"`
+	Id       string   `json:"_id"`
 	jwt.StandardClaims
 }
 
-// IsAdmin returns true if the user is an admin
-func IsAdmin(ctx echo.Context) bool {
-	user := ctx.Get("user").(*jwt.Token)
-	claims := user.Claims.(JWTCustomClaims)
-	return claims.IsAdmin
+// HasRole checks if the user has the role specified.
+func HasRole(name string, c echo.Context) bool {
+	user := c.Get("user").(*jwt.Token)
+	roles := user.Claims.(JWTCustomClaims).Roles
+	for _, r := range roles {
+		if r == name {
+			return true
+		}
+	}
+	return false
 }
 
 // GetUsername returns the username of the user holding this context

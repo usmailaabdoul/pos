@@ -16,8 +16,8 @@ const (
 )
 
 var (
-	ctx                    = context.TODO()
-	ErrNoCategoriesDeleted = errors.New("no categories were deleted")
+	ctx              = context.TODO()
+	ErrNoRowsDeleted = errors.New("no rows were deleted")
 )
 
 func collection() *mongo.Collection {
@@ -25,45 +25,45 @@ func collection() *mongo.Collection {
 	return db.Collection(collectionName)
 }
 
-func FindAll() (categories []*models.Category, err error) {
+func FindAll() (rows []*models.Category, err error) {
 	// passing bson.D{{}} matches all documents in the collection
 	filter := bson.D{{}}
-	categories, err = filterCategories(filter)
+	rows, err = filterRows(filter)
 	return
 }
 
-func Find(filter interface{}) (categories []*models.Category, err error) {
-	categories, err = filterCategories(filter)
+func Find(filter interface{}) (rows []*models.Category, err error) {
+	rows, err = filterRows(filter)
 	return
 }
 
-func Create(category models.Category) (created *models.Category, err error) {
-	res, err := collection().InsertOne(ctx, category)
+func Create(item models.Category) (created *models.Category, err error) {
+	res, err := collection().InsertOne(ctx, item)
 	if err != nil {
 		return nil, err
 	}
-	category.ID = res.InsertedID.(primitive.ObjectID)
-	created = &category
+	item.ID = res.InsertedID.(primitive.ObjectID)
+	created = &item
 	return
 }
 
-func FindById(id string) (category *models.Category, err error) {
+func FindById(id string) (item *models.Category, err error) {
 	filter := bson.D{primitive.E{Key: "_id", Value: id}}
-	categories, err := filterCategories(filter)
+	rows, err := filterRows(filter)
 	if err != nil {
 		return
 	}
-	if len(categories) == 0 {
-		category = nil
+	if len(rows) == 0 {
+		item = nil
 	} else {
-		category = categories[0]
+		item = rows[0]
 	}
 	return
 }
 
-func UpdateById(id string, category models.Category) error {
+func UpdateById(id string, item models.Category) error {
 	filter := bson.D{primitive.E{Key: "_id", Value: id}}
-	b, _ := bson.Marshal(&category)
+	b, _ := bson.Marshal(&item)
 	update := bson.D{primitive.E{Key: "$set", Value: b}}
 	updated := &models.Category{}
 	return collection().FindOneAndUpdate(ctx, filter, update).Decode(updated)
@@ -78,40 +78,40 @@ func DeleteById(id string) error {
 	}
 
 	if res.DeletedCount == 0 {
-		return ErrNoCategoriesDeleted
+		return ErrNoRowsDeleted
 	}
 
 	return nil
 }
 
-func filterCategories(filter interface{}) ([]*models.Category, error) {
-	var categories []*models.Category
+func filterRows(filter interface{}) ([]*models.Category, error) {
+	rows := []*models.Category{}
 
 	cur, err := collection().Find(ctx, filter)
 	if err != nil {
-		return categories, err
+		return rows, err
 	}
 
 	for cur.Next(ctx) {
 		var u models.Category
 		err := cur.Decode(&u)
 		if err != nil {
-			return categories, err
+			return rows, err
 		}
 
-		categories = append(categories, &u)
+		rows = append(rows, &u)
 	}
 
 	if err := cur.Err(); err != nil {
-		return categories, err
+		return rows, err
 	}
 
 	// once exhausted, close the cursor
 	_ = cur.Close(ctx)
 
-	if len(categories) == 0 {
-		return categories, nil
+	if len(rows) == 0 {
+		return rows, nil
 	}
 
-	return categories, nil
+	return rows, nil
 }
