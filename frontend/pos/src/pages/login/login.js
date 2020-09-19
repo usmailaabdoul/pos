@@ -63,8 +63,6 @@ class Login extends Component {
                             <input name="password" placeholder="password" value={password} onChange={this.handleInput} type="password" className={"form-control input"}/>
                         </div>
                         <div>
-                            {/* <input type="submit" className={"login-btn btn btn-block grow"} value="Login"/> */}
-                            {/* <PrimaryButton title="" onClick/> */}
                             <button className="btn btn btn-primary btn-block mt-2"><span className="h5">Login</span></button>
                         </div>
                     </form>

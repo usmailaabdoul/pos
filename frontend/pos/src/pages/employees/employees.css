@@ -1,0 +1,27 @@
+.employees-header {
+  background-color: #EBEBEB;
+  padding: 0.5rem 0rem;
+}
+
+.table-icons:hover {
+  cursor: pointer;
+}
+
+.lable {
+  width: 2.5rem;
+  border: solid 1px;
+}
+
+.modal-form-control {
+  width: 300px;
+  height: 2.5rem;
+  border-radius: 5px;
+}
+
+.custom-table {
+  line-height: 0.5rem;
+}
+
+.trash-icon:hover {
+  cursor: pointer;
+}
