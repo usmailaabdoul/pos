@@ -1,0 +1,16 @@
+.settings__tab {
+  background-color: #c4c4c4;
+  margin: 01rem 1.3rem;
+}
+
+.report-nav {
+  background-color: var(--secondary-clr);
+}
+
+.report-nav-text {
+  color: #4b4b4b;
+}
+
+.report-active-link {
+  color: var(--primary-clr);
+}
