@@ -3,9 +3,9 @@ export default class CategoryApi {
   constructor(api) {
     this.api = api
   }
-  async getAllCategories(obj) {
+  async getAllCategories() {
     try {
-      let res = await this.api.post(`${baseUrl}`)
+      let res = await this.api.get(`${baseUrl}`)
       return res.data
     } catch (e) {
       throw e
@@ -21,7 +21,7 @@ export default class CategoryApi {
   }
   async deleteCategory(id) {
     try {
-      let res = await this.api.post(`${baseUrl}/${id}`)
+      let res = await this.api.delete(`${baseUrl}/${id}`)
       return res.data
     } catch (e) {
       throw e
@@ -29,7 +29,7 @@ export default class CategoryApi {
   }
   async editCategory(id, name) {
     try {
-      let res = await this.api.post(`${baseUrl}/${id}`, name)
+      let res = await this.api.put(`${baseUrl}/${id}`, name)
       return res.data
     } catch (e) {
       throw e
