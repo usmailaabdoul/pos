@@ -1,0 +1,12 @@
+
+.report-nav {
+  background-color: var(--secondary-clr);
+}
+
+.report-nav-text {
+  color: #4B4B4B;
+}
+
+.report-active-link {
+  color: var(--primary-clr);
+}
