@@ -11,7 +11,7 @@ import { ActionModal } from '../../components';
 import BackupIcon from '@material-ui/icons/Backup';
 import Swal from 'sweetalert2'
 
-import "./items.css";
+import "./Items.css";
 
 const data = []
 for (let i = 0; i < 100; i++) {
