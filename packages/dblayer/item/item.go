@@ -3,6 +3,7 @@ package item
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/acha-bill/pos/models"
 	"github.com/acha-bill/pos/packages/mongodb"
@@ -48,7 +49,11 @@ func Create(item models.Item) (created *models.Item, err error) {
 }
 
 func FindById(id string) (item *models.Item, err error) {
-	filter := bson.D{primitive.E{Key: "_id", Value: id}}
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return
+	}
+	filter := bson.D{primitive.E{Key: "_id", Value: objectId}}
 	rows, err := filterRows(filter)
 	if err != nil {
 		return
@@ -61,16 +66,36 @@ func FindById(id string) (item *models.Item, err error) {
 	return
 }
 
+func FindByCategory(categoryID string) (items []*models.Item, err error) {
+	filter := bson.D{primitive.E{Key: "category", Value: categoryID}}
+	items, err = filterRows(filter)
+	return
+}
+
 func UpdateById(id string, item models.Item) error {
-	filter := bson.D{primitive.E{Key: "_id", Value: id}}
-	b, _ := bson.Marshal(&item)
-	update := bson.D{primitive.E{Key: "$set", Value: b}}
-	updated := &models.Item{}
-	return collection().FindOneAndUpdate(ctx, filter, update).Decode(updated)
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	filter := bson.D{primitive.E{Key: "_id", Value: objectId}}
+	value := bson.M{
+		"name":        item.Name,
+		"barcode":     item.Barcode,
+		"category":    item.Category,
+		"costPrice":   item.CostPrice,
+		"retailPrice": item.RetailPrice,
+		"updated_at":  time.Now(),
+	}
+	update := bson.D{primitive.E{Key: "$set", Value: value}}
+	return collection().FindOneAndUpdate(ctx, filter, update).Err()
 }
 
 func DeleteById(id string) error {
-	filter := bson.D{primitive.E{Key: "_id", Value: id}}
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	filter := bson.D{primitive.E{Key: "_id", Value: objectId}}
 
 	res, err := collection().DeleteOne(ctx, filter)
 	if err != nil {

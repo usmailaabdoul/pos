@@ -21,10 +21,10 @@ const (
 )
 
 var (
-	plugin *Item
-	once   sync.Once
+	plugin   *Item
+	once     sync.Once
+	validate *validator.Validate
 )
-var validate *validator.Validate
 
 // Auth structure
 type Item struct {
@@ -68,6 +68,7 @@ func NewPlugin() *Item {
 func Plugin() *Item {
 	once.Do(func() {
 		plugin = NewPlugin()
+		validate = validator.New()
 	})
 	return plugin
 }
@@ -88,6 +89,11 @@ func updateItem(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: err.Error(),
+		})
+	}
+	if item == nil {
+		return c.JSON(http.StatusNotFound, errorResponse{
+			Error: "item not found",
 		})
 	}
 	var req createRequest
@@ -129,7 +135,7 @@ func updateItem(c echo.Context) error {
 		})
 	}
 
-	updated, err := itemService.FindById(item.ID.String())
+	updated, err := itemService.FindById(item.ID.Hex())
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: err.Error(),
@@ -152,7 +158,7 @@ func deleteItem(c echo.Context) error {
 			Error: "item not found",
 		})
 	}
-	err = itemService.UpdateById(item.ID.String(), models.Item{
+	err = itemService.UpdateById(item.ID.Hex(), models.Item{
 		IsRetired: true,
 	})
 	if err != nil {
@@ -169,6 +175,11 @@ func getItem(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: err.Error(),
+		})
+	}
+	if item == nil {
+		return c.JSON(http.StatusNotFound, errorResponse{
+			Error: "item not found",
 		})
 	}
 	return c.JSON(http.StatusOK, item)

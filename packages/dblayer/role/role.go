@@ -3,6 +3,7 @@ package role
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/acha-bill/pos/models"
 	"github.com/acha-bill/pos/packages/mongodb"
@@ -48,7 +49,11 @@ func Create(item models.Role) (created *models.Role, err error) {
 }
 
 func FindById(id string) (item *models.Role, err error) {
-	filter := bson.D{primitive.E{Key: "_id", Value: id}}
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return
+	}
+	filter := bson.D{primitive.E{Key: "_id", Value: objectId}}
 	rows, err := filterRows(filter)
 	if err != nil {
 		return
@@ -62,15 +67,26 @@ func FindById(id string) (item *models.Role, err error) {
 }
 
 func UpdateById(id string, item models.Role) error {
-	filter := bson.D{primitive.E{Key: "_id", Value: id}}
-	b, _ := bson.Marshal(&item)
-	update := bson.D{primitive.E{Key: "$set", Value: b}}
-	updated := &models.Role{}
-	return collection().FindOneAndUpdate(ctx, filter, update).Decode(updated)
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	filter := bson.D{primitive.E{Key: "_id", Value: objectId}}
+	value := bson.M{
+		"name":        item.Name,
+		"description": item.Description,
+		"updated_at":  time.Now(),
+	}
+	update := bson.D{primitive.E{Key: "$set", Value: value}}
+	return collection().FindOneAndUpdate(ctx, filter, update).Err()
 }
 
 func DeleteById(id string) error {
-	filter := bson.D{primitive.E{Key: "_id", Value: id}}
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	filter := bson.D{primitive.E{Key: "_id", Value: objectId}}
 
 	res, err := collection().DeleteOne(ctx, filter)
 	if err != nil {
