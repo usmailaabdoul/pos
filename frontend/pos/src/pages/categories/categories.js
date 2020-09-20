@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
-import CategoryIcon from '@material-ui/icons/Category';
 import { ActionModal } from '../../components';
 import Swal from 'sweetalert2'
 import Navbar from '../../components/Navbar';
@@ -25,8 +24,8 @@ const Categories = () => {
     useEffect(() => {
         setCategories(data)
         setFilteredCategories(data)
-    },[])
-    
+    }, [])
+
 
     const handleSearchInput = e => {
         if (!e) {

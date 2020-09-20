@@ -125,3 +125,10 @@ th {
   background-color: white !important;
   color: black !important;
 }
+ .my-container-sm {
+  padding-left: 10rem !important;
+  padding-right: 10rem !important;
+}
+.pd {
+  padding-top: 63px;
+}
