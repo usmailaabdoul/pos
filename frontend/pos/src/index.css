@@ -87,8 +87,13 @@ th {
   outline: none;
 }
 
+.ReactTable .-pagination .-btn {
+  background-color: var(--primary-clr) !important;
+  color: white !important;
+  border: none;
+}
 .ReactTable .-pagination .-btn[disabled] {
-  color: #666666;
+  color: white !important;
   cursor: pointer;
   border: none;
 }
