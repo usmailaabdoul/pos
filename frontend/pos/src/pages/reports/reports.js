@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './reports.css';
-import {Dashboard, Sales} from '../../sections';
+import { Dashboard, Sales } from '../../sections';
+import Navbar from '../../components/Navbar';
 
 const routes = [
   { id: 1, name: 'Dashboard' },
@@ -25,25 +26,25 @@ class Reports extends Component {
   }
 
   renderRoutes() {
-    const {active} = this.state;
+    const { active } = this.state;
 
-    switch(active) {
+    switch (active) {
       case 1:
         return <Dashboard />;
       case 2:
         return <Sales />
-        case 3:
-          return <div>sales page loading</div>;
-          case 4:
+      case 3:
         return <div>sales page loading</div>;
-        case 5:
+      case 4:
         return <div>sales page loading</div>;
-        case 6:
+      case 5:
         return <div>sales page loading</div>;
-        case 7:
+      case 6:
         return <div>sales page loading</div>;
-        default:
-          return <Dashboard />;
+      case 7:
+        return <div>sales page loading</div>;
+      default:
+        return <Dashboard />;
     }
   }
 
@@ -51,25 +52,28 @@ class Reports extends Component {
     const { active } = this.state;
 
     return (
-      <div className="container">
-        <nav className="navbar navbar-expand-lg navbar-light py-3 mt-2 report-nav">
-          <div className="collapse navbar-collapse">
-            <ul className="navbar-nav mx-auto h5 f-1">
-              {routes.map((route, key) => {
-                return (
-                  <li key={key} onClick={() => this.setState({ active: route.id })} className={"nav-item"}>
-                    <a className="nav-link" href="###">
-                      <span className={active === route.id ? "report-active-link" : null}>{route.name}</span>
-                      {active === route.id ? <span class="sr-only">(current)</span> : null}
-                    </a>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-        </nav>
+      <div>
+        <Navbar />
         <div className="container">
-          {this.renderRoutes()}
+          <nav className="navbar navbar-expand-lg navbar-light py-3 mt-2 report-nav">
+            <div className="collapse navbar-collapse">
+              <ul className="navbar-nav mx-auto h5 f-1">
+                {routes.map((route, key) => {
+                  return (
+                    <li key={key} onClick={() => this.setState({ active: route.id })} className={"nav-item"}>
+                      <a className="nav-link" href="###">
+                        <span className={active === route.id ? "report-active-link" : null}>{route.name}</span>
+                        {active === route.id ? <span class="sr-only">(current)</span> : null}
+                      </a>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          </nav>
+          <div className="container">
+            {this.renderRoutes()}
+          </div>
         </div>
       </div>
     )

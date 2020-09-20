@@ -7,6 +7,7 @@ import Login from "./pages/login/login";
 import Sales from "./pages/sales/sales";
 import Employees from "./pages/employees/employees";
 import Categories from "./pages/categories/categories";
+import Reports from "./pages/reports/reports";
 
 class App extends Component {
 
@@ -22,6 +23,7 @@ class App extends Component {
             <Route path="/sales" component={Sales} />
             <Route path="/employees" component={Employees}/>
             <Route path="/categories" component={Categories}/>
+            <Route path="/reports" component={Reports}/>
           </Switch>
         </Router>
       </div>
