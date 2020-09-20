@@ -1,30 +1,19 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Modal from "react-modal";
-import CloseIcon from "@material-ui/icons/Close";
+import GetAppIcon from '@material-ui/icons/GetApp';
 import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/Add';
+import AttachFileIcon from '@material-ui/icons/AttachFile';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ReactTable from 'react-table-v6'
 import Navbar from "../../components/Navbar";
 import { ActionModal } from '../../components';
+import BackupIcon from '@material-ui/icons/Backup';
 import Swal from 'sweetalert2'
 
-import "./Items.css";
+import "./items.css";
 
-const customStyles = {
-  content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    transform: "translate(-50%, -50%)",
-  },
-};
-
-const data = [
-]
+const data = []
 for (let i = 0; i < 100; i++) {
   data.push({ _id: i + 1, name: 'red pen' + i, qty: 100, barcode: '11229983', category: 'General', costPrice: 100, retailPrice: 200, created_at: new Date().toDateString(), updated_at: new Date().toDateString() },
   )
@@ -102,13 +91,24 @@ export default function Items() {
             </div>
             <div className="col d-flex justify-content-end align-items-center">
               <div className="ml-2">
-                <button className="btn btn-primary" onClick={handleNewItemClick}>New Item</button>
+                <button className="btn btn-primary" onClick={handleNewItemClick}>
+                  <AddIcon style={{ position: 'relative', bottom: '2' }} /><span className="ml-3">New Item</span>
+                </button>
               </div>
               <div className="ml-2">
-                <button className="btn btn-primary">Import Excel</button>
+                <button className="btn btn-primary">
+                  <AttachFileIcon style={{ position: 'relative', bottom: '2' }} /><span className="ml-3">Import Excel</span>
+                </button>
               </div>
               <div className="ml-2">
-                <button className="btn btn-primary">Export</button>
+                <button className="btn btn-primary btn-sm">
+                <GetAppIcon style={{ position: 'relative', bottom: '2' }} /><span className="ml-3">Download sample</span>
+                </button>
+              </div>
+              <div className="ml-2">
+                <button className="btn btn-primary">
+                <BackupIcon style={{ position: 'relative', bottom: '2' }} /><span className="ml-3">Export</span>
+                </button>
               </div>
             </div>
           </div>
@@ -118,7 +118,7 @@ export default function Items() {
           showPagination={true}
           showPageSizeOptions={false}
           minRows={0}
-          data={data}
+          data={filteredItems}
           defaultPageSize={10}
           style={{
           }}
@@ -221,7 +221,7 @@ const NewItem = (props) => {
     <ActionModal
       isVisible={isNewItemModalVisible}
       setIsVisible={() => setNewItemModalVisible(false)}
-      title="Edit Category">
+      title="New Item">
       <div className="mx-5">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div><span className="w-25 text h6">Name</span></div>
@@ -311,7 +311,7 @@ const EditItem = (props) => {
     <ActionModal
       isVisible={isEditItemModalVisible}
       setIsVisible={() => setEditItemModalVisible(false)}
-      title="Edit Category">
+      title="Edit Item">
       <div className="mx-5">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div><span className="w-25 text h6">Name</span></div>
