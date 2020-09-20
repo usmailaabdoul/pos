@@ -1,6 +1,7 @@
 :root {
   --primary-clr: #2980B9;
   --secondary-clr: #EBEBEB;
+  --danger-clr: #dc3545;
 }
 
 body {
@@ -116,14 +117,11 @@ th {
   border-radius: 10px !important;
 }
 .swal2-actions .swal2-cancel {
-  background-color: var(--secondary-clr) !important;
+  background-color: var(--danger-clr) !important;
   border-radius: 10px !important;
 }
-.swal2-actions .swal2-confirm {
-  background-color: var(--primary-clr) !important;
-  border-radius: 10px !important;
-}
-.swal2-actions .swal2-cancel {
-  background-color: var(--secondary-clr) !important;
-  border-radius: 10px !important;
+
+.rt-noData {
+  background-color: white !important;
+  color: black !important;
 }

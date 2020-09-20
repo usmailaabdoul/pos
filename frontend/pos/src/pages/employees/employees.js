@@ -10,6 +10,7 @@ import 'react-table-v6/react-table.css'
 
 
 import './employees.css'
+import Navbar from '../../components/Navbar';
 
 const data = [
     {id: 1, name: 'Mark', phoneNumber: '123456789', role: 'Manager'},
@@ -73,6 +74,8 @@ const Employees = () => {
     }
 
     return (
+        <div>
+            <Navbar/>
         <div className="container">
             <div className="row ml-0 my-3 d-flex justify-content-start align-items-center">
                 <div className="w-50 d-flex justify-content-start align-items-center employees-header">
@@ -224,6 +227,7 @@ const Employees = () => {
                         className="h5 px-2">Sumit</span></button>
                 </div>
             </ActionModal>
+        </div>
         </div>
     )
 }

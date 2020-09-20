@@ -33,11 +33,7 @@ class Login extends Component {
             })
             console.log(token)
             apis.initialize(token)
-            Swal.fire({
-                icon: 'success',
-                title: 'Login',
-                text: 'login successful'
-            })
+            this.props.history.push("/sales")
         }catch (e) {
             Swal.fire({
                 icon: 'error',

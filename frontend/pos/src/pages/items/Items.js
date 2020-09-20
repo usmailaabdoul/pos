@@ -4,6 +4,7 @@ import Modal from "react-modal";
 import CloseIcon from "@material-ui/icons/Close";
 import "./Items.css";
 import ItemsTable from "./ItemsTable";
+import Navbar from "../../components/Navbar";
 
 const customStyles = {
   content: {
@@ -28,6 +29,8 @@ export default function Items() {
   };
 
   return (
+    <div>
+      <Navbar/>
     <div className="container">
       <div className="ml-0 my-3 band-header align-items-center">
         <div className="d-flex justify-content-end align-items-center">
@@ -112,6 +115,7 @@ export default function Items() {
           </div>
         </div>
       </Modal>
+    </div>
     </div>
   );
 }

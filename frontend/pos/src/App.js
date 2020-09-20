@@ -2,11 +2,11 @@ import React, { Component } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Items from './pages/items/Items'
 import CustomersPage from "../src/pages/customers/CustomersPage";
-import Navbar from "./components/Navbar";
 import "./App.css";
 import Login from "./pages/login/login";
 import Sales from "./pages/sales/sales";
 import Employees from "./pages/employees/employees";
+import Categories from "./pages/categories/categories";
 
 class App extends Component {
 
@@ -14,7 +14,6 @@ class App extends Component {
     return (
       <div className="app">
         <Router>
-          <Navbar />
           <Switch>
             <Route path="/" component={Login} exact={true} />
             <Route path="/login" component={Login} />
@@ -22,6 +21,7 @@ class App extends Component {
             <Route path="/customers" component={CustomersPage} />
             <Route path="/sales" component={Sales} />
             <Route path="/employees" component={Employees}/>
+            <Route path="/categories" component={Categories}/>
           </Switch>
         </Router>
       </div>

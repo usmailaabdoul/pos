@@ -6,6 +6,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './sales.css';
+import Navbar from '../../components/Navbar';
 
 const Sales = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -15,6 +16,8 @@ const Sales = () => {
   }
 
   return (
+    <div>
+      <Navbar/>
     <div className="d-flex container">
       <div className="" style={{ width: '70%' }}>
         <div className="row ml-0 my-3 band-header align-items-center">
@@ -106,6 +109,7 @@ const Sales = () => {
           <button onClickBtn={() => setIsModalVisible(false)} className="btn btn-success mr-2"><span className="h5 px-2">Yes</span></button>
         </div>
       </ActionModal>
+    </div>
     </div>
   );
 };
