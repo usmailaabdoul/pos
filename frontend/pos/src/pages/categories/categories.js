@@ -34,11 +34,9 @@ const Categories = () => {
             return
         }
         let searchString = e.target.value.toLowerCase()
-        console.log(searchString)
         let tmp = categories.filter(cat => {
             return cat.name.toLowerCase().indexOf(searchString) >= 0
         })
-        console.log(tmp);
         setFilteredCategories(tmp)
     }
 
@@ -120,8 +118,8 @@ const Categories = () => {
                             Cell: cat => {
                                 return (
                                     <div>
-                                        <span onClick={() => editCategory(cat)} className="mr-4 table-icons"><EditIcon style={{ fontSize: 20 }} /></span>
-                                        <span onClick={() => deleteCategory(cat)} className="table-icons"><DeleteIcon style={{ fontSize: 20 }} /></span>
+                                        <span onClick={() => editCategory(cat.original)} className="mr-4 table-icons"><EditIcon style={{ fontSize: 20 }} /></span>
+                                        <span onClick={() => deleteCategory(cat.original)} className="table-icons"><DeleteIcon style={{ fontSize: 20 }} /></span>
                                     </div>
                                 )
                             }
