@@ -11,7 +11,7 @@ import { ActionModal } from '../../components';
 import BackupIcon from '@material-ui/icons/Backup';
 import Swal from 'sweetalert2'
 
-import "./Items.css";
+import "./items.css";
 
 const data = []
 for (let i = 0; i < 100; i++) {
@@ -102,12 +102,12 @@ export default function Items() {
               </div>
               <div className="ml-2">
                 <button className="btn btn-primary btn-sm">
-                <GetAppIcon style={{ position: 'relative', bottom: '2' }} /><span className="ml-3">Download sample</span>
+                  <GetAppIcon style={{ position: 'relative', bottom: '2' }} /><span className="ml-3">Download sample</span>
                 </button>
               </div>
               <div className="ml-2">
                 <button className="btn btn-primary">
-                <BackupIcon style={{ position: 'relative', bottom: '2' }} /><span className="ml-3">Export</span>
+                  <BackupIcon style={{ position: 'relative', bottom: '2' }} /><span className="ml-3">Export</span>
                 </button>
               </div>
             </div>
@@ -174,10 +174,10 @@ export default function Items() {
           ]}
         />
         {isNewItemModalVisible && (
-          <NewItem setNewItemModalVisible={() => setNewItemModalVisible(false)} isNewItemModalVisible={isNewItemModalVisible}/>
+          <NewItem setNewItemModalVisible={() => setNewItemModalVisible(false)} isNewItemModalVisible={isNewItemModalVisible} />
         )}
-                {isEditItemModalVisible && (
-          <EditItem setEditItemModalVisible={() => setEditItemModalVisible(false)} isEditItemModalVisible={isEditItemModalVisible} item={selectedItem}/>
+        {isEditItemModalVisible && (
+          <EditItem setEditItemModalVisible={() => setEditItemModalVisible(false)} isEditItemModalVisible={isEditItemModalVisible} item={selectedItem} />
         )}
       </div>
     </div>
@@ -243,18 +243,18 @@ const NewItem = (props) => {
       <div className="mx-5">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div><span className="w-25 text h6">Cost Price</span></div>
-         <div class="input-group-prepend w-15">
-          <div class="input-group-text">FCFA</div>
-        </div>
+          <div class="input-group-prepend w-15">
+            <div class="input-group-text">FCFA</div>
+          </div>
           <input name="costPrice" placeholder="0" value={costPrice} onChange={handleCostPriceInput} type="number" className={"form-control input text"} />
         </div>
       </div>
       <div className="mx-5">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div><span className="w-25 text h6">Retail Price</span></div>
-         <div class="input-group-prepend w-15">
-          <div class="input-group-text">FCFA</div>
-        </div>
+          <div class="input-group-prepend w-15">
+            <div class="input-group-text">FCFA</div>
+          </div>
           <input name="retailPrice" placeholder="retailPrice" value={retailPrice} onChange={handleRetailPriceInput} type="number" className={"form-control input text"} />
         </div>
       </div>
@@ -333,18 +333,18 @@ const EditItem = (props) => {
       <div className="mx-5">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div><span className="w-25 text h6">Cost Price</span></div>
-         <div class="input-group-prepend w-15">
-          <div class="input-group-text">FCFA</div>
-        </div>
+          <div class="input-group-prepend w-15">
+            <div class="input-group-text">FCFA</div>
+          </div>
           <input name="costPrice" placeholder="0" value={costPrice} onChange={handleCostPriceInput} type="number" className={"form-control input text"} />
         </div>
       </div>
       <div className="mx-5">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div><span className="w-25 text h6">Retail Price</span></div>
-         <div class="input-group-prepend w-15">
-          <div class="input-group-text">FCFA</div>
-        </div>
+          <div class="input-group-prepend w-15">
+            <div class="input-group-text">FCFA</div>
+          </div>
           <input name="retailPrice" placeholder="retailPrice" value={retailPrice} onChange={handleRetailPriceInput} type="number" className={"form-control input text"} />
         </div>
       </div>
