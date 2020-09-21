@@ -14,11 +14,6 @@ import Navbar from '../../components/Navbar';
 import './categories.css'
 import apis from '../../apis/apis'
 
-// const data = [
-//     { id: 1, name: 'General', isRetired: false },
-//     { id: 2, name: 'Office', isRetired: false },
-// ]
-
 const Categories = (props) => {
     const {categories} = props;
     const [isEditCategoryModalVisible, setEditCategoryModalVisible] = useState(false)
@@ -40,7 +35,7 @@ const Categories = (props) => {
       try{
           let res = await apis.categoryApi.categories();
           
-          console.log(res)
+          // console.log(res)
           
           setCategories(res)
           props.setCategories(res)
@@ -70,30 +65,11 @@ const Categories = (props) => {
     }
 
     const editCategory = (cat) => {
-      if (cat.name === 'General') {
-        return Swal.fire({
-                  icon: 'error',
-                  title: 'error',
-                  text: 'Unable to edit this Category'
-              })
-      }
         setSelectedCategory(cat);
         setEditCategoryModalVisible(true);
     }
 
     const deleteCategory = (cat) => {
-      if (cat.name === 'General') {
-        return Swal.fire({
-                  icon: 'error',
-                  title: 'error',
-                  text: 'Unable to delete this Category'
-              })
-      }
-        // let index = data.findIndex((u) => u.id === cat.id);
-        // if (index >= 0) {
-        //     data.splice(index, 1);
-        // }
-
         Swal.fire({
             title: 'Are you sure?',
             icon: 'warning',
@@ -170,7 +146,7 @@ const Categories = (props) => {
                               maxWidth: 50,
                               filterable: false,
                               Cell: (row) => {
-                                  return <div>{row.index + 1}</div>;
+                                  return <div style={{textAlign: 'center'}}>{row.index + 1}</div>;
                               }
                           },
                           {
@@ -182,9 +158,14 @@ const Categories = (props) => {
                               id: "actions",
                               Cell: cat => {
                                   return (
-                                      <div>
-                                          <span onClick={() => editCategory(cat.original)} className="mr-4 table-icons"><EditIcon style={{ fontSize: 20 }} /></span>
-                                          <span onClick={() => deleteCategory(cat.original)} className="table-icons"><DeleteIcon style={{ fontSize: 20 }} /></span>
+                                      <div className="d-flex justify-content-center align-items-center">
+                                        {
+                                          cat.row.name !== 'General' &&
+                                          <>
+                                            <span onClick={() => editCategory(cat.original)} className="mr-4 table-icons"><EditIcon style={{ fontSize: 20 }} /></span>
+                                            <span onClick={() => deleteCategory(cat.original)} className="table-icons"><DeleteIcon style={{ fontSize: 20 }} /></span>
+                                          </>
+                                        }
                                       </div>
                                   )
                               }
@@ -227,7 +208,7 @@ const NewCategory = (props) => {
     const handleSuccessClick = async () => {
       try{
         let res = await apis.categoryApi.addCategory({name});
-        console.log(res)
+        // console.log(res)
         Swal.fire(
           'Created!',
           `category: ${res.name} created successfully`,
