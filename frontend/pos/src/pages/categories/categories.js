@@ -14,10 +14,10 @@ import Navbar from '../../components/Navbar';
 import './categories.css'
 import apis from '../../apis/apis'
 
-const data = [
-    { id: 1, name: 'General', isRetired: false },
-    { id: 2, name: 'Office', isRetired: false },
-]
+// const data = [
+//     { id: 1, name: 'General', isRetired: false },
+//     { id: 2, name: 'Office', isRetired: false },
+// ]
 
 const Categories = (props) => {
     const {categories} = props;
@@ -37,24 +37,24 @@ const Categories = (props) => {
     const getCategories = async () => {
       setIsLoading(false)
 
-      setCategories(data)
-      props.setCategories(data)
-      setFilteredCategories(data)
-      // try{
-      //     let res = await apis.category().getAllCategories();
-      // setCategories(data)
-      // props.setCategories(data)
-      // setFilteredCategories(data)
-      // setIsLoading(false)
-      //     console.log(res)
-      // } catch (e) {
-      // setIsLoading(false)
-      //     Swal.fire({
-      //         icon: 'error',
-      //         title: 'error',
-      //         text: e.message
-      //     })
-      // }
+      try{
+          let res = await apis.categoryApi.categories();
+          
+          console.log(res)
+          
+          setCategories(res)
+          props.setCategories(res)
+          setFilteredCategories(res)
+          
+          setIsLoading(false)
+      } catch (e) {
+      setIsLoading(false)
+          Swal.fire({
+              icon: 'error',
+              title: 'error',
+              text: e.message
+          })
+      }
     }  
     
     const handleSearchInput = e => {
@@ -89,10 +89,10 @@ const Categories = (props) => {
                   text: 'Unable to delete this Category'
               })
       }
-        let index = data.findIndex((u) => u.id === cat.id);
-        if (index >= 0) {
-            data.splice(index, 1);
-        }
+        // let index = data.findIndex((u) => u.id === cat.id);
+        // if (index >= 0) {
+        //     data.splice(index, 1);
+        // }
 
         Swal.fire({
             title: 'Are you sure?',
@@ -102,7 +102,8 @@ const Categories = (props) => {
         }).then(async (result) => {
             if (result.isConfirmed) {
               try{
-                let res = await apis.category().deleteCategory(cat.id);
+                console.log(cat)
+                let res = await apis.categoryApi.deleteCategory(cat._id);
                 getCategories()
                 Swal.fire(
                   'Deleted!',
@@ -121,6 +122,8 @@ const Categories = (props) => {
             }
         })
     }
+
+    let isNotRetiredCategories = filteredCategories.filter((categories) => !categories.isRetired);
 
     return (
         <div>
@@ -152,7 +155,7 @@ const Categories = (props) => {
                       showPagination={true}
                       showPageSizeOptions={false}
                       minRows={0}
-                      data={filteredCategories}
+                      data={isNotRetiredCategories}
                       defaultPageSize={10}
                       style={{
                           // height: "45vh" // This will force the table body to overflow and scroll, since there is not enough room
@@ -223,7 +226,8 @@ const NewCategory = (props) => {
     }
     const handleSuccessClick = async () => {
       try{
-        let res = await apis.category().addCategory(name);
+        let res = await apis.categoryApi.addCategory({name});
+        console.log(res)
         Swal.fire(
           'Created!',
           `category: ${res.name} created successfully`,
@@ -231,7 +235,6 @@ const NewCategory = (props) => {
         )
         getCategories()
         setNewCategoryModalVisible(false)
-        console.log(res)
       } catch (e) {
         console.log(e);
         Swal.fire({
@@ -274,7 +277,7 @@ const EditCategory = (props) => {
     }
     const handleSuccessClick = async () => {
         try{
-          let res = await apis.category().editCategory(category.id, name);
+          let res = await apis.categoryApi.editCategory(category._id, {name});
           Swal.fire(
             'Updated!',
             `category: ${res.name} updated successfully`,
@@ -301,7 +304,7 @@ const EditCategory = (props) => {
             <div className="mx-5">
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <div><span className="w-25 text h6">Name</span></div>
-                    <input name="username" placeholder="name" value={category.name} onChange={handleNameInput} type="text"
+                    <input name="name" placeholder="name" value={name} onChange={handleNameInput} type="text"
                         className={"w-75 form-control input"} />
                 </div>
             </div>
