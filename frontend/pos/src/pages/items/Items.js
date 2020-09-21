@@ -31,7 +31,6 @@ for (let i = 0; i < 100; i++) {
 export default function Items() {
   const [isEditItemModalVisible, setEditItemModalVisible] = useState(false);
   const [isNewItemModalVisible, setNewItemModalVisible] = useState(false);
-  const [isImportModalVisible, setImportModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [items, setItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
@@ -84,11 +83,6 @@ export default function Items() {
     setNewItemModalVisible(true);
   };
 
-  const handleImportExcel = () => {
-    console.log("was clickd");
-    setImportModalVisible(true);
-  };
-
   return (
     <div>
       <Navbar />
@@ -118,7 +112,7 @@ export default function Items() {
                 </button>
               </div>
               <div className="ml-2">
-                <button className="btn btn-primary" onClick={handleImportExcel}>
+                <button className="btn btn-primary">
                   <AttachFileIcon
                     style={{ position: "relative", bottom: "2" }}
                   />
@@ -222,86 +216,10 @@ export default function Items() {
             item={selectedItem}
           />
         )}
-
-        {/* {isImportModalVisible && (
-          <ImportExcel
-            setImportModalVisible={() => setImportModalVisible(false)}
-            isImportModalVisible={isImportModalVisible}
-          />
-        )} */}
       </div>
     </div>
   );
 }
-
-// const ImportExcel = (props) => {
-//   const { setImportModalVisible, isImportModalVisible } = props;
-//   const [file, setFile] = useState(undefined);
-//   const fileInput = React.createRef();
-
-//   const handleChange = (e) => {
-//     console.log("set file");
-//     console.log(fileInput);
-//     setFile(e.target);
-//   };
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     setFile(fileInput.current.files[0]);
-//     console.log(file);
-
-//     setImportModalVisible(false);
-//   };
-
-//   //   const handleSuccessClick = (e) => {
-//   //     // api to update name
-//   //     // handle error
-//   //     Swal.fire("Created!", `item: ${file.name} created successfully`, "success");
-//   //   };
-
-//   const handleCancleClick = () => {
-//     setImportModalVisible(false);
-//   };
-
-//   return (
-//     <ActionModal
-//       isVisible={isImportModalVisible}
-//       setIsVisible={() => setImportModalVisible(false)}
-//       title="Import Excel"
-//     >
-//       <form className="mx-5" onSubmit={handleSubmit}>
-//         <div className="d-flex justify-content-between align-items-center mb-4">
-//           <div>
-//             <span className="w-25 text h6">Import File</span>
-//           </div>
-//           <input
-//             placeholder="Import file"
-//             ref={fileInput}
-//             onChange={handleChange}
-//             type="file"
-//             accept=".xml,.doc"
-//           />
-//         </div>
-
-//         <div className="d-flex justify-content-between align-items-center mt-4 mx-5">
-//           <button
-//             onClick={() => handleCancleClick(false)}
-//             className="btn btn-danger mr-2"
-//           >
-//             <span className="h5 px-2">Cancel</span>
-//           </button>
-//           <button
-//             onClick={handleSubmit}
-//             className="btn btn-success mr-2"
-//             type="submit"
-//           >
-//             <span className="h5 px-2">Upload</span>
-//           </button>
-//         </div>
-//       </form>
-//     </ActionModal>
-//   );
-// };
 
 const NewItem = (props) => {
   const { setNewItemModalVisible, isNewItemModalVisible } = props;
