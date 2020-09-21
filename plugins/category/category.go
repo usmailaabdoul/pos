@@ -165,9 +165,8 @@ func deleteCategory(c echo.Context) error {
 			Error: "cannot delete category that has items. Delete all items first",
 		})
 	}
-	err = categoryService.UpdateById(cat.ID.String(), models.Category{
-		IsRetired: true,
-	})
+	cat.IsRetired = true
+	err = categoryService.UpdateById(cat.ID.Hex(), *cat)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: err.Error(),
