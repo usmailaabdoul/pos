@@ -15,7 +15,7 @@ export default function Roles() {
       try {
         let res = await apis.roleApi.roles();
 
-        setRole(res.roles);
+        setRole(res);
         console.log(res)
         setIsLoading(false)
       } catch (e) {

@@ -3,6 +3,7 @@ import AuthApi from "./auth";
 import {getApi} from './axios'
 import CategoryApi from './category'
 import RoleApi from './role';
+import EmployeeApi from './employee';
 
 class Apis {
     initialize(token) {
@@ -12,6 +13,7 @@ class Apis {
         this.authApi = new AuthApi(this.api)
         this.categoryApi = new CategoryApi(this.api)
         this.roleApi = new RoleApi(this.api)
+        this.employeeApi = new EmployeeApi(this.api)
     }
 
 }
