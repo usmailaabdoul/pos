@@ -11,6 +11,7 @@ import { ActionModal } from "../../components";
 import BackupIcon from "@material-ui/icons/Backup";
 import Swal from "sweetalert2";
 import { OutTable, ExcelRenderer } from "react-excel-renderer";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 import "./items.css";
 
@@ -239,63 +240,142 @@ const ImportFile = (props) => {
   const [file, setFile] = useState("");
   const [rows, setRows] = useState("");
   const [columns, setColumns] = useState("");
+  const [isloading, setLoading] = useState(false);
 
   const handleCancleClick = () => {
     setImportModalVisible(false);
   };
 
   const handleSuccessClick = (e) => {
+    setLoading(true);
     // api to update name
     for (let i = 0; i < rows.length; i++) {
-      console.log(typeof rows[i][0]);
-      if (typeof rows[i][0] != "string" || typeof rows[i][3] != "string") {
-        Swal.fire(
-          "Failed!",
-          `invalid data fields detected at row ${i + 1}`,
-          "error"
-        );
-      } else if (
-        typeof rows[i][1] != "number" ||
-        typeof rows[i][2] != "number" ||
-        typeof rows[i][4] != "number" ||
-        typeof rows[i][5] != "number"
-      ) {
-        Swal.fire(
-          "Failed!",
-          `invalid data fields detected at row ${i + 1}`,
-          "error"
-        );
-      } else if (
-        !rows[i][0] ||
-        !rows[i][1] ||
-        !rows[i][2] ||
-        !rows[i][3] ||
-        !rows[i][4] ||
-        !rows[i][5]
-      ) {
-        Swal.fire(
-          "Failed!",
-          `Empty data fields detected at row ${i + 1}`,
-          "error"
-        );
-      } else {
-        data.push({
-          name: rows[i][0],
-          qty: rows[i][1],
-          barcode: rows[i][2],
-          category: rows[i][3],
-          costPrice: rows[i][4],
-          retailPrice: rows[i][5],
-          created_at: new Date().toDateString(),
-          updated_at: new Date().toDateString(),
-        });
-
-        Swal.fire("Created!", `file imported successfully`, "success");
+      for (let j = 0; j < 6; j++) {
+        if (!rows[i][j]) {
+          setImportModalVisible(false);
+          switch (j) {
+            case 0:
+              return Swal.fire(
+                "Failed!",
+                `Empty input type detected at row ${i + 1}, and cell ${0 + 1}`,
+                "error"
+              );
+            case 1:
+              return Swal.fire(
+                "Failed!",
+                `Empty input type detected at row ${i + 1}, and cell ${1 + 1}`,
+                "error"
+              );
+            case 2:
+              return Swal.fire(
+                "Failed!",
+                `Empty input type detected at row ${i + 1}, and cell ${2 + 1}`,
+                "error"
+              );
+            case 3:
+              return Swal.fire(
+                "Failed!",
+                `Empty input type detected at row ${i + 1}, and cell ${3 + 1}`,
+                "error"
+              );
+            case 4:
+              return Swal.fire(
+                "Failed!",
+                `Empty input type detected at row ${i + 1}, and cell ${4 + 1}`,
+                "error"
+              );
+            case 5:
+              return Swal.fire(
+                "Failed!",
+                `Empty input type detected at row ${i + 1}, and cell ${5 + 1}`,
+                "error"
+              );
+          }
+        } else {
+          if (typeof rows[i][0] != "string" || typeof rows[i][3] != "string") {
+            setImportModalVisible(false);
+            switch (j) {
+              case 0:
+                return Swal.fire(
+                  "Failed!",
+                  `Wrong input type detected at row ${i + 1}, and cell ${
+                    0 + 1
+                  }`,
+                  "error"
+                );
+              case 3:
+                return Swal.fire(
+                  "Failed!",
+                  `Wrong input type detected at row ${i + 1}, and cell ${
+                    3 + 1
+                  }`,
+                  "error"
+                );
+            }
+          } else {
+            if (
+              typeof rows[i][1] != "number" ||
+              rows[i][1] < 0 ||
+              typeof rows[i][2] != "number" ||
+              rows[i][2] < 0 ||
+              typeof rows[i][4] != "number" ||
+              rows[i][4] < 0 ||
+              typeof rows[i][5] != "number" ||
+              rows[i][5] < 0
+            ) {
+              setImportModalVisible(false);
+              switch (j) {
+                case 1:
+                  return Swal.fire(
+                    "Failed!",
+                    `Faulty input type detected at row ${i + 1}, and cell ${
+                      1 + 1
+                    }`,
+                    "error"
+                  );
+                case 2:
+                  return Swal.fire(
+                    "Failed!",
+                    `Wrong input type detected at row ${i + 1}, and cell ${
+                      2 + 1
+                    }`,
+                    "error"
+                  );
+                case 4:
+                  return Swal.fire(
+                    "Failed!",
+                    `Wrong input type detected at row ${i + 1}, and cell ${
+                      4 + 1
+                    }`,
+                    "error"
+                  );
+                case 5:
+                  return Swal.fire(
+                    "Failed!",
+                    `Wrong input type detected at row ${i + 1}, and cell ${
+                      5 + 1
+                    }`,
+                    "error"
+                  );
+              }
+            } else {
+              data.push({
+                name: rows[i][0],
+                qty: rows[i][1],
+                barcode: rows[i][2],
+                category: rows[i][3],
+                costPrice: rows[i][4],
+                retailPrice: rows[i][5],
+                created_at: new Date().toDateString(),
+                updated_at: new Date().toDateString(),
+              });
+              Swal.fire("Created!", `file imported successfully`, "success");
+              setLoading(false);
+            }
+          }
+        }
       }
     }
-    console.log(data);
-    // handle error
-    setImportModalVisible(false);
   };
 
   const handleFile = (event) => {
@@ -319,37 +399,45 @@ const ImportFile = (props) => {
       setIsVisible={() => setImportModalVisible(false)}
       title="New Item"
     >
-      <div className="mx-5">
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <div>
-            <span className="w-25 text h6">Import File</span>
-          </div>
-          <input
-            name="name"
-            placeholder="name"
-            // value={name}
-            onChange={handleFile}
-            type="file"
-            className={"w-75"}
-            accept=".xls, .xlt, .xml, .xlsx, .xlsm "
-          />
+      {isloading ? (
+        <div className="spinner">
+          <CircularProgress />
         </div>
-      </div>
+      ) : (
+        <>
+          <div className="mx-5">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <div>
+                <span className="w-25 text h6">Import File</span>
+              </div>
+              <input
+                name="name"
+                placeholder="name"
+                // value={name}
+                onChange={handleFile}
+                type="file"
+                className={"w-75"}
+                accept=".xls, .xlt, .xml, .xlsx, .xlsm "
+              />
+            </div>
+          </div>
 
-      <div className="d-flex justify-content-between align-items-center mt-4 mx-5">
-        <button
-          onClick={() => handleCancleClick(false)}
-          className="btn btn-danger mr-2"
-        >
-          <span className="h5 px-2">Cancel</span>
-        </button>
-        <button
-          onClick={() => handleSuccessClick(false)}
-          className="btn btn-success mr-2"
-        >
-          <span className="h5 px-2">Import</span>
-        </button>
-      </div>
+          <div className="d-flex justify-content-between align-items-center mt-4 mx-5">
+            <button
+              onClick={() => handleCancleClick(false)}
+              className="btn btn-danger mr-2"
+            >
+              <span className="h5 px-2">Cancel</span>
+            </button>
+            <button
+              onClick={() => handleSuccessClick(false)}
+              className="btn btn-success mr-2"
+            >
+              <span className="h5 px-2">Import</span>
+            </button>
+          </div>
+        </>
+      )}
     </ActionModal>
   );
 };
