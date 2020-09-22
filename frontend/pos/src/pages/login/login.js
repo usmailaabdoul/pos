@@ -27,12 +27,11 @@ class Login extends Component {
         const {username, password} = this.state
         apis.initialize('')
         try{
-            let token = await apis.auth().login({
+            let token = await apis.authApi.login({
                 username,
                 password
             })
-            console.log(token)
-            apis.initialize(token)
+            apis.initialize(token.token)
             this.props.history.push("/sales")
         }catch (e) {
             Swal.fire({
@@ -68,4 +67,4 @@ class Login extends Component {
     }
 }
 
-export default Login
+export default Login;

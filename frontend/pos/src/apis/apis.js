@@ -1,17 +1,17 @@
 
 import AuthApi from "./auth";
 import {getApi} from './axios'
-import Once from '../utilities/once'
+import CategoryApi from './category'
 
-let once = new Once()
 class Apis {
     initialize(token) {
         this.token = token
         this.api = getApi(this.token)
+        
+        this.authApi = new AuthApi(this.api)
+        this.categoryApi = new CategoryApi(this.api)
     }
-    auth(){
-        return once.do(() => new AuthApi(this.api))
-    }
+
 }
 
 let apis = new Apis()
