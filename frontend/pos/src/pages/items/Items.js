@@ -10,6 +10,7 @@ import Navbar from "../../components/Navbar";
 import { ActionModal } from "../../components";
 import BackupIcon from "@material-ui/icons/Backup";
 import Swal from "sweetalert2";
+import { OutTable, ExcelRenderer } from "react-excel-renderer";
 
 import "./items.css";
 
@@ -31,6 +32,7 @@ for (let i = 0; i < 100; i++) {
 export default function Items() {
   const [isEditItemModalVisible, setEditItemModalVisible] = useState(false);
   const [isNewItemModalVisible, setNewItemModalVisible] = useState(false);
+  const [isImportModalVisible, setImportModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [items, setItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
@@ -83,6 +85,10 @@ export default function Items() {
     setNewItemModalVisible(true);
   };
 
+  const handleImportClick = () => {
+    setImportModalVisible(true);
+  };
+
   return (
     <div>
       <Navbar />
@@ -112,7 +118,7 @@ export default function Items() {
                 </button>
               </div>
               <div className="ml-2">
-                <button className="btn btn-primary">
+                <button className="btn btn-primary" onClick={handleImportClick}>
                   <AttachFileIcon
                     style={{ position: "relative", bottom: "2" }}
                   />
@@ -216,10 +222,137 @@ export default function Items() {
             item={selectedItem}
           />
         )}
+        {isImportModalVisible && (
+          <ImportFile
+            setImportModalVisible={() => setImportModalVisible(false)}
+            isImportModalVisible={isImportModalVisible}
+            item={selectedItem}
+          />
+        )}
       </div>
     </div>
   );
 }
+
+const ImportFile = (props) => {
+  const { setImportModalVisible, isImportModalVisible } = props;
+  const [file, setFile] = useState("");
+  const [rows, setRows] = useState("");
+  const [columns, setColumns] = useState("");
+
+  const handleCancleClick = () => {
+    setImportModalVisible(false);
+  };
+
+  const handleSuccessClick = (e) => {
+    // api to update name
+    for (let i = 0; i < rows.length; i++) {
+      console.log(typeof rows[i][0]);
+      if (typeof rows[i][0] != "string" || typeof rows[i][3] != "string") {
+        Swal.fire(
+          "Failed!",
+          `invalid data fields detected at row ${i + 1}`,
+          "error"
+        );
+      } else if (
+        typeof rows[i][1] != "number" ||
+        typeof rows[i][2] != "number" ||
+        typeof rows[i][4] != "number" ||
+        typeof rows[i][5] != "number"
+      ) {
+        Swal.fire(
+          "Failed!",
+          `invalid data fields detected at row ${i + 1}`,
+          "error"
+        );
+      } else if (
+        !rows[i][0] ||
+        !rows[i][1] ||
+        !rows[i][2] ||
+        !rows[i][3] ||
+        !rows[i][4] ||
+        !rows[i][5]
+      ) {
+        Swal.fire(
+          "Failed!",
+          `Empty data fields detected at row ${i + 1}`,
+          "error"
+        );
+      } else {
+        data.push({
+          name: rows[i][0],
+          qty: rows[i][1],
+          barcode: rows[i][2],
+          category: rows[i][3],
+          costPrice: rows[i][4],
+          retailPrice: rows[i][5],
+          created_at: new Date().toDateString(),
+          updated_at: new Date().toDateString(),
+        });
+
+        Swal.fire("Created!", `file imported successfully`, "success");
+      }
+    }
+    console.log(data);
+    // handle error
+    setImportModalVisible(false);
+  };
+
+  const handleFile = (event) => {
+    let fileObj = event.target.files[0];
+
+    console.log(fileObj);
+    ExcelRenderer(fileObj, (err, resp) => {
+      if (err) {
+        Swal.fire("Error", `${err}`, "Failure");
+      } else {
+        console.log(resp);
+        setColumns(resp.cols);
+        setRows(resp.rows);
+      }
+    });
+  };
+
+  return (
+    <ActionModal
+      isVisible={isImportModalVisible}
+      setIsVisible={() => setImportModalVisible(false)}
+      title="New Item"
+    >
+      <div className="mx-5">
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <span className="w-25 text h6">Import File</span>
+          </div>
+          <input
+            name="name"
+            placeholder="name"
+            // value={name}
+            onChange={handleFile}
+            type="file"
+            className={"w-75"}
+            accept=".xls, .xlt, .xml, .xlsx, .xlsm "
+          />
+        </div>
+      </div>
+
+      <div className="d-flex justify-content-between align-items-center mt-4 mx-5">
+        <button
+          onClick={() => handleCancleClick(false)}
+          className="btn btn-danger mr-2"
+        >
+          <span className="h5 px-2">Cancel</span>
+        </button>
+        <button
+          onClick={() => handleSuccessClick(false)}
+          className="btn btn-success mr-2"
+        >
+          <span className="h5 px-2">Import</span>
+        </button>
+      </div>
+    </ActionModal>
+  );
+};
 
 const NewItem = (props) => {
   const { setNewItemModalVisible, isNewItemModalVisible } = props;
