@@ -327,13 +327,14 @@ func create(c echo.Context) error {
 		})
 	}
 	u := models.User{
-		ID:        primitive.NewObjectID(),
-		Username:  req.Username,
-		Name:      req.Name,
-		Roles:     roles,
-		Password:  string(hashedPassword),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		ID:          primitive.NewObjectID(),
+		Username:    req.Username,
+		Name:        req.Name,
+		Roles:       roles,
+		Password:    string(hashedPassword),
+		PhoneNumber: req.PhoneNumber,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
 	}
 	created, err := userService.Create(u)
 	if err != nil {
@@ -347,10 +348,11 @@ func create(c echo.Context) error {
 
 // createRequest represents the Request object for Register
 type createRequest struct {
-	Username string   `json:"username" validate:"required"`
-	Password string   `json:"password" validate:"required"`
-	Roles    []string `json:"roles" validate:"required"`
-	Name     string   `json:"name" validate:"required"`
+	Username    string   `json:"username" validate:"required"`
+	Password    string   `json:"password" validate:"required"`
+	Roles       []string `json:"roles" validate:"required"`
+	Name        string   `json:"name" validate:"required"`
+	PhoneNumber string   `json:"phoneNumber" validate:"required"`
 }
 
 // errorResponse represents the Error Response object for Register

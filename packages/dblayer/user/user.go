@@ -87,12 +87,13 @@ func UpdateByID(id string, user models.User) error {
 	}
 	filter := bson.D{primitive.E{Key: "_id", Value: objectId}}
 	value := bson.M{
-		"username":   user.Username,
-		"password":   user.Password,
-		"name":       user.Name,
-		"roles":      user.Roles,
-		"isRetired":  user.IsRetired,
-		"updated_at": time.Now(),
+		"username":    user.Username,
+		"password":    user.Password,
+		"name":        user.Name,
+		"roles":       user.Roles,
+		"phoneNumber": user.PhoneNumber,
+		"isRetired":   user.IsRetired,
+		"updated_at":  time.Now(),
 	}
 	update := bson.D{primitive.E{Key: "$set", Value: value}}
 	return collection().FindOneAndUpdate(ctx, filter, update).Err()
