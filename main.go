@@ -3,9 +3,9 @@ package main
 import (
 	"github.com/acha-bill/pos/packages/mongodb"
 	"github.com/acha-bill/pos/packages/server"
-	"github.com/acha-bill/pos/plugins/auth"
 	"github.com/acha-bill/pos/plugins/category"
 	"github.com/acha-bill/pos/plugins/role"
+	"github.com/acha-bill/pos/plugins/user"
 	"github.com/joho/godotenv"
 	"github.com/labstack/gommon/log"
 )
@@ -56,7 +56,7 @@ func main() {
 		log.Errorf("error seeding default user: %w", err)
 	}
 
-	_, err = auth.Seed()
+	_, err = user.Seed()
 	if err != nil {
 		log.Errorf("error seeding default user: %w", err)
 	}

@@ -9,14 +9,12 @@ import (
 	"github.com/acha-bill/pos/packages/dblayer/role"
 
 	"github.com/acha-bill/pos/common"
-	"github.com/acha-bill/pos/models"
 	userService "github.com/acha-bill/pos/packages/dblayer/user"
 	"github.com/acha-bill/pos/plugins"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -29,17 +27,10 @@ var (
 	once   sync.Once
 )
 
-// Auth structure
+// User structure
 type Auth struct {
 	name     string
 	handlers []*plugins.PluginHandler
-}
-
-var defaultUsers = []models.User{
-	{
-		Username: "admin",
-		Password: "admin",
-	},
 }
 
 // AddHandler Method definition from interface
@@ -82,28 +73,9 @@ func Plugin() *Auth {
 	return plugin
 }
 
-// Seed creates a default user.
-func Seed() (res []*models.User, err error) {
-	if users, err := userService.FindAll(); err == nil && len(users) == 0 {
-		for _, u := range defaultUsers {
-			hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
-			_u, _ := userService.Create(models.User{
-				ID:        primitive.NewObjectID(),
-				Username:  u.Username,
-				Password:  string(hashedPassword),
-				CreatedAt: time.Now(),
-				UpdatedAt: time.Now(),
-			})
-			res = append(res, _u)
-		}
-	}
-	return
-}
-
 func init() {
 	auth := Plugin()
 	auth.AddHandler(http.MethodPost, "/login", login, plugins.AuthLevelNone)
-	auth.AddHandler(http.MethodPost, "/register", register, plugins.AuthLevelNone)
 }
 
 ///// handlers
@@ -112,12 +84,12 @@ func init() {
 // @Produce  application/json
 // @Success 200 {object} LoginResponse
 // @Router /auth/login [post]
-// @Tags Auth
+// @Tags User
 // @Param login body LoginRequest true "login"
 func login(c echo.Context) error {
 	var req LoginRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, LoginResponse{
+		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: err.Error(),
 		})
 	}
@@ -125,12 +97,12 @@ func login(c echo.Context) error {
 	filter := bson.D{primitive.E{Key: "username", Value: req.Username}}
 	users, err := userService.Find(filter)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, LoginResponse{
+		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: err.Error(),
 		})
 	}
 	if len(users) == 0 {
-		return c.JSON(http.StatusBadRequest, LoginResponse{
+		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: "user not found",
 		})
 	}
@@ -159,59 +131,6 @@ func login(c echo.Context) error {
 	})
 }
 
-// @Summary register user
-// @Accept  application/json
-// @Produce  application/json
-// @Router /auth/register [post]
-// @Tags Auth
-// @Param register body RegisterRequest true "register"
-// @Success 201 {object} RegisterResponse
-func register(c echo.Context) error {
-	var req RegisterRequest
-	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, LoginResponse{
-			Error: err.Error(),
-		})
-	}
-
-	// Basic validation
-	if len(req.Username) <= 0 && len(req.Password) <= 0 {
-		return c.JSON(http.StatusBadRequest, RegisterErrorResponse{
-			Error: "Empty values for username and password",
-		})
-	}
-
-	filter := bson.D{primitive.E{Key: "username", Value: req.Username}}
-	users, err := userService.Find(filter)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, RegisterErrorResponse{
-			Error: err.Error(),
-		})
-	}
-	if len(users) != 0 {
-		return c.JSON(http.StatusBadRequest, RegisterErrorResponse{
-			Error: "username already taken",
-		})
-	}
-
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
-	u := models.User{
-		ID:        primitive.NewObjectID(),
-		Username:  req.Username,
-		Password:  string(hashedPassword),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-	created, err := userService.Create(u)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, RegisterErrorResponse{
-			Error: err.Error(),
-		})
-	}
-
-	return c.JSON(http.StatusOK, created)
-}
-
 // LoginRequest represents the Request object for Login
 type LoginRequest struct {
 	Username string `json:"username"`
@@ -220,22 +139,10 @@ type LoginRequest struct {
 
 // LoginResponse represents the Response object for Login
 type LoginResponse struct {
-	Error string `json:"error,omitempty"`
 	Token string `json:"token,omitempty"`
 }
 
-// RegisterRequest represents the Request object for Register
-type RegisterRequest struct {
-	Username   string `json:"username"`
-	Password   string `json:"password"`
-	ProfileURL string `json:"profileURL"`
-	IsAdmin    bool   `json:"isAdmin"`
-}
-
-// RegisterErrorResponse represents the Error Response object for Register
-type RegisterErrorResponse struct {
+// errorResponse represents the Error Response object for Register
+type errorResponse struct {
 	Error string `json:"error,omitempty"`
 }
-
-// RegisterResponse represents the Response object for Register
-type RegisterResponse models.User

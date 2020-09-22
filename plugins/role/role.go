@@ -22,34 +22,45 @@ var (
 	plugin *Role
 	once   sync.Once
 )
+
+const (
+	AdminRole     = "Administrator"
+	ItemsRole     = "Items"
+	SalesRole     = "Sales"
+	CustomersRole = "Customers"
+	ReportsRole   = "Reports"
+	EmployeesRole = "Employees"
+	SettingsRole  = "Settings"
+)
+
 var defaultRoles = []models.Role{
 	{
-		Name:        "Administrator",
+		Name:        AdminRole,
 		Description: "Admin",
 	},
 	{
-		Name:        "Items",
-		Description: "Item",
+		Name:        ItemsRole,
+		Description: "Access to items module",
 	},
 	{
-		Name:        "Sales",
-		Description: "Sales",
+		Name:        SalesRole,
+		Description: "Access to sales module",
 	},
 	{
-		Name:        "Customers",
-		Description: "Customers",
+		Name:        CustomersRole,
+		Description: "Access to customer module",
 	},
 	{
-		Name:        "Reports",
-		Description: "Reports",
+		Name:        ReportsRole,
+		Description: "Access to reports module",
 	},
 	{
-		Name:        "Employees",
-		Description: "Employees",
+		Name:        EmployeesRole,
+		Description: "Access to employees module",
 	},
 	{
-		Name:        "Settings",
-		Description: "Settings",
+		Name:        SettingsRole,
+		Description: "Access to settings module",
 	},
 }
 
@@ -128,17 +139,14 @@ func init() {
 func getAllRoles(c echo.Context) error {
 	roles, err := roleService.FindAll()
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, Response{
+		return c.JSON(http.StatusBadRequest, errResponse{
 			Error: err.Error(),
 		})
 	}
-	return c.JSON(http.StatusOK, Response{
-		Roles: roles,
-	})
+	return c.JSON(http.StatusOK, roles)
 }
 
 // Response is the response
-type Response struct {
-	Error string         `json:"error,omitempty"`
-	Roles []*models.Role `json:"roles"`
+type errResponse struct {
+	Error string `json:"error,omitempty"`
 }

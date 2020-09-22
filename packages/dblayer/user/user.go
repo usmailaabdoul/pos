@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/acha-bill/pos/models"
 	"github.com/acha-bill/pos/packages/mongodb"
@@ -35,11 +36,22 @@ func FindAll() (users []*models.User, err error) {
 }
 
 // FindById finds the user by id
-func FindById(id string) *models.User {
-	filter := bson.D{primitive.E{Key: "_id", Value: id}}
-	var u models.User
-	_ = collection().FindOne(ctx, filter).Decode(&u)
-	return &u
+func FindById(id string) (user *models.User, error error) {
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return
+	}
+	filter := bson.D{primitive.E{Key: "_id", Value: objectId}}
+	rows, err := filterUsers(filter)
+	if err != nil {
+		return
+	}
+	if len(rows) == 0 {
+		user = nil
+	} else {
+		user = rows[0]
+	}
+	return
 }
 
 // FindByUsername finds the user by username
@@ -68,12 +80,22 @@ func Create(user models.User) (created *models.User, err error) {
 }
 
 // UpdateByID updates document based on provided ID
-func UpdateByID(id string, user models.User) {
-	filter := bson.D{primitive.E{Key: "_id", Value: id}}
-	b, _ := bson.Marshal(&user)
-	update := bson.D{primitive.E{Key: "$set", Value: b}}
-	updated := &models.User{}
-	_ = collection().FindOneAndUpdate(ctx, filter, update).Decode(updated)
+func UpdateByID(id string, user models.User) error {
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	filter := bson.D{primitive.E{Key: "_id", Value: objectId}}
+	value := bson.M{
+		"username":   user.Username,
+		"password":   user.Password,
+		"name":       user.Name,
+		"roles":      user.Roles,
+		"isRetired":  user.IsRetired,
+		"updated_at": time.Now(),
+	}
+	update := bson.D{primitive.E{Key: "$set", Value: value}}
+	return collection().FindOneAndUpdate(ctx, filter, update).Err()
 }
 
 // DeleteByID deletes a document based on the provided ID
