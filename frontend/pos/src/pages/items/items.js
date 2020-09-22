@@ -120,8 +120,7 @@ export default function Items() {
           minRows={0}
           data={filteredItems}
           defaultPageSize={10}
-          style={{
-          }}
+          style={{textAlign: 'center'}}
           loadingText='Loading Products ...'
           noDataText='No products found'
           className="-highlight -striped rt-rows-height ReactTable"

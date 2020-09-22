@@ -109,9 +109,7 @@ export default function CustomersPage() {
               minRows={0}
               data={filteredCustomers}
               defaultPageSize={10}
-              style={{
-                // height: "45vh" // This will force the table body to overflow and scroll, since there is not enough room
-              }}
+              style={{textAlign: 'center'}}
               loadingText='Loading Products ...'
               noDataText='No products found'
               className="-highlight -striped rt-rows-height ReactTable"
@@ -194,9 +192,7 @@ export default function CustomersPage() {
                 minRows={0}
                 data={transactions}
                 defaultPageSize={10}
-                style={{
-                  // height: "45vh" // This will force the table body to overflow and scroll, since there is not enough room
-                }}
+                style={{textAlign: 'center'}}
                 loadingText='Loading transactions ...'
                 noDataText='No transactions found'
                 className="-highlight -striped rt-rows-height ReactTable"
@@ -422,9 +418,7 @@ const BasketDetail = (props) => {
         minRows={0}
         data={basketDetails}
         defaultPageSize={10}
-        style={{
-          // height: "45vh" // This will force the table body to overflow and scroll, since there is not enough room
-        }}
+        style={{textAlign: 'center'}}
         className="-highlight -striped rt-rows-height ReactTable"
         columns={[
           {
