@@ -128,9 +128,7 @@ const Employees = () => {
                         }
                     ]}
                     defaultPageSize={10}
-                    style={{
-                        // height: "45vh" // This will force the table body to overflow and scroll, since there is not enough room
-                    }}
+                    style={{textAlign: 'center'}}
                     loadingText='Loading Products ...'
                     noDataText='No products found'
                     className="-highlight -striped rt-rows-height ReactTable"

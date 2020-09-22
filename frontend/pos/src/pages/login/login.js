@@ -45,8 +45,8 @@ class Login extends Component {
     render() {
         let {username,password} = this.state
         return (
-            <div className={"main-container row h-100 justify-content-center align-items-center"}>
-                <div className={"col-md-4"}>
+            <div className={"main-container d-flex justify-content-center align-items-center"}>
+                <div>
                     <div className={"text-center my-4"}>
                         <span className={"h2 welcome-heading"}>Login to POS</span>
                     </div>

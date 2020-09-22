@@ -1,43 +1,67 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ReactTable from "react-table-v6";
 import "react-table-v6/react-table.css";
-
-const data = [
-  { id: 1, name: "Administrator", description: "The owner i guess" },
-  { id: 2, name: "Employee", description: "An employee i guess" },
-  { id: 1, name: "Sales", description: "The owner i guess" },
-  { id: 2, name: "Items", description: "An employee i guess" },
-  { id: 1, name: "Customers", description: "The owner i guess" },
-  { id: 2, name: "Reports", description: "An employee i guess" },
-];
+import apis from '../../apis/apis'
+import Swal from 'sweetalert2'
 
 export default function Roles() {
+  const [role, setRole] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    async function getRoles() {
+      setIsLoading(false)
+
+      try {
+        let res = await apis.roleApi.roles();
+
+        setRole(res.roles);
+        console.log(res)
+        setIsLoading(false)
+      } catch (e) {
+        setIsLoading(false)
+        Swal.fire({
+          icon: 'error',
+          title: 'error',
+          text: e.message
+        })
+      }
+    }
+
+    getRoles();
+  }, []);
+
   return (
     <div className="roles__container">
-      <ReactTable
-        showPagination={false}
-        minRows={0}
-        data={data}
-        defaultPageSize={10}
-        style={
-          {
-            // height: "45vh" // This will force the table body to overflow and scroll, since there is not enough room
-          }
-        }
-        loadingText="Loading Products ..."
-        noDataText="No products found"
-        className="-highlight -striped rt-rows-height ReactTable"
-        columns={[
-          {
-            Header: "Role Name",
-            accessor: "name",
-          },
-          {
-            Header: "Role Description",
-            accessor: "description",
-          },
-        ]}
-      />
+      {
+        isLoading ?
+          <div class="d-flex justify-content-center align-items-center">
+            <div class="spinner-border" style={{ width: "3rem", height: "3rem", color: '#2980B9' }} role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </div>
+          :
+          <ReactTable
+            showPagination={false}
+            minRows={0}
+            data={role}
+            defaultPageSize={10}
+            style={{textAlign: 'center'}}
+            loadingText="Loading Products ..."
+            noDataText="No products found"
+            className="-highlight -striped rt-rows-height ReactTable"
+            columns={[
+              {
+                Header: "Role Name",
+                accessor: "name",
+              },
+              {
+                Header: "Role Description",
+                accessor: "description",
+              },
+            ]}
+          />
+      }
     </div>
   );
 }
