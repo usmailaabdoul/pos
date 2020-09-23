@@ -86,6 +86,7 @@ func UpdateById(id string, item models.Category) error {
 	value := bson.M{
 		"name":       item.Name,
 		"updated_at": time.Now(),
+		"created_at": item.CreatedAt,
 		"isRetired":  item.IsRetired,
 	}
 	update := bson.D{primitive.E{Key: "$set", Value: value}}
