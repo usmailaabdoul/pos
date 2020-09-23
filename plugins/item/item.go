@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/acha-bill/pos/models"
-	categoryService "github.com/acha-bill/pos/packages/dblayer/item"
+	categoryService "github.com/acha-bill/pos/packages/dblayer/category"
 	itemService "github.com/acha-bill/pos/packages/dblayer/item"
 	"github.com/acha-bill/pos/plugins"
 	"github.com/go-playground/validator/v10"
@@ -209,7 +209,25 @@ func createItem(c echo.Context) error {
 		})
 	}
 
-	cat, err := categoryService.FindById(req.Category)
+	var categoryID string
+	if req.Category == "" {
+		cat, err := categoryService.FindByName("General")
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, errorResponse{
+				Error: err.Error(),
+			})
+		}
+		if cat == nil {
+			return c.JSON(http.StatusBadRequest, errorResponse{
+				Error: "General category has not been set",
+			})
+		}
+		categoryID = cat.ID.Hex()
+	} else {
+		categoryID = req.Category
+	}
+
+	cat, err := categoryService.FindById(categoryID)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: err.Error(),
@@ -224,6 +242,7 @@ func createItem(c echo.Context) error {
 	created, err := itemService.Create(models.Item{
 		ID:          primitive.NewObjectID(),
 		Name:        req.Name,
+		Quantity:    req.Quantity,
 		Barcode:     req.Barcode,
 		Category:    cat.ID,
 		CostPrice:   req.CostPrice,
@@ -251,4 +270,5 @@ type createRequest struct {
 	Category    string  `json:"category"`
 	CostPrice   float64 `json:"costPrice" validate:"required"`
 	RetailPrice float64 `json:"retailPrice" validate:"required"`
+	Quantity    uint32  `json:"qty"`
 }
