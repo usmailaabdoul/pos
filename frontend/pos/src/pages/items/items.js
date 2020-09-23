@@ -12,24 +12,25 @@ import BackupIcon from "@material-ui/icons/Backup";
 import Swal from "sweetalert2";
 import { OutTable, ExcelRenderer } from "react-excel-renderer";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import apis from "../../apis/apis";
 
 import "./items.css";
 
 const data = [];
 const newData = [];
-for (let i = 0; i < 100; i++) {
-  data.push({
-    _id: i + 1,
-    name: "red pen" + i,
-    qty: 100,
-    barcode: "11229983",
-    category: "General",
-    costPrice: 100,
-    retailPrice: 200,
-    created_at: new Date().toDateString(),
-    updated_at: new Date().toDateString(),
-  });
-}
+// for (let i = 0; i < 100; i++) {
+//   data.push({
+//     _id: i + 1,
+//     name: "red pen" + i,
+//     qty: 100,
+//     barcode: "11229983",
+//     category: "General",
+//     costPrice: 100,
+//     retailPrice: 200,
+//     created_at: new Date().toDateString(),
+//     updated_at: new Date().toDateString(),
+//   });
+// }
 
 export default function Items() {
   const [isEditItemModalVisible, setEditItemModalVisible] = useState(false);
@@ -38,11 +39,28 @@ export default function Items() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [items, setItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
+  const [isloading, setLoading] = useState(false);
 
   useEffect(() => {
-    setItems(data);
-    setFilteredItems(data);
+    getItems();
   }, []);
+
+  const getItems = async () => {
+    setLoading(true);
+
+    try {
+      let res = await apis.itemApi.items();
+      console.log(res);
+      setItems(res);
+      // setFilteredItems(data);
+    } catch (e) {
+      Swal.fire({
+        icon: "error",
+        title: "error",
+        text: e.message,
+      });
+    }
+  };
 
   const editItem = (item) => {
     setSelectedItem(item);
@@ -455,11 +473,38 @@ const NewItem = (props) => {
     setNewItemModalVisible(false);
   };
 
-  const handleSuccessClick = (e) => {
+  const handleSuccessClick = async () => {
     // api to update name
+
     // handle error
-    Swal.fire("Created!", `item: ${name} created successfully`, "success");
-    setNewItemModalVisible(false);
+    try {
+      console.log(apis);
+      let res = await apis.itemApi.addItem({
+        name: name,
+        barcode: barcode,
+        costPrice: costPrice,
+        qty: quantity,
+        retailPrice: retailPrice,
+        category: category,
+        isRetired: false,
+      });
+
+      console.log(res);
+
+      Swal.fire(
+        "Created!",
+        `Item: ${res.name} created successfully`,
+        "success"
+      );
+      setNewItemModalVisible(false);
+    } catch (e) {
+      console.log(e);
+      Swal.fire({
+        icon: "error",
+        title: "error",
+        text: e.message,
+      });
+    }
   };
 
   return (
@@ -572,7 +617,7 @@ const NewItem = (props) => {
           <span className="h5 px-2">Cancel</span>
         </button>
         <button
-          onClick={() => handleSuccessClick(false)}
+          onClick={() => handleSuccessClick()}
           className="btn btn-success mr-2"
         >
           <span className="h5 px-2">Save</span>
