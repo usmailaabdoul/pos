@@ -111,7 +111,9 @@ func login(c echo.Context) error {
 	var roles []string
 	for _, r := range u.Roles {
 		if _r, err := role.FindById(r.String()); err != nil {
-			roles = append(roles, _r.Name)
+			if _r != nil {
+				roles = append(roles, _r.Name)
+			}
 		}
 	}
 	claims := &common.JWTCustomClaims{
