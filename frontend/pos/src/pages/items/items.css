@@ -16,3 +16,7 @@
   width: 100%;
   justify-content: center;
 }
+
+.spinner > .MuiSvgRoot {
+  color: #2980b9;
+}
