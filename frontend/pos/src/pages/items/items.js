@@ -480,9 +480,10 @@ const NewItem = (props) => {
         try {
             console.log(apis);
             let res = await apis.itemApi.addItem({
-                "name": name,
-                "costPrice": costPrice,
-                "retailPrice": retailPrice,
+
+                "name": "white pen",
+                "costPrice": 100,
+                "retailPrice": 150
             });
 
             console.log(res);
