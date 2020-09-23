@@ -1,11 +1,11 @@
 import { combineReducers } from 'redux';
 
 import categoryReducer from './categoryReducer';
-import tokenReducer from './tokenReducer';
+import employeeReducer from './employeeReducer';
 
 const rootReducer = combineReducers({
   category: categoryReducer,
-  token: tokenReducer,
+  employee: employeeReducer,
 });
 
 export default rootReducer;
