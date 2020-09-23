@@ -24,7 +24,6 @@ class App extends Component {
             <Route path="/employees" component={Employees} />
             <Route path="/categories" component={Categories} />
             <Route path="/settings" component={Settings} />
-
             <Route path="/reports" component={Reports} />
           </Switch>
         </Router>
