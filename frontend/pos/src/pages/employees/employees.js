@@ -8,12 +8,16 @@ import ReactTable from 'react-table-v6'
 import 'react-table-v6/react-table.css'
 import apis from '../../apis/apis';
 import { Form } from 'react-bootstrap';
+import {connect} from 'react-redux';
+import {setEmployees} from '../../redux/actions/employeeActions';
+import {bindActionCreators} from 'redux';
 
 import './employees.css'
 import Navbar from '../../components/Navbar';
 
-const Employees = () => {
-  const [employees, setEmployees] = useState([])
+const Employees = (props) => {
+  const {employees} = props;
+  const [_employees, setEmployees] = useState(employees)
   const [editModal, setEditModalVisible] = useState(false)
   const [selectionUser, setSelectionUser] = useState(null)
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +30,7 @@ const Employees = () => {
   }, []);
 
   useEffect(() => {
-  }, [employees])
+  }, [_employees, props])
 
   const getEmployees = async () => {
     setIsLoading(false)
@@ -35,6 +39,7 @@ const Employees = () => {
       let res = await apis.employeeApi.employees();
 
       setEmployees(res);
+      props.setEmployees(res);
       // console.log(res)
       setIsLoading(false)
     } catch (e) {
@@ -101,7 +106,7 @@ const Employees = () => {
     setEditModalVisible(true);
   }
 
-  let isNotRetiredEmployees = employees.filter((employee) => !employee.isRetired);
+  let isNotRetiredEmployees = _employees.filter((employee) => !employee.isRetired);
 
   return (
     <div>
@@ -213,7 +218,7 @@ const Employees = () => {
 
         {
           newEmployeeModal && (
-            <NewCategory
+            <NewEmployee
               setNewEmployeeModalVisible={() => setNewEmployeeModalVisible(false)}
               newEmployeeModal={newEmployeeModal}
               listOfRoles={roles}
@@ -227,7 +232,7 @@ const Employees = () => {
   )
 }
 
-const NewCategory = (props) => {
+const NewEmployee = (props) => {
   const { setNewEmployeeModalVisible, newEmployeeModal, getEmployees, listOfRoles } = props;
   const [name, setName] = useState('')
   const [username, setUserName] = useState('')
@@ -313,28 +318,28 @@ const NewCategory = (props) => {
     <ActionModal isVisible={newEmployeeModal} setIsVisible={() => setNewEmployeeModalVisible(false)} title="New Employee">
       <div className="mx-5">
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <div><span className="w-25 text h6">Name</span></div>
+          <div><span className="w-25 text h6">Name <span className="text-danger">*</span></span></div>
           <input name="username" placeholder="name" value={name} onChange={handleNameInput}
             type="text" className={"w-75 form-control input"} />
         </div>
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <div><span className="text h6 w-25">User name</span></div>
+          <div><span className="text h6 w-25">User name <span className="text-danger">*</span></span></div>
           <input name="username" placeholder="username" value={username} onChange={handleUserNameInput}
             type="text" className={"w-75 form-control input"} />
         </div>
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <div><span className="text h6 w-25">Phone #</span></div>
+          <div><span className="text h6 w-25">Phone # <span className="text-danger">*</span></span></div>
           <input name="username" placeholder="6 **** ***" value={phoneNumber} onChange={handlePhoneInput}
             type="text" className={"w-75 form-control input"} />
         </div>
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <div><span className="text h6 w-25">Password</span></div>
+          <div><span className="text h6 w-25">Password <span className="text-danger">*</span></span></div>
           <input name="username" placeholder="password" value={password} onChange={handlePasswordInput}
             type="password" className={"w-75 form-control input"} />
         </div>
 
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <div><span className="text h6 w-25">Roles</span></div>
+          <div><span className="text h6 w-25">Roles <span className="text-danger">*</span></span></div>
           <div className="d-flex justify-content-center align-items-center w-75">
             <Form.Group className={"w-75 m-0"}>
               <Form.Control onChange={handleRoleInput} as="select" className={"form-control input align-self-center m-0"}>
@@ -463,31 +468,31 @@ const EditEmplyee = (props) => {
   }
 
   return (
-    <ActionModal isVisible={editModal} setIsVisible={() => setEditModalVisible(false)} title="New Employee">
+    <ActionModal isVisible={editModal} setIsVisible={() => setEditModalVisible(false)} title="Edit employee information">
       <div className="mx-5">
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <div><span className="w-25 text h6">Name</span></div>
+          <div><span className="w-25 text h6">Name <span className="text-danger">*</span></span></div>
           <input name="username" placeholder="name" value={user.name} onChange={handleNameInput}
             type="text" className={"w-75 form-control input"} />
         </div>
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <div><span className="text h6 w-25">User name</span></div>
+          <div><span className="text h6 w-25">User name <span className="text-danger">*</span></span></div>
           <input name="username" placeholder="username" value={user.username} onChange={handleUserNameInput}
             type="text" className={"w-75 form-control input"} />
         </div>
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <div><span className="text h6 w-25">Phone #</span></div>
+          <div><span className="text h6 w-25">Phone # <span className="text-danger">*</span></span></div>
           <input name="username" placeholder="6 **** ***" value={user.phoneNumber} onChange={handlePhoneInput}
             type="text" className={"w-75 form-control input"} />
         </div>
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <div><span className="text h6 w-25">Password</span></div>
+          <div><span className="text h6 w-25">Password <span className="text-danger">*</span></span></div>
           <input name="username" placeholder="password" value={user.password} onChange={handlePasswordInput}
             type="password" className={"w-75 form-control input"} />
         </div>
 
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <div><span className="text h6 w-25">Roles</span></div>
+          <div><span className="text h6 w-25">Roles <span className="text-danger">*</span></span></div>
           <div className="d-flex justify-content-center align-items-center w-75">
             <Form.Group className={"w-75 m-0"}>
               <Form.Control onChange={handleRoleInput} as="select" className={"form-control input align-self-center m-0"}>
@@ -533,4 +538,15 @@ const EditEmplyee = (props) => {
   )
 }
 
-export default Employees
+const mapStateToProps = ({ employee }) => {
+  console.log(employee)
+  return {
+    employees: employee.employees
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return bindActionCreators({setEmployees}, dispatch);
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Employees);
