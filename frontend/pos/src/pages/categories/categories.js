@@ -99,7 +99,7 @@ const Categories = (props) => {
         })
     }
 
-    let isNotRetiredCategories = filteredCategories.filter((categories) => !categories.isRetired);
+    let isNotRetiredCategories = filteredCategories.filter((category) => !category.isRetired);
 
     return (
         <div>

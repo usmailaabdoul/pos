@@ -32,7 +32,7 @@ const newData = [];
 //   });
 // }
 
-export default function Items() {
+export default function Items(props) {
     const [isEditItemModalVisible, setEditItemModalVisible] = useState(false);
     const [isNewItemModalVisible, setNewItemModalVisible] = useState(false);
     const [isImportModalVisible, setImportModalVisible] = useState(false);
@@ -45,6 +45,8 @@ export default function Items() {
         getItems();
     }, []);
 
+    useEffect(() => { }, [items, filteredItems])
+
     const getItems = async () => {
         setLoading(true);
 
@@ -52,7 +54,9 @@ export default function Items() {
             let res = await apis.itemApi.items();
             console.log(res);
             setItems(res);
-            // setFilteredItems(data);
+            setFilteredItems(res);
+
+            setLoading(false);
         } catch (e) {
             Swal.fire({
                 icon: "error",
@@ -73,13 +77,27 @@ export default function Items() {
             icon: "warning",
             showCancelButton: true,
             confirmButtonText: "Yes, delete it!",
-        }).then((result) => {
+        }).then(async (result) => {
             if (result.isConfirmed) {
-                Swal.fire(
-                    "Deleted!",
-                    `${item.name} was successfully deleted`,
-                    "success"
-                );
+                try {
+                    console.log(item)
+                    let res = await apis.itemApi.deleteItem(item._id);
+                    getItems()
+                    Swal.fire(
+                        'Deleted!',
+                        `${item.name} was successfully deleted`,
+                        'success'
+                    )
+                    console.log(res)
+                } catch (e) {
+                    console.log(e);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'error',
+                        text: 'Something unexpected happened'
+                    })
+                }
+
             }
         });
     };
@@ -233,12 +251,14 @@ export default function Items() {
                     <NewItem
                         setNewItemModalVisible={() => setNewItemModalVisible(false)}
                         isNewItemModalVisible={isNewItemModalVisible}
+                        getItems={() => getItems()}
                     />
                 )}
                 {isEditItemModalVisible && (
                     <EditItem
                         setEditItemModalVisible={() => setEditItemModalVisible(false)}
                         isEditItemModalVisible={isEditItemModalVisible}
+                        getItems={() => getItems()}
                         item={selectedItem}
                     />
                 )}
@@ -473,21 +493,105 @@ const NewItem = (props) => {
         setNewItemModalVisible(false);
     };
 
+    const validateNumber = (n, field) => {
+        n = Number(n);
+        if (Number.isNaN(n)) {
+            return `${field} is required`;
+        }
+    };
+
+    const validateNegative = (n, field) => {
+        n = Number(n);
+        if (n < 0) {
+            return `${field} is required to be postive`;
+        }
+    };
+
+    const validateRequired = (n, field) => {
+        if (!n) {
+            return `${field} is required`;
+        }
+    };
+
+    const validateRequiredNumberNegative = (n, field) => {
+        let err = validateRequired(n, field);
+        if (err) return err;
+        err = validateNumber(n, field);
+        if (err) return err;
+        return validateNegative(n, field);
+    };
+
+    const validateName = (name) => {
+        return validateRequired(name, "Name");
+    };
+
+    const validateCostPrice = (cp) => {
+        return validateRequiredNumberNegative(cp, "Costprice");
+    };
+
+    const validateRetailPrice = (rp) => {
+        return validateRequiredNumberNegative(rp, "Retailprice");
+    };
+
+    const validateQty = (qt, field) => {
+        if (qt) {
+            qt = Number(qt);
+            if (qt < 0) {
+                return `${field} is required to be postive`;
+            }
+        }
+    }
+
+
     const handleSuccessClick = async () => {
-        // api to update name
+        let message;
+        let err = validateName(name);
+        if (err) {
+            message = `${err}`;
+        }
+
+        err = validateQty(quantity, "Quantity");
+        if (err) {
+            message = `${err} `;
+        }
+
+        err = validateCostPrice(costPrice);
+        if (err) {
+            message = `${err}`;
+        }
+
+        err = validateRetailPrice(retailPrice);
+        if (err) {
+            message = `${err} `;
+        }
+
+        if (message) {
+            Swal.fire("Failure", `${message}`, "error");
+            setNewItemModalVisible(false);
+            return;
+        }
 
         // handle error
         try {
-            console.log(apis);
+
+            let Quantity;
+            let CostPrice = Number(costPrice)
+            let RetailPrice = Number(retailPrice)
+
+            if (quantity) {
+                Quantity = Number(quantity)
+            }
             let res = await apis.itemApi.addItem({
-
-                "name": "white pen",
-                "costPrice": 100,
-                "retailPrice": 150
+                "name": name,
+                "qty": Quantity,
+                "barcode": barcode,
+                "category": category,
+                "costPrice": CostPrice,
+                "retailPrice": RetailPrice,
+                created_at: new Date().toDateString(),
+                updated_at: new Date().toDateString(),
+                "isRetired": false
             });
-
-            console.log(res);
-
             Swal.fire(
                 "Created!",
                 `Item: ${res.name} created successfully`,
@@ -625,7 +729,7 @@ const NewItem = (props) => {
 };
 
 const EditItem = (props) => {
-    const { setEditItemModalVisible, isEditItemModalVisible, item } = props;
+    const { setEditItemModalVisible, isEditItemModalVisible, item, getItems } = props;
     const [name, setName] = useState(item.name);
     const [barcode, setBarcode] = useState(item.barcode);
     const [costPrice, setCostPrice] = useState(item.costPrice);
@@ -644,10 +748,120 @@ const EditItem = (props) => {
         setEditItemModalVisible(false);
     };
 
-    const handleSuccessClick = (e) => {
-        // api to update name
+    const validateNumber = (n, field) => {
+        n = Number(n);
+        if (Number.isNaN(n)) {
+            return `${field} is required`;
+        }
+    };
+
+    const validateNegative = (n, field) => {
+        n = Number(n);
+        if (n < 0) {
+            return `${field} is required to be postive`;
+        }
+    };
+
+    const validateRequired = (n, field) => {
+        if (!n) {
+            return `${field} is required`;
+        }
+    };
+
+    const validateRequiredNumberNegative = (n, field) => {
+        let err = validateRequired(n, field);
+        if (err) return err;
+        err = validateNumber(n, field);
+        if (err) return err;
+        return validateNegative(n, field);
+    };
+
+    const validateName = (name) => {
+        return validateRequired(name, "Name");
+    };
+
+    const validateCostPrice = (cp) => {
+        return validateRequiredNumberNegative(cp, "Costprice");
+    };
+
+    const validateRetailPrice = (rp) => {
+        return validateRequiredNumberNegative(rp, "Retailprice");
+    };
+
+    const validateQty = (qt, field) => {
+        if (qt) {
+            qt = Number(qt);
+            if (qt < 0) {
+                return `${field} is required to be postive`;
+            }
+        }
+    }
+
+    const handleSuccessClick = async (e) => {
+        let message;
+        let err = validateName(name);
+        if (err) {
+            message = `${err}`;
+        }
+
+        err = validateQty(quantity, "Quantity");
+        if (err) {
+            message = `${err} `;
+        }
+
+        err = validateCostPrice(costPrice);
+        if (err) {
+            message = `${err}`;
+        }
+
+        err = validateRetailPrice(retailPrice);
+        if (err) {
+            message = `${err} `;
+        }
+
+        if (message) {
+            Swal.fire("Failure", `${message}`, "error");
+            setEditItemModalVisible(false);
+            return;
+        }
+
         // handle error
-        Swal.fire("Created!", `item: ${name} updated successfully`, "success");
+        try {
+
+            let Quantity;
+            let CostPrice = Number(costPrice)
+            let RetailPrice = Number(retailPrice)
+
+            if (quantity) {
+                Quantity = Number(quantity)
+            }
+            let res = await apis.itemApi.editItem(item._id, {
+                "name": name,
+                "qty": Quantity,
+                "barcode": barcode,
+                "category": category,
+                "costPrice": CostPrice,
+                "retailPrice": RetailPrice,
+                created_at: new Date().toDateString(),
+                updated_at: new Date().toDateString(),
+                "isRetired": false
+            });
+
+            getItems()
+            Swal.fire(
+                "Updated!",
+                `Item: ${res.name} created successfully`,
+                "success"
+            );
+            setEditItemModalVisible(false);
+        } catch (e) {
+            console.log(e);
+            Swal.fire({
+                icon: "error",
+                title: "error",
+                text: e.message,
+            });
+        }
         setEditItemModalVisible(false);
     };
 

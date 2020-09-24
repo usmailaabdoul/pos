@@ -10,6 +10,7 @@ import (
 type Item struct {
 	ID          primitive.ObjectID `bson:"_id" json:"_id"`
 	Name        string             `bson:"name" json:"name"`
+	Quantity    uint32             `bson:"qty" json:"qty"`
 	Barcode     string             `bson:"barcode" json:"barcode"`
 	Category    primitive.ObjectID `bson:"category" json:"category"`
 	CostPrice   float64            `bson:"costPrice" json:"costPrice"`

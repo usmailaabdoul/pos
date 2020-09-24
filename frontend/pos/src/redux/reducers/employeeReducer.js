@@ -1,14 +1,14 @@
 const INITIAL_STATE = {
-  token: ''
+  employees: []
 };
 
 export default (state = INITIAL_STATE, action) => {
   switch (action.type) {
-    case 'SET_TOKEN':
-      const token = action.payload;
-      console.log('reducer', token);
+    case 'SET_EMPLOYEES':
+      const employees = action.payload;
 
-      return {...state, token};
+
+      return {...state, employees: [...employees]};
 
     default:
       return state;

@@ -249,13 +249,13 @@ func create(c echo.Context) error {
 		})
 	}
 
-	cats, err := categoryService.FindByName(req.Name)
+	cat, err := categoryService.FindByName(req.Name)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: err.Error(),
 		})
 	}
-	if len(cats) != 0 {
+	if cat != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: fmt.Sprintf("category: %s already exists", req.Name),
 		})

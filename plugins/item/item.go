@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/acha-bill/pos/models"
-	categoryService "github.com/acha-bill/pos/packages/dblayer/item"
+	categoryService "github.com/acha-bill/pos/packages/dblayer/category"
 	itemService "github.com/acha-bill/pos/packages/dblayer/item"
 	"github.com/acha-bill/pos/plugins"
 	"github.com/go-playground/validator/v10"
@@ -96,7 +96,7 @@ func updateItem(c echo.Context) error {
 			Error: "item not found",
 		})
 	}
-	var req createRequest
+	var req editRequest
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: err.Error(),
@@ -109,26 +109,38 @@ func updateItem(c echo.Context) error {
 		})
 	}
 
-	cat, err := categoryService.FindById(req.Category)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse{
-			Error: err.Error(),
-		})
+	if req.Category != "" {
+		cat, err := categoryService.FindById(req.Category)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, errorResponse{
+				Error: err.Error(),
+			})
+		}
+		if cat == nil {
+			return c.JSON(http.StatusBadRequest, errorResponse{
+				Error: fmt.Sprintf("category %s not found", req.Category),
+			})
+		}
+		item.Category = cat.ID
 	}
-	if cat == nil {
-		return c.JSON(http.StatusBadRequest, errorResponse{
-			Error: fmt.Sprintf("category %s not found", req.Category),
-		})
+	if req.Barcode != "" {
+		item.Barcode = req.Barcode
 	}
+	if req.Name != "" {
+		item.Name = req.Name
+	}
+	if req.CostPrice != 0 {
+		item.CostPrice = req.CostPrice
+	}
+	if req.RetailPrice != 0 {
+		item.RetailPrice = req.RetailPrice
+	}
+	if req.Quantity != 0 {
+		item.Quantity = req.Quantity
+	}
+	item.UpdatedAt = time.Now()
 
-	err = itemService.UpdateById(item.ID.String(), models.Item{
-		Name:        req.Name,
-		Barcode:     req.Barcode,
-		Category:    cat.ID,
-		CostPrice:   req.CostPrice,
-		RetailPrice: req.RetailPrice,
-		UpdatedAt:   time.Now(),
-	})
+	err = itemService.UpdateById(item.ID.Hex(), *item)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: err.Error(),
@@ -209,7 +221,25 @@ func createItem(c echo.Context) error {
 		})
 	}
 
-	cat, err := categoryService.FindById(req.Category)
+	var categoryID string
+	if req.Category == "" {
+		cat, err := categoryService.FindByName("General")
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, errorResponse{
+				Error: err.Error(),
+			})
+		}
+		if cat == nil {
+			return c.JSON(http.StatusBadRequest, errorResponse{
+				Error: "General category has not been set",
+			})
+		}
+		categoryID = cat.ID.Hex()
+	} else {
+		categoryID = req.Category
+	}
+
+	cat, err := categoryService.FindById(categoryID)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: err.Error(),
@@ -224,6 +254,7 @@ func createItem(c echo.Context) error {
 	created, err := itemService.Create(models.Item{
 		ID:          primitive.NewObjectID(),
 		Name:        req.Name,
+		Quantity:    req.Quantity,
 		Barcode:     req.Barcode,
 		Category:    cat.ID,
 		CostPrice:   req.CostPrice,
@@ -245,10 +276,20 @@ type errorResponse struct {
 	Error string `json:"error"`
 }
 
+type editRequest struct {
+	Name        string  `json:"name"`
+	Barcode     string  `json:"barcode"`
+	Category    string  `json:"category"`
+	CostPrice   float64 `json:"costPrice"`
+	RetailPrice float64 `json:"retailPrice"`
+	Quantity    uint32  `json:"qty"`
+}
+
 type createRequest struct {
 	Name        string  `json:"name" validate:"required"`
 	Barcode     string  `json:"barcode"`
 	Category    string  `json:"category"`
 	CostPrice   float64 `json:"costPrice" validate:"required"`
 	RetailPrice float64 `json:"retailPrice" validate:"required"`
+	Quantity    uint32  `json:"qty"`
 }

@@ -93,6 +93,7 @@ func UpdateByID(id string, user models.User) error {
 		"roles":       user.Roles,
 		"phoneNumber": user.PhoneNumber,
 		"isRetired":   user.IsRetired,
+		"created_at":  user.CreatedAt,
 		"updated_at":  time.Now(),
 	}
 	update := bson.D{primitive.E{Key: "$set", Value: value}}

@@ -66,9 +66,14 @@ func FindById(id string) (item *models.Category, err error) {
 	return
 }
 
-func FindByName(name string) (items []*models.Category, err error) {
+func FindByName(name string) (item *models.Category, err error) {
 	filter := bson.D{primitive.E{Key: "name", Value: name}}
-	items, err = filterRows(filter)
+	items, err := filterRows(filter)
+	if len(items) == 0 {
+		item = nil
+	} else {
+		item = items[0]
+	}
 	return
 }
 
@@ -81,7 +86,8 @@ func UpdateById(id string, item models.Category) error {
 	value := bson.M{
 		"name":       item.Name,
 		"updated_at": time.Now(),
-		"isRetired": item.IsRetired,
+		"created_at": item.CreatedAt,
+		"isRetired":  item.IsRetired,
 	}
 	update := bson.D{primitive.E{Key: "$set", Value: value}}
 	return collection().FindOneAndUpdate(ctx, filter, update).Err()
