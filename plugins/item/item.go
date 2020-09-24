@@ -79,7 +79,7 @@ func init() {
 	auth.AddHandler(http.MethodPost, "/", createItem)
 	auth.AddHandler(http.MethodGet, "/:id", getItem)
 	auth.AddHandler(http.MethodPut, "/:id", updateItem)
-	auth.AddHandler(http.MethodPost, "/:id", deleteItem)
+	auth.AddHandler(http.MethodDelete, "/:id", deleteItem)
 
 }
 
