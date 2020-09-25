@@ -170,9 +170,8 @@ func deleteItem(c echo.Context) error {
 			Error: "item not found",
 		})
 	}
-	err = itemService.UpdateById(item.ID.Hex(), models.Item{
-		IsRetired: true,
-	})
+	item.IsRetired = true
+	err = itemService.UpdateById(item.ID.Hex(), *item)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: err.Error(),

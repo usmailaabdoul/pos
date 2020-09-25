@@ -59,6 +59,7 @@ export default function Items(props) {
 
             setLoading(false);
         } catch (e) {
+            setLoading(false);
             Swal.fire({
                 icon: "error",
                 title: "error",
@@ -84,12 +85,13 @@ export default function Items(props) {
                     console.log(item)
                     let res = await apis.itemApi.deleteItem(item._id);
                     getItems()
+                    console.log(res)
+
                     Swal.fire(
                         'Deleted!',
                         `${item.name} was successfully deleted`,
                         'success'
                     )
-                    console.log(res)
                 } catch (e) {
                     console.log(e);
                     Swal.fire({
@@ -98,7 +100,6 @@ export default function Items(props) {
                         text: 'Something unexpected happened'
                     })
                 }
-
             }
         });
     };
