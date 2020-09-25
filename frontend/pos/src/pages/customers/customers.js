@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import Navbar from "../../components/Navbar";
 import EditIcon from '@material-ui/icons/Edit';
 import Swal from 'sweetalert2'
 import { ActionModal } from '../../components';
@@ -84,7 +83,6 @@ export default function CustomersPage() {
 
   return (
     <div>
-      <Navbar />
       <div className="my-container-sm">
         <div className="row">
           <div className="col-md-7">

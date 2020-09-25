@@ -13,7 +13,6 @@ import {setEmployees} from '../../redux/actions/employeeActions';
 import {bindActionCreators} from 'redux';
 
 import './employees.css'
-import Navbar from '../../components/Navbar';
 
 const Employees = (props) => {
   const {employees} = props;
@@ -110,7 +109,6 @@ const Employees = (props) => {
 
   return (
     <div>
-      <Navbar />
       <div className="container">
         <div className="row ml-0 my-3 d-flex justify-content-start align-items-center">
           <div className="w-50 d-flex justify-content-start align-items-center employees-header">

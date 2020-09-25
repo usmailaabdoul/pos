@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './reports.css';
 import { Dashboard, Sales } from '../../sections';
-import Navbar from '../../components/Navbar';
 
 const routes = [
   { id: 1, name: 'Dashboard' },
@@ -53,7 +52,6 @@ class Reports extends Component {
 
     return (
       <div>
-        <Navbar />
         <div className="container">
           <nav className="navbar navbar-expand-lg navbar-light py-3 mt-2 report-nav">
             <div className="collapse navbar-collapse">

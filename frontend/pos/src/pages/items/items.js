@@ -6,7 +6,6 @@ import AddIcon from "@material-ui/icons/Add";
 import AttachFileIcon from "@material-ui/icons/AttachFile";
 import DeleteIcon from "@material-ui/icons/Delete";
 import ReactTable from "react-table-v6";
-import Navbar from "../../components/Navbar";
 import { ActionModal } from "../../components";
 import BackupIcon from "@material-ui/icons/Backup";
 import Swal from "sweetalert2";
@@ -93,7 +92,6 @@ export default function Items() {
 
   return (
     <div>
-      <Navbar />
       <div className="container">
         <div className="ml-0 my-3 band-header align-items-center">
           <div className="d-flex justify-content-end align-items-center">

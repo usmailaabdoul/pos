@@ -2,9 +2,11 @@ import {Component} from "react";
 import React from "react";
 import Swal from 'sweetalert2'
 import apis from '../../apis/apis'
+import {setToken} from '../../redux/actions/authActions';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './login.css'
+import { connect } from "react-redux";
 
 class Login extends Component {
     constructor(props) {
@@ -27,11 +29,12 @@ class Login extends Component {
         const {username, password} = this.state
         apis.initialize('')
         try{
-            let token = await apis.authApi.login({
+            let res = await apis.authApi.login({
                 username,
                 password
             })
-            apis.initialize(token.token)
+            apis.initialize(res.token)
+            this.props.setToken(res.token);
             this.props.history.push("/sales")
         }catch (e) {
             Swal.fire({
@@ -67,4 +70,7 @@ class Login extends Component {
     }
 }
 
-export default Login;
+const mapStatesToProps = () => {
+  return {}
+}
+export default connect(mapStatesToProps, {setToken})(Login);
