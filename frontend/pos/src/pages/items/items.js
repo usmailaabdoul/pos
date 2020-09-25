@@ -33,6 +33,7 @@ const newData = [];
 // }
 
 export default function Items(props) {
+    const { _items } = props
     const [isEditItemModalVisible, setEditItemModalVisible] = useState(false);
     const [isNewItemModalVisible, setNewItemModalVisible] = useState(false);
     const [isImportModalVisible, setImportModalVisible] = useState(false);
@@ -45,7 +46,7 @@ export default function Items(props) {
         getItems();
     }, []);
 
-    useEffect(() => { }, [items, filteredItems])
+    useEffect(() => { }, [items, filteredItems, props])
 
     const getItems = async () => {
         setLoading(true);
@@ -474,7 +475,7 @@ const ImportFile = (props) => {
 };
 
 const NewItem = (props) => {
-    const { setNewItemModalVisible, isNewItemModalVisible } = props;
+    const { setNewItemModalVisible, isNewItemModalVisible, getItems } = props;
     const [name, setName] = useState("");
     const [barcode, setBarcode] = useState("");
     const [costPrice, setCostPrice] = useState(0);
@@ -597,6 +598,7 @@ const NewItem = (props) => {
                 `Item: ${res.name} created successfully`,
                 "success"
             );
+            getItems()
             setNewItemModalVisible(false);
         } catch (e) {
             console.log(e);
