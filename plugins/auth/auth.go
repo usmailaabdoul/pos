@@ -6,6 +6,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/acha-bill/pos/models"
+
 	"github.com/acha-bill/pos/packages/dblayer/role"
 
 	"github.com/acha-bill/pos/common"
@@ -118,7 +120,7 @@ func login(c echo.Context) error {
 	}
 	claims := &common.JWTCustomClaims{
 		Username: u.Username,
-		Id:       u.ID.String(),
+		Id:       u.ID.Hex(),
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
 		},
@@ -129,6 +131,7 @@ func login(c echo.Context) error {
 	t, _ := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 
 	return c.JSON(http.StatusOK, LoginResponse{
+		User:  *u,
 		Token: t,
 	})
 }
@@ -141,7 +144,8 @@ type LoginRequest struct {
 
 // LoginResponse represents the Response object for Login
 type LoginResponse struct {
-	Token string `json:"token,omitempty"`
+	User  models.User `json:"user"`
+	Token string      `json:"token,omitempty"`
 }
 
 // errorResponse represents the Error Response object for Register

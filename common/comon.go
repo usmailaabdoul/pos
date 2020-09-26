@@ -27,11 +27,10 @@ func HasRole(name string, c echo.Context) bool {
 	return false
 }
 
-// GetUsername returns the username of the user holding this context
-func GetUsername(ctx echo.Context) string {
+// GetClaims returns the claims of the signed in user.
+func GetClaims(ctx echo.Context) *JWTCustomClaims {
 	user := ctx.Get("user").(*jwt.Token)
-	claims := user.Claims.(JWTCustomClaims)
-	return claims.Username
+	return user.Claims.(*JWTCustomClaims)
 }
 
 // IsDevelopment returns true if the server is running in dev mode.
