@@ -112,7 +112,7 @@ function Items(props) {
         });
     };
 
-    let isNotRetiredCategories = filteredItems.filter((items) => !items.isRetired);
+    let isNotRetiredItems = filteredItems.filter((items) => !items.isRetired);
 
     const handleSearchInput = (e) => {
         if (!e) {
@@ -221,7 +221,7 @@ function Items(props) {
                     showPagination={true}
                     showPageSizeOptions={false}
                     minRows={0}
-                    data={filteredItems}
+                    data={isNotRetiredItems}
                     defaultPageSize={10}
                     style={{ textAlign: "center" }}
                     loadingText="Loading Products ..."

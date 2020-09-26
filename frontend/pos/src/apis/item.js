@@ -34,7 +34,7 @@ export default class ItemApi {
     async deleteItem(id) {
         try {
             console.log('request', `${baseUrl}/${id}`)
-            let res = this.api.delete(`${baseUrl}/${id}`);
+            let res = await this.api.delete(`${baseUrl}/${id}`);
             return res.data;
         } catch (e) {
             throw e;
