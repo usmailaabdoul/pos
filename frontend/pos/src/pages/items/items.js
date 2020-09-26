@@ -10,10 +10,13 @@ import Navbar from "../../components/Navbar";
 import { ActionModal } from "../../components";
 import BackupIcon from "@material-ui/icons/Backup";
 import Swal from "sweetalert2";
-import { OutTable, ExcelRenderer } from "react-excel-renderer";
+import { ExcelRenderer } from "react-excel-renderer";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import apis from "../../apis/apis";
-
+import ReactExport from "react-export-excel";
+import { connect } from 'react-redux';
+import { setItems } from '../../redux/actions/itemActions';
+import { bindActionCreators } from 'redux'
 import "./items.css";
 
 const data = [];
@@ -32,13 +35,17 @@ const newData = [];
 //   });
 // }
 
-export default function Items(props) {
-    const { _items } = props
+const ExcelFile = ReactExport.ExcelFile;
+const ExcelSheet = ReactExport.ExcelFile.ExcelSheet;
+const ExcelColumn = ReactExport.ExcelFile.ExcelColumn;
+
+function Items(props) {
+    const { items } = props
     const [isEditItemModalVisible, setEditItemModalVisible] = useState(false);
     const [isNewItemModalVisible, setNewItemModalVisible] = useState(false);
     const [isImportModalVisible, setImportModalVisible] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
-    const [items, setItems] = useState([]);
+    const [_items, setItems] = useState(items);
     const [filteredItems, setFilteredItems] = useState([]);
     const [isloading, setLoading] = useState(false);
 
@@ -46,7 +53,7 @@ export default function Items(props) {
         getItems();
     }, []);
 
-    useEffect(() => { }, [items, filteredItems, props])
+    useEffect(() => { }, [_items, filteredItems, props])
 
     const getItems = async () => {
         setLoading(true);
@@ -55,6 +62,7 @@ export default function Items(props) {
             let res = await apis.itemApi.items();
             console.log(res);
             setItems(res);
+            props.setItems(res)
             setFilteredItems(res);
 
             setLoading(false);
@@ -104,6 +112,8 @@ export default function Items(props) {
         });
     };
 
+    let isNotRetiredCategories = filteredItems.filter((items) => !items.isRetired);
+
     const handleSearchInput = (e) => {
         if (!e) {
             setFilteredItems([...items]);
@@ -128,6 +138,22 @@ export default function Items(props) {
     const handleImportClick = () => {
         setImportModalVisible(true);
     };
+
+    const handleExport = () => {
+        console.log('entering the export functon');
+        return (
+            <ExcelFile>
+                <ExcelSheet data={items} name="Items">
+                    <ExcelColumn label="Name" value="name" />
+                    <ExcelColumn label="Quantity" value="quantity" />
+                    <ExcelColumn label="Barcode" value="barcode" />
+                    <ExcelColumn label="Category" value="category" />
+                    <ExcelColumn label="Cost Price" value="costPrice" />
+                    <ExcelColumn label="Retail Price" value="retailPrice" />
+                </ExcelSheet>
+            </ExcelFile>
+        )
+    }
 
     return (
         <div>
@@ -172,10 +198,20 @@ export default function Items(props) {
                                 </button>
                             </div>
                             <div className="ml-2">
-                                <button className="btn btn-primary">
+
+                                <ExcelFile element={<button className="btn btn-primary" onClick={handleExport}>
                                     <BackupIcon style={{ position: "relative", bottom: "2" }} />
                                     <span className="ml-3">Export</span>
-                                </button>
+                                </button>}>
+                                    <ExcelSheet data={_items} name="Items">
+                                        <ExcelColumn label="Name" value="name" />
+                                        <ExcelColumn label="Quantity" value="qty" />
+                                        <ExcelColumn label="Barcode" value="barcode" />
+                                        <ExcelColumn label="Category" value="category" />
+                                        <ExcelColumn label="Cost Price" value="costPrice" />
+                                        <ExcelColumn label="Retail Price" value="retailPrice" />
+                                    </ExcelSheet>
+                                </ExcelFile>
                             </div>
                         </div>
                     </div>
@@ -987,3 +1023,15 @@ const EditItem = (props) => {
         </ActionModal>
     );
 };
+
+const mapStateToProps = ({ item }) => {
+    return {
+        items: item.items
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return bindActionCreators({ setItems }, dispatch);
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Items);
