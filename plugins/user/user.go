@@ -6,6 +6,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/acha-bill/pos/common"
+
 	"github.com/acha-bill/pos/plugins/role"
 
 	"github.com/acha-bill/pos/models"
@@ -118,6 +120,8 @@ func init() {
 	auth.AddHandler(http.MethodDelete, "/:id", deleteUser, plugins.AuthLevelUser)
 	auth.AddHandler(http.MethodPut, "/:id", update, plugins.AuthLevelUser)
 	auth.AddHandler(http.MethodGet, "/:id/roles", getRoles, plugins.AuthLevelUser)
+	auth.AddHandler(http.MethodGet, "/profile/me", getProfile, plugins.AuthLevelUser)
+
 }
 
 func list(c echo.Context) error {
@@ -344,6 +348,15 @@ func create(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, created)
+}
+
+func getProfile(c echo.Context) error {
+	userID := common.GetClaims(c).Id
+	user, err := userService.FindById(userID)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, errorResponse{Error: err.Error()})
+	}
+	return c.JSON(http.StatusOK, user)
 }
 
 // createRequest represents the Request object for Register

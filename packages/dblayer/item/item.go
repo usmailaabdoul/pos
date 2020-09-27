@@ -87,6 +87,7 @@ func UpdateById(id string, item models.Item) error {
 		"retailPrice": item.RetailPrice,
 		"created_at":  item.CreatedAt,
 		"updated_at":  time.Now(),
+		"isRetired":   item.IsRetired,
 	}
 	update := bson.D{primitive.E{Key: "$set", Value: value}}
 	return collection().FindOneAndUpdate(ctx, filter, update).Err()
