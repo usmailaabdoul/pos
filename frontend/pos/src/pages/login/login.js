@@ -2,7 +2,7 @@ import {Component} from "react";
 import React from "react";
 import Swal from 'sweetalert2'
 import apis from '../../apis/apis'
-import {setToken} from '../../redux/actions/authActions';
+import { setToken, setUser } from '../../redux/actions/authActions';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './login.css'
@@ -35,6 +35,7 @@ class Login extends Component {
             })
             apis.initialize(res.token)
             this.props.setToken(res.token);
+          this.props.setUser(res.user);
             this.props.history.push("/sales")
         }catch (e) {
             Swal.fire({
@@ -73,4 +74,4 @@ class Login extends Component {
 const mapStatesToProps = () => {
   return {}
 }
-export default connect(mapStatesToProps, {setToken})(Login);
+export default connect(mapStatesToProps, { setToken, setUser })(Login);

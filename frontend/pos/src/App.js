@@ -35,7 +35,6 @@ const App = ({token}) => {
     )
   }
 
-  console.log(token.length);
   return (
     <div className="app">
       <Router>

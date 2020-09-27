@@ -470,22 +470,22 @@ const EditEmplyee = (props) => {
       <div className="mx-5">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div><span className="w-25 text h6">Name <span className="text-danger">*</span></span></div>
-          <input name="username" placeholder="name" value={user.name} onChange={handleNameInput}
+          <input name="username" placeholder="name" value={name} onChange={handleNameInput}
             type="text" className={"w-75 form-control input"} />
         </div>
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div><span className="text h6 w-25">User name <span className="text-danger">*</span></span></div>
-          <input name="username" placeholder="username" value={user.username} onChange={handleUserNameInput}
+          <input name="username" placeholder="username" value={username} onChange={handleUserNameInput}
             type="text" className={"w-75 form-control input"} />
         </div>
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div><span className="text h6 w-25">Phone # <span className="text-danger">*</span></span></div>
-          <input name="username" placeholder="6 **** ***" value={user.phoneNumber} onChange={handlePhoneInput}
+          <input name="username" placeholder="6 **** ***" value={phoneNumber} onChange={handlePhoneInput}
             type="text" className={"w-75 form-control input"} />
         </div>
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div><span className="text h6 w-25">Password <span className="text-danger">*</span></span></div>
-          <input name="username" placeholder="password" value={user.password} onChange={handlePasswordInput}
+          <input name="username" placeholder="password" value={password} onChange={handlePasswordInput}
             type="password" className={"w-75 form-control input"} />
         </div>
 
