@@ -47,7 +47,6 @@ function Items(props) {
 
         try {
             let res = await apis.itemApi.items();
-
             setItems(res);
             props.setItems(res)
             setFilteredItems(res);
