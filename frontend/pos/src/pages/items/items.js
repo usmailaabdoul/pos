@@ -209,7 +209,7 @@ function Items(props) {
             <div className="container">
                 <div className="ml-0 my-3 band-header align-items-center">
                     <div className="d-flex justify-content-end align-items-center">
-                        <button className="btn btn-primary ml-3 mr-5">Bulk Delete</button>
+                        {/* <button className="btn btn-primary ml-3 mr-5">Bulk Delete</button> */}
                         <div>
                             <span className="mr-3">Filter</span>
                         </div>
