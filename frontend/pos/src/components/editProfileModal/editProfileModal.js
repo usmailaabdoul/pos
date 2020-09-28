@@ -9,10 +9,8 @@ import { ActionModal } from '../';
 
 const EditProfileModal = (props) => {
   const { editModal, setEditModal, user, setUser } = props;
-
-  const [name, setName] = useState(user.created_at)
+  const [name, setName] = useState(user.name)
   const [username, setUsername] = useState(user.username)
-  const [password, setPassword] = useState('')
   const [phoneNumber, setPhoneNumber] = useState(user.phoneNumber)
 
   useEffect(() => {
@@ -25,7 +23,6 @@ const EditProfileModal = (props) => {
   const handleNameInput = (event) => setName(event.target.value);
   const handleUserNameInput = (event) => setUsername(event.target.value);
   const handlePhoneNumberInput = (event) => setPhoneNumber(event.target.value);
-  const handlePasswordInput = (event) => setPassword(event.target.value);
 
   const handleCancleClick = () => {
     setName('')
@@ -34,23 +31,20 @@ const EditProfileModal = (props) => {
 
   const handleSuccessClick = async () => {
 
-    let obj = { name, password, username, phoneNumber, roles: user.roles }
-
-    console.log(obj);
+    let obj = { name, username, phoneNumber }
 
     try {
-      let res = await apis.employeeApi.editEmployee(user._id, obj);
+      let updatedUser = await apis.employeeApi.editEmployee(user._id, obj);
       Swal.fire(
         'Updated!',
-        `category: ${res.name} updated successfully`,
+        `employee: ${updatedUser.name} updated successfully`,
         'success'
       )
-      props.setUser()
-      setUser()
+      let userRoles = user.roles
+      updatedUser.roles = userRoles
+      setUser(updatedUser)
       setEditModal(false)
-      // console.log(res)
     } catch (e) {
-      console.log(e);
       Swal.fire({
         icon: 'error',
         title: 'error',
@@ -76,11 +70,6 @@ const EditProfileModal = (props) => {
           <div><span className="w-25 text h6">Phone # <span className="text-danger">*</span></span></div>
           <input name="phonenumber" placeholder="phone number" value={phoneNumber} onChange={handlePhoneNumberInput}
             type="text" className={"w-75 form-control input"} />
-        </div>
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <div><span className="text h6 w-25">Password <span className="text-danger">*</span></span></div>
-          <input name="password" placeholder="password" value={password} onChange={handlePasswordInput}
-            type="password" className={"w-75 form-control input"} />
         </div>
       </div>
 

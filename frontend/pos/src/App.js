@@ -12,7 +12,7 @@ import Reports from "./pages/reports/reports";
 import Navbar from "./components/Navbar/Navbar";
 import { connect } from "react-redux";
 
-const App = ({token}) => {
+const App = ({ token }) => {
 
   const NotFound = () => {
 
@@ -22,11 +22,11 @@ const App = ({token}) => {
           <div className="main-container d-flex justify-content-center align-items-center flex-column">
             <h1>Log in to continue</h1>
             <h5>Not verified</h5>
-            <button className="btn btn-primary" ><a href="/login" style={{color: 'white'}}>go to login</a></button>
+            <button className="btn btn-primary" ><a href="/login" style={{ color: 'white' }}>go to login</a></button>
           </div>
           :
           <div className="main-container d-flex justify-content-center align-items-center flex-column">
-            <h1 style={{fontSize: '5rem'}}>404</h1>
+            <h1 style={{ fontSize: '5rem' }}>404</h1>
             <h1>page not found</h1>
             <h5>wrong route</h5>
           </div>

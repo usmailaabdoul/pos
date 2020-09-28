@@ -10,8 +10,6 @@ import CategoryIcon from '@material-ui/icons/Category';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import { Overlay } from 'react-bootstrap';
 import { connect } from "react-redux";
-import apis from '../../apis/apis';
-import Swal from 'sweetalert2'
 import { setUser } from '../../redux/actions/authActions';
 import { bindActionCreators } from 'redux';
 
@@ -25,46 +23,12 @@ function Nav(props) {
   const { user } = props;
   const [editModal, setEditModal] = useState(false);
   const [show, setShow] = useState(false);
-  const [roles, setRoles] = useState([]);
   const target = useRef(null);
 
-  useEffect(() => {
-    getRoles();
-  }, [])
 
   useEffect(() => {
   }, [props])
 
-  const getRoles = async () => {
-
-    try {
-      let res = await apis.roleApi.roles();
-
-      setRoles(res);
-    } catch (e) {
-      Swal.fire({
-        icon: 'error',
-        title: 'error',
-        text: e.message
-      })
-    }
-  }
-
-  const getUser = async () => {
-
-    try {
-      let res = await apis.employeeApi.getEmployee(user._id);
-
-      setRoles(res);
-      props.setUser(res.user);
-    } catch (e) {
-      Swal.fire({
-        icon: 'error',
-        title: 'error',
-        text: e.message
-      })
-    }
-  }
 
   return (
     <nav className="nav__container">
@@ -115,12 +79,10 @@ function Nav(props) {
           setShow={() => setShow(false)}
           setEditModal={() => setEditModal(true)}
           user={user}
-          roles={roles}
         />
         <EditProfileModal
           editModal={editModal}
           setEditModal={() => setEditModal(false)}
-          getUser={() => getUser()}
         />
       </div>
     </nav>
@@ -128,7 +90,6 @@ function Nav(props) {
 }
 
 const mapStatesToProps = ({ auth }) => {
-  console.log(auth)
   return {
     user: auth.user,
   }
@@ -140,29 +101,10 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(mapStatesToProps, mapDispatchToProps)(Nav);
 
 const OverlayComponent = (props) => {
-  const { show, target, setShow, setEditModal, user, roles } = props;
-  const [userRoles, setUserRoles] = useState();
-
-  const data = [
-    { _id: "5f68555bff0b0c0dd7fd3928", name: "Administrator", description: "Admin" },
-    { _id: "5f68555bff0b0c0dd7fd3929", name: "Items", description: "Item" },
-    { _id: "5f68555bff0b0c0dd7fd392a", name: "Sales", description: "Sales" },
-  ];
+  const { show, target, setShow, setEditModal, user } = props;
 
   useEffect(() => {
-    getUserRoles()
-  }, [roles])
-
-  const getUserRoles = () => {
-    let _userRoles = []
-
-    data.map((a) => {
-      let role = roles.find((r) => r._id === a._id)
-      _userRoles.push(role);
-    })
-
-    setUserRoles(_userRoles)
-  }
+  }, [])
 
   return (
     <Overlay target={target} show={show} placement="bottom">
@@ -181,11 +123,11 @@ const OverlayComponent = (props) => {
               <div className="my-2 px-3">
                 <h6 className="m-0 font-weight-bolder">Role(s)</h6>
 
-                {userRoles.map((role) => {
+                {user.roles.map((role) => {
                   return (
-                    <p className="card-text m-0">
-                      {role.name}
-                    </p>
+                    <span key={role._id} className="card-text m-0">
+                      {role.name}, &nbsp;
+                    </span>
                   );
                 })}
               </div>
