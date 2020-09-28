@@ -149,7 +149,7 @@ func update(c echo.Context) error {
 		})
 	}
 
-	var req createRequest
+	var req editRequest
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: err.Error(),
@@ -162,32 +162,54 @@ func update(c echo.Context) error {
 		})
 	}
 
-	var roles []primitive.ObjectID
-	for _, roleID := range req.Roles {
-		_r, err := primitive.ObjectIDFromHex(roleID)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, errorResponse{
-				Error: fmt.Errorf("invalid role ID: %s, %w", roleID, err).Error(),
-			})
-		}
+	if len(req.Roles) > 0 {
+		var roles []primitive.ObjectID
+		for _, roleID := range req.Roles {
+			_r, err := primitive.ObjectIDFromHex(roleID)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, errorResponse{
+					Error: fmt.Errorf("invalid role ID: %s, %w", roleID, err).Error(),
+				})
+			}
 
-		r, err := roleService.FindById(roleID)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, errorResponse{
-				Error: err.Error(),
-			})
-		}
-		if r == nil {
-			return c.JSON(http.StatusBadRequest, errorResponse{
-				Error: fmt.Sprintf("role %s not found: ", roleID),
-			})
-		}
+			r, err := roleService.FindById(roleID)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, errorResponse{
+					Error: err.Error(),
+				})
+			}
+			if r == nil {
+				return c.JSON(http.StatusBadRequest, errorResponse{
+					Error: fmt.Sprintf("role %s not found: ", roleID),
+				})
+			}
 
-		roles = append(roles, _r)
+			roles = append(roles, _r)
+		}
+		user.Roles = roles
 	}
 
-	user.Name = req.Name
-	user.Roles = roles
+	if req.Name != "" && req.Name != user.Name {
+		user.Name = req.Name
+	}
+
+	if req.PhoneNumber != "" && req.PhoneNumber != user.PhoneNumber {
+		user.PhoneNumber = req.PhoneNumber
+	}
+
+	if req.Username != "" && req.Username != user.Username {
+		u := userService.FindByUsername(req.Username)
+		if u != nil {
+			return c.JSON(http.StatusBadRequest, errorResponse{
+				Error: "Username already taken",
+			})
+		}
+		user.Username = req.Username
+	}
+	if req.Password != "" {
+		hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+		user.Password = string(hashedPassword)
+	}
 	user.UpdatedAt = time.Now()
 	err = userService.UpdateByID(user.ID.Hex(), *user)
 	if err != nil {
@@ -357,6 +379,14 @@ func getProfile(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errorResponse{Error: err.Error()})
 	}
 	return c.JSON(http.StatusOK, user)
+}
+
+type editRequest struct {
+	Username    string   `json:"username"`
+	Name        string   `json:"name"`
+	PhoneNumber string   `json:"phoneNumber"`
+	Roles       []string `json:"roles"`
+	Password    string   `json:"password"`
 }
 
 // createRequest represents the Request object for Register
