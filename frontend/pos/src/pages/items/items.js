@@ -6,7 +6,6 @@ import AddIcon from "@material-ui/icons/Add";
 import AttachFileIcon from "@material-ui/icons/AttachFile";
 import DeleteIcon from "@material-ui/icons/Delete";
 import ReactTable from "react-table-v6";
-import Navbar from "../../components/Navbar";
 import { ActionModal } from "../../components";
 import BackupIcon from "@material-ui/icons/Backup";
 import Swal from "sweetalert2";
@@ -69,7 +68,6 @@ function Items(props) {
             let res = await apis.categoryApi.categories();
 
             setCategories(res);
-            console.log(categories);
         } catch (e) {
             setLoading(false);
             Swal.fire({
@@ -143,7 +141,6 @@ function Items(props) {
 
     return (
         <div>
-            <Navbar />
             <div className="container">
                 <div className="ml-0 my-3 band-header align-items-center">
                     <div className="d-flex justify-content-end align-items-center">
@@ -237,7 +234,10 @@ function Items(props) {
                         },
                         {
                             Header: "Category",
-                            accessor: "category",
+                            Cell: (row) => {
+                                let cat = categories.find(c => c._id === row.original.category)
+                                return <div>{cat ? cat.name : "N/A"}</div>;
+                            },
                         },
                         {
                             Header: "Cost Price",
