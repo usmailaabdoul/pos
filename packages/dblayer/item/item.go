@@ -48,6 +48,24 @@ func Create(item models.Item) (created *models.Item, err error) {
 	return
 }
 
+func FindByNameAndCategory(name string, categoryID string) (item *models.Item, err error) {
+	objectId, err := primitive.ObjectIDFromHex(categoryID)
+	if err != nil {
+		return
+	}
+	filter := bson.D{primitive.E{Key: "category", Value: objectId}, {Key: "name", Value: name}}
+	rows, err := filterRows(filter)
+	if err != nil {
+		return
+	}
+	if len(rows) == 0 {
+		item = nil
+	} else {
+		item = rows[0]
+	}
+	return
+}
+
 func FindById(id string) (item *models.Item, err error) {
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {

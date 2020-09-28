@@ -250,6 +250,20 @@ func createItem(c echo.Context) error {
 		})
 	}
 
+	_item, err := itemService.FindByNameAndCategory(req.Name, cat.ID.Hex())
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, errorResponse{
+			Error: fmt.Sprintf("Category %s not found", req.Category),
+		})
+	}
+	if _item != nil {
+		_item.Quantity += req.Quantity
+		_item.UpdatedAt = time.Now()
+		_ = itemService.UpdateById(_item.ID.Hex(), *_item)
+		updated, _ := itemService.FindById(_item.ID.Hex())
+		return c.JSON(http.StatusCreated, updated)
+	}
+
 	created, err := itemService.Create(models.Item{
 		ID:          primitive.NewObjectID(),
 		Name:        req.Name,

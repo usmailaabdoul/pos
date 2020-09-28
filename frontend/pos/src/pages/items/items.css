@@ -20,3 +20,13 @@
 .spinner > .MuiSvgRoot {
   color: #2980b9;
 }
+
+.categorySelect {
+  position: relative;
+  padding: 0 0 10px 0;
+}
+
+.categorySelect > select {
+  width: 100%;
+  margin-left: -40%;
+}
