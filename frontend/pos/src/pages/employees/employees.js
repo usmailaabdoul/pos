@@ -8,24 +8,22 @@ import ReactTable from 'react-table-v6'
 import 'react-table-v6/react-table.css'
 import apis from '../../apis/apis';
 import { Form } from 'react-bootstrap';
-import {connect} from 'react-redux';
-import {setEmployees} from '../../redux/actions/employeeActions';
-import {bindActionCreators} from 'redux';
+import { connect } from 'react-redux';
+import { setEmployees } from '../../redux/actions/employeeActions';
+import { bindActionCreators } from 'redux';
 
 import './employees.css'
 
 const Employees = (props) => {
-  const {employees} = props;
+  const { employees, roles } = props;
   const [_employees, setEmployees] = useState(employees)
   const [editModal, setEditModalVisible] = useState(false)
   const [selectionUser, setSelectionUser] = useState(null)
   const [isLoading, setIsLoading] = useState(false);
   const [newEmployeeModal, setNewEmployeeModalVisible] = useState(false);
-  const [roles, setRoles] = useState([])
 
   useEffect(() => {
     getEmployees();
-    getRoles();
   }, []);
 
   useEffect(() => {
@@ -43,22 +41,6 @@ const Employees = (props) => {
       setIsLoading(false)
     } catch (e) {
       setIsLoading(false)
-      Swal.fire({
-        icon: 'error',
-        title: 'error',
-        text: e.message
-      })
-    }
-  }
-
-  const getRoles = async () => {
-
-    try {
-      let res = await apis.roleApi.roles();
-
-      setRoles(res);
-      // console.log(res)
-    } catch (e) {
       Swal.fire({
         icon: 'error',
         title: 'error',
@@ -393,19 +375,15 @@ const EditEmplyee = (props) => {
   const [roles, setRoles] = useState([])
 
   useEffect(() => {
-    async function getUsersRole() {
-      let _roles = []
-      {
-        user.roles.map((id) => {
-          let _role = listOfRoles.find((role) => role._id === id);
-
-          _roles.push(_role)
-        })
-      }
-      setRoles(_roles);
+    let _roles = []
+    if (user.roles) {
+      user.roles.forEach((id) => {
+        let _role = listOfRoles.find((role) => role._id === id);
+        _roles.push(_role)
+      })
     }
 
-    getUsersRole();
+    setRoles(_roles);
   }, [])
 
   const handleNameInput = (event) => setName(event.target.value);
@@ -536,15 +514,15 @@ const EditEmplyee = (props) => {
   )
 }
 
-const mapStateToProps = ({ employee }) => {
-  console.log(employee)
+const mapStateToProps = ({ employee, role }) => {
   return {
-    employees: employee.employees
+    employees: employee.employees,
+    roles: role.roles
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators({setEmployees}, dispatch);
+  return bindActionCreators({ setEmployees }, dispatch);
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Employees);
