@@ -330,7 +330,6 @@ const NewEmployee = (props) => {
           <div className="d-flex justify-content-center align-items-center w-75">
             <Form.Group className={"w-75 m-0"}>
               <Form.Control onChange={handleRoleInput} as="select" className={"form-control input align-self-center m-0"}>
-                <option>select role</option>
                 {listOfRoles.map((role, key) => {
                   return <option key={key}>{role.name}</option>
                 })}
@@ -479,7 +478,6 @@ const EditEmplyee = (props) => {
           <div className="d-flex justify-content-center align-items-center w-75">
             <Form.Group className={"w-75 m-0"}>
               <Form.Control onChange={handleRoleInput} as="select" className={"form-control input align-self-center m-0"}>
-                <option>select role</option>
                 {listOfRoles.map((role, key) => {
                   return <option key={key}>{role.name}</option>
                 })}
