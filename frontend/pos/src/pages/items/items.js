@@ -211,7 +211,7 @@ function Items(props) {
                     <div className="d-flex justify-content-end align-items-center">
                         {/* <button className="btn btn-primary ml-3 mr-5">Bulk Delete</button> */}
                         <div>
-                            <span className="mr-3">Filter</span>
+                            <span className="mr-3 ml-3">Filter</span>
                         </div>
                         <div>
                             <input
@@ -598,7 +598,6 @@ const NewItem = (props) => {
 
         if (message) {
             Swal.fire("Failure", `${message}`, "error");
-            setNewItemModalVisible(false);
             return;
         }
 
@@ -635,6 +634,8 @@ const NewItem = (props) => {
                 text: e.message,
             });
         }
+        setNewItemModalVisible(false);
+
     };
 
     return (
