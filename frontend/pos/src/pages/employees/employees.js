@@ -16,28 +16,26 @@ import './employees.css'
 
 const Employees = (props) => {
   const { employees, roles } = props;
-  const [_employees, setEmployees] = useState(employees)
   const [editModal, setEditModalVisible] = useState(false)
   const [selectionUser, setSelectionUser] = useState(null)
   const [isLoading, setIsLoading] = useState(false);
   const [newEmployeeModal, setNewEmployeeModalVisible] = useState(false);
+  const [filteredEmployees, setFilteredEmployees] = useState([])
 
   useEffect(() => {
     getEmployees();
   }, []);
 
   useEffect(() => {
-  }, [_employees, props])
+  }, [props])
 
   const getEmployees = async () => {
     setIsLoading(false)
 
     try {
       let res = await apis.employeeApi.employees();
-
-      setEmployees(res);
       props.setEmployees(res);
-      // console.log(res)
+      setFilteredEmployees(res.filter((e) => !e.isRetired))
       setIsLoading(false)
     } catch (e) {
       setIsLoading(false)
@@ -49,8 +47,18 @@ const Employees = (props) => {
     }
   }
 
-  const handleSearchInput = () => {
-    console.log('input');
+  const handleSearchInput = (event) => {
+    let str = ''
+    if (event) {
+      str = event.target.value.toLowerCase()
+    }
+    let nonRetiredEmployees = employees.filter((e) => !e.isRetired);
+    let filteredEmployees = nonRetiredEmployees.filter(e =>
+      e.name.toLowerCase().indexOf(str) >= 0 ||
+      e.username.toLowerCase().indexOf(str) >= 0 ||
+      e.phoneNumber.toLowerCase().indexOf(str) >= 0
+    )
+    setFilteredEmployees(filteredEmployees)
   }
 
   const deleteAlert = (employee) => {
@@ -87,7 +95,6 @@ const Employees = (props) => {
     setEditModalVisible(true);
   }
 
-  let isNotRetiredEmployees = _employees.filter((employee) => !employee.isRetired);
 
   return (
     <div>
@@ -119,7 +126,7 @@ const Employees = (props) => {
               showPagination={true}
               showPageSizeOptions={false}
               minRows={0}
-              data={isNotRetiredEmployees}
+              data={filteredEmployees}
               columns={[
                 {
                   Header: "Name",
