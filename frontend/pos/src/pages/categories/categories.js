@@ -10,7 +10,6 @@ import ReactTable from 'react-table-v6'
 import 'react-table-v6/react-table.css'
 
 import { ActionModal } from '../../components';
-import Navbar from '../../components/Navbar';
 import './categories.css'
 import apis from '../../apis/apis'
 
@@ -103,7 +102,6 @@ const Categories = (props) => {
 
     return (
         <div>
-            <Navbar />
             <div className="container">
                 <div className="row ml-0 my-3 d-flex justify-content-start align-items-center">
                     <div className="w-50 d-flex justify-content-start align-items-center employees-header">

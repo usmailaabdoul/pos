@@ -4,7 +4,7 @@ import "./Navbar.css";
 
 export default function Navbar() {
   return (
-    <div className="nav">
+    <div className="custom_nav">
       <p className="nav__logo">POS</p>
       <Nav />
     </div>

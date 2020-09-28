@@ -8,39 +8,34 @@ import ReactTable from 'react-table-v6'
 import 'react-table-v6/react-table.css'
 import apis from '../../apis/apis';
 import { Form } from 'react-bootstrap';
-import {connect} from 'react-redux';
-import {setEmployees} from '../../redux/actions/employeeActions';
-import {bindActionCreators} from 'redux';
+import { connect } from 'react-redux';
+import { setEmployees } from '../../redux/actions/employeeActions';
+import { bindActionCreators } from 'redux';
 
 import './employees.css'
-import Navbar from '../../components/Navbar';
 
 const Employees = (props) => {
-  const {employees} = props;
-  const [_employees, setEmployees] = useState(employees)
+  const { employees, roles } = props;
   const [editModal, setEditModalVisible] = useState(false)
   const [selectionUser, setSelectionUser] = useState(null)
   const [isLoading, setIsLoading] = useState(false);
   const [newEmployeeModal, setNewEmployeeModalVisible] = useState(false);
-  const [roles, setRoles] = useState([])
+  const [filteredEmployees, setFilteredEmployees] = useState([])
 
   useEffect(() => {
     getEmployees();
-    getRoles();
   }, []);
 
   useEffect(() => {
-  }, [_employees, props])
+  }, [props])
 
   const getEmployees = async () => {
     setIsLoading(false)
 
     try {
       let res = await apis.employeeApi.employees();
-
-      setEmployees(res);
       props.setEmployees(res);
-      // console.log(res)
+      setFilteredEmployees(res.filter((e) => !e.isRetired))
       setIsLoading(false)
     } catch (e) {
       setIsLoading(false)
@@ -52,24 +47,18 @@ const Employees = (props) => {
     }
   }
 
-  const getRoles = async () => {
-
-    try {
-      let res = await apis.roleApi.roles();
-
-      setRoles(res);
-      // console.log(res)
-    } catch (e) {
-      Swal.fire({
-        icon: 'error',
-        title: 'error',
-        text: e.message
-      })
+  const handleSearchInput = (event) => {
+    let str = ''
+    if (event) {
+      str = event.target.value.toLowerCase()
     }
-  }
-
-  const handleSearchInput = () => {
-    console.log('input');
+    let nonRetiredEmployees = employees.filter((e) => !e.isRetired);
+    let filteredEmployees = nonRetiredEmployees.filter(e =>
+      e.name.toLowerCase().indexOf(str) >= 0 ||
+      e.username.toLowerCase().indexOf(str) >= 0 ||
+      e.phoneNumber.toLowerCase().indexOf(str) >= 0
+    )
+    setFilteredEmployees(filteredEmployees)
   }
 
   const deleteAlert = (employee) => {
@@ -106,11 +95,9 @@ const Employees = (props) => {
     setEditModalVisible(true);
   }
 
-  let isNotRetiredEmployees = _employees.filter((employee) => !employee.isRetired);
 
   return (
     <div>
-      <Navbar />
       <div className="container">
         <div className="row ml-0 my-3 d-flex justify-content-start align-items-center">
           <div className="w-50 d-flex justify-content-start align-items-center employees-header">
@@ -139,7 +126,7 @@ const Employees = (props) => {
               showPagination={true}
               showPageSizeOptions={false}
               minRows={0}
-              data={isNotRetiredEmployees}
+              data={filteredEmployees}
               columns={[
                 {
                   Header: "Name",
@@ -343,7 +330,6 @@ const NewEmployee = (props) => {
           <div className="d-flex justify-content-center align-items-center w-75">
             <Form.Group className={"w-75 m-0"}>
               <Form.Control onChange={handleRoleInput} as="select" className={"form-control input align-self-center m-0"}>
-                <option>select role</option>
                 {listOfRoles.map((role, key) => {
                   return <option key={key}>{role.name}</option>
                 })}
@@ -395,19 +381,15 @@ const EditEmplyee = (props) => {
   const [roles, setRoles] = useState([])
 
   useEffect(() => {
-    async function getUsersRole() {
-      let _roles = []
-      {
-        user.roles.map((id) => {
-          let _role = listOfRoles.find((role) => role._id === id);
-
-          _roles.push(_role)
-        })
-      }
-      setRoles(_roles);
+    let _roles = []
+    if (user.roles) {
+      user.roles.forEach((id) => {
+        let _role = listOfRoles.find((role) => role._id === id);
+        _roles.push(_role)
+      })
     }
 
-    getUsersRole();
+    setRoles(_roles);
   }, [])
 
   const handleNameInput = (event) => setName(event.target.value);
@@ -472,22 +454,22 @@ const EditEmplyee = (props) => {
       <div className="mx-5">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div><span className="w-25 text h6">Name <span className="text-danger">*</span></span></div>
-          <input name="username" placeholder="name" value={user.name} onChange={handleNameInput}
+          <input name="username" placeholder="name" value={name} onChange={handleNameInput}
             type="text" className={"w-75 form-control input"} />
         </div>
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div><span className="text h6 w-25">User name <span className="text-danger">*</span></span></div>
-          <input name="username" placeholder="username" value={user.username} onChange={handleUserNameInput}
+          <input name="username" placeholder="username" value={username} onChange={handleUserNameInput}
             type="text" className={"w-75 form-control input"} />
         </div>
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div><span className="text h6 w-25">Phone # <span className="text-danger">*</span></span></div>
-          <input name="username" placeholder="6 **** ***" value={user.phoneNumber} onChange={handlePhoneInput}
+          <input name="username" placeholder="6 **** ***" value={phoneNumber} onChange={handlePhoneInput}
             type="text" className={"w-75 form-control input"} />
         </div>
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div><span className="text h6 w-25">Password <span className="text-danger">*</span></span></div>
-          <input name="username" placeholder="password" value={user.password} onChange={handlePasswordInput}
+          <input name="username" placeholder="password" value={password} onChange={handlePasswordInput}
             type="password" className={"w-75 form-control input"} />
         </div>
 
@@ -496,7 +478,6 @@ const EditEmplyee = (props) => {
           <div className="d-flex justify-content-center align-items-center w-75">
             <Form.Group className={"w-75 m-0"}>
               <Form.Control onChange={handleRoleInput} as="select" className={"form-control input align-self-center m-0"}>
-                <option>select role</option>
                 {listOfRoles.map((role, key) => {
                   return <option key={key}>{role.name}</option>
                 })}
@@ -538,15 +519,15 @@ const EditEmplyee = (props) => {
   )
 }
 
-const mapStateToProps = ({ employee }) => {
-  console.log(employee)
+const mapStateToProps = ({ employee, role }) => {
   return {
-    employees: employee.employees
+    employees: employee.employees,
+    roles: role.roles
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators({setEmployees}, dispatch);
+  return bindActionCreators({ setEmployees }, dispatch);
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Employees);

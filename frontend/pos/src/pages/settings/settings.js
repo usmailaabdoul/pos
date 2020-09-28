@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import "./settings.css";
-import Navbar from "../../components/Navbar";
 import Roles from "../../components/SettingsComponents/Roles";
 
 const routes = [
@@ -31,7 +30,6 @@ const Settings = () => {
 
   return (
     <div>
-      <Navbar />
       <div className="container">
         <nav className="navbar navbar-expand-lg navbar-light py-3 mt-2 report-nav settings__tab">
           <div className="collapse navbar-collapse">

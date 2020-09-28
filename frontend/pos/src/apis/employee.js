@@ -45,4 +45,22 @@ export default class EmployeeApi {
       throw e
     }
   }
+
+  async getEmployee(id) {
+    try {
+      let res = await this.api.get(`${baseUrl}/${id}`,)
+      return res.data
+    } catch (e) {
+      throw e
+    }
+  }
+
+  async getProfile() {
+    try {
+      let res = await this.api.get(`${baseUrl}/profile/me`)
+      return res.data
+    } catch (e) {
+      throw e
+    }
+  }
 }

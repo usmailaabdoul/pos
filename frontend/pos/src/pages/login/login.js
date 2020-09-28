@@ -1,10 +1,13 @@
-import {Component} from "react";
+import { Component } from "react";
 import React from "react";
 import Swal from 'sweetalert2'
 import apis from '../../apis/apis'
-
+import { setRoles } from '../../redux/actions/roleActions'
+import { setUser, setToken } from '../../redux/actions/authActions'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './login.css'
+import { connect } from "react-redux";
+
 
 class Login extends Component {
     constructor(props) {
@@ -23,17 +26,25 @@ class Login extends Component {
 
     handleSubmit = async event => {
         event.preventDefault()
-
-        const {username, password} = this.state
+        const { username, password } = this.state
         apis.initialize('')
-        try{
-            let token = await apis.authApi.login({
+        try {
+            let res = await apis.authApi.login({
                 username,
                 password
             })
-            apis.initialize(token.token)
+            apis.initialize(res.token)
+            let roles = await apis.roleApi.roles()
+            let userRoles = []
+            if (res.user.roles) {
+                userRoles = roles.filter(r => res.user.roles.findIndex(ur => ur === r._id) >= 0)
+            }
+            res.user.roles = userRoles
+            this.props.setToken(res.token)
+            this.props.setUser(res.user)
+            this.props.setRoles(roles)
             this.props.history.push("/sales")
-        }catch (e) {
+        } catch (e) {
             Swal.fire({
                 icon: 'error',
                 title: 'error',
@@ -43,7 +54,7 @@ class Login extends Component {
     }
 
     render() {
-        let {username,password} = this.state
+        let { username, password } = this.state
         return (
             <div className={"main-container d-flex justify-content-center align-items-center"}>
                 <div>
@@ -52,10 +63,10 @@ class Login extends Component {
                     </div>
                     <form className={"login-form form"} onSubmit={this.handleSubmit}>
                         <div className={"form-group"}>
-                            <input name="username" placeholder="username" value={username} onChange={this.handleInput} type="text" className={"form-control input"}/>
+                            <input name="username" placeholder="username" value={username} onChange={this.handleInput} type="text" className={"form-control input"} />
                         </div>
                         <div className={"form-group"}>
-                            <input name="password" placeholder="password" value={password} onChange={this.handleInput} type="password" className={"form-control input"}/>
+                            <input name="password" placeholder="password" value={password} onChange={this.handleInput} type="password" className={"form-control input"} />
                         </div>
                         <div>
                             <button className="btn btn btn-primary btn-block mt-2"><span className="h5">Login</span></button>
@@ -67,4 +78,7 @@ class Login extends Component {
     }
 }
 
-export default Login;
+const mapStatesToProps = () => {
+    return {}
+}
+export default connect(mapStatesToProps, { setToken, setUser, setRoles })(Login);
