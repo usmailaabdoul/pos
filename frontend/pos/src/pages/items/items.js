@@ -95,6 +95,9 @@ function Items(props) {
     useEffect(() => { }, [_items, filteredItems, props])
 
     const getItems = async (cats) => {
+        if (!cats) {
+            cats = categories
+        }
         setLoading(true);
 
         try {
@@ -356,6 +359,7 @@ function Items(props) {
                         isImportModalVisible={isImportModalVisible}
                         getItems={() => getItems()}
                         item={selectedItem}
+                        categories={categories}
                     />
                 )}
             </div>
@@ -364,8 +368,8 @@ function Items(props) {
 }
 
 const ImportFile = (props) => {
-    const { setImportModalVisible, isImportModalVisible, getItems } = props;
-    const [rows, setRows] = useState([]);
+    const { setImportModalVisible, isImportModalVisible, getItems, categories } = props;
+    let [rows, setRows] = useState([]);
     const [isloading, setLoading] = useState(false);
 
     const handleCancleClick = () => {
@@ -382,7 +386,7 @@ const ImportFile = (props) => {
     }
 
     const handleSuccessClick = async (e) => {
-        if (rows.length == 0) {
+        if (rows.length === 0) {
             return;
         }
 
@@ -392,7 +396,8 @@ const ImportFile = (props) => {
 
         let message;
 
-        for (let i = 0; i < rows.length; i++) {
+        rows = rows.filter(row => row.length > 0)
+        for (let i = 1; i < rows.length; i++) {
             let itemObj = {};
             itemObj.name = rows[i][0];
             let err = validateName(itemObj.name);
@@ -437,20 +442,28 @@ const ImportFile = (props) => {
 
             try {
 
-                let Quantity;
-                let CostPrice = Number(itemObj.costPrice)
-                let RetailPrice = Number(itemObj.retailPrice)
+                let _quantity;
+                let _costPrice = Number(itemObj.costPrice)
+                let _retailPrice = Number(itemObj.retailPrice)
                 let barcode = itemObj.barcode.toString()
                 if (itemObj.qty) {
-                    Quantity = Number(itemObj.qty)
+                    _quantity = Number(itemObj.qty)
                 }
+                console.log('props.categories', props.categories)
+                let cat = props.categories.find(c => c.name === itemObj.category)
+                if (!cat) {
+                    message = `category: ${itemObj.category} does not exist. Create it first. Row ${i}`;
+                    break;
+                }
+
+
                 let res = await apis.itemApi.addItem({
                     "name": itemObj.name,
-                    "qty": Quantity,
+                    "qty": _quantity,
                     "barcode": barcode,
-                    "category": itemObj.category,
-                    "costPrice": CostPrice,
-                    "retailPrice": RetailPrice,
+                    "category": cat._id,
+                    "costPrice": _costPrice,
+                    "retailPrice": _retailPrice,
                     "isRetired": false
                 });
                 Swal.fire(
@@ -459,7 +472,6 @@ const ImportFile = (props) => {
                     "success"
                 );
                 getItems()
-                setImportModalVisible(false)
             } catch (e) {
                 setLoading(false)
                 Swal.fire({
@@ -476,6 +488,7 @@ const ImportFile = (props) => {
             setImportModalVisible(false);
             return;
         }
+        setImportModalVisible(false);
     };
 
     const handleFile = (event) => {
