@@ -23,6 +23,56 @@ const ExcelFile = ReactExport.ExcelFile;
 const ExcelSheet = ReactExport.ExcelFile.ExcelSheet;
 const ExcelColumn = ReactExport.ExcelFile.ExcelColumn;
 
+
+const validateNumber = (n, field) => {
+    n = Number(n);
+    if (Number.isNaN(n)) {
+        return `${field} is required to be a number`;
+    }
+};
+
+const validateName = (name) => {
+    return validateRequired(name, "Name");
+};
+
+
+const validateRequired = (n, field) => {
+    if (!n) {
+        return `${field} is required`;
+    }
+};
+
+const validateRequiredNumberNegative = (n, field) => {
+    let err = validateRequired(n, field);
+    if (err) return err;
+    err = validateNumber(n, field);
+    if (err) return err;
+    return validateNegative(n, field);
+};
+
+const validateNegative = (n, field) => {
+    n = Number(n);
+    if (n < 0) {
+        return `${field} is required to be postive`;
+    }
+};
+
+const validateQty = (qty) => {
+    return validateRequiredNumberNegative(qty, "Quantity");
+};
+
+const validateBarcode = (barcode) => {
+    return validateRequired(barcode, "Barcode");
+};
+
+const validateCostPrice = (cp) => {
+    return validateRequiredNumberNegative(cp, "Costprice");
+};
+
+const validateRetailPrice = (rp) => {
+    return validateRequiredNumberNegative(rp, "Retailprice");
+};
+
 function Items(props) {
     const { items } = props
     const [isEditItemModalVisible, setEditItemModalVisible] = useState(false);
@@ -33,23 +83,33 @@ function Items(props) {
     const [categories, setCategories] = useState([]);
     const [filteredItems, setFilteredItems] = useState([]);
     const [isloading, setLoading] = useState(false);
+    const [exportItems, setExportItems] = useState([])
 
     useEffect(() => {
-        getItems();
-        getCategory()
+        getCategory().then((cats) => {
+            getItems(cats);
+        })
     }, []);
+
 
     useEffect(() => { }, [_items, filteredItems, props])
 
-    const getItems = async () => {
+    const getItems = async (cats) => {
         setLoading(true);
 
         try {
             let res = await apis.itemApi.items();
             setItems(res);
             props.setItems(res)
-            setFilteredItems(res);
-
+            let nonRetiredItems = res.filter(item => !item.isRetired)
+            setFilteredItems(nonRetiredItems);
+            let _exportItems = nonRetiredItems.map(item => {
+                let _item = { ...item }
+                let cat = cats.find(c => c._id === _item.category)
+                _item.category = cat ? cat.name : "N/A"
+                return _item
+            })
+            setExportItems(_exportItems)
             setLoading(false);
         } catch (e) {
             setLoading(false);
@@ -64,8 +124,9 @@ function Items(props) {
     const getCategory = async () => {
         setLoading(true);
 
+        let res = []
         try {
-            let res = await apis.categoryApi.categories();
+            res = await apis.categoryApi.categories();
 
             setCategories(res);
         } catch (e) {
@@ -76,6 +137,7 @@ function Items(props) {
                 text: e.message,
             });
         }
+        return res
     }
 
     const editItem = (item) => {
@@ -121,11 +183,12 @@ function Items(props) {
         let searchString = e.target.value.toLowerCase();
         let tmp = items.filter((item) => {
             return (
-                item.name.toLowerCase().indexOf(searchString) >= 0 ||
-                item.barcode.toLowerCase().indexOf(searchString) >= 0 ||
-                item.retailPrice.toString().toLowerCase().indexOf(searchString) >= 0 ||
-                item.costPrice.toString().toLowerCase().indexOf(searchString) >= 0
-            );
+                !item.isRetired && (
+                    item.name.toLowerCase().indexOf(searchString) >= 0 ||
+                    item.barcode.toLowerCase().indexOf(searchString) >= 0 ||
+                    item.retailPrice.toString().toLowerCase().indexOf(searchString) >= 0 ||
+                    item.costPrice.toString().toLowerCase().indexOf(searchString) >= 0
+                ));
         });
         setFilteredItems(tmp);
     };
@@ -137,7 +200,6 @@ function Items(props) {
     const handleImportClick = () => {
         setImportModalVisible(true);
     };
-
 
     return (
         <div>
@@ -186,7 +248,7 @@ function Items(props) {
                                     <BackupIcon style={{ position: "relative", bottom: "2" }} />
                                     <span className="ml-3">Export</span>
                                 </button>}>
-                                    <ExcelSheet data={_items} name="Items">
+                                    <ExcelSheet data={exportItems} name="Items">
                                         <ExcelColumn label="Name" value="name" />
                                         <ExcelColumn label="Quantity" value="qty" />
                                         <ExcelColumn label="Barcode" value="barcode" />
@@ -310,54 +372,6 @@ const ImportFile = (props) => {
         setImportModalVisible(false);
     };
 
-    const validateNumber = (n, field) => {
-        n = Number(n);
-        if (Number.isNaN(n)) {
-            return `${field} is required to be a number`;
-        }
-    };
-
-    const validateName = (name) => {
-        return validateRequired(name, "Name");
-    };
-
-
-    const validateRequired = (n, field) => {
-        if (!n) {
-            return `${field} is required`;
-        }
-    };
-
-    const validateRequiredNumberNegative = (n, field) => {
-        let err = validateRequired(n, field);
-        if (err) return err;
-        err = validateNumber(n, field);
-        if (err) return err;
-        return validateNegative(n, field);
-    };
-
-    const validateNegative = (n, field) => {
-        n = Number(n);
-        if (n < 0) {
-            return `${field} is required to be postive`;
-        }
-    };
-
-    const validateQty = (qty) => {
-        return validateRequiredNumberNegative(qty, "Quantity");
-    };
-
-    const validateBarcode = (barcode) => {
-        return validateRequired(barcode, "Barcode");
-    };
-
-    const validateCostPrice = (cp) => {
-        return validateRequiredNumberNegative(cp, "Costprice");
-    };
-
-    const validateRetailPrice = (rp) => {
-        return validateRequiredNumberNegative(rp, "Retailprice");
-    };
 
     function sleep(n) {
         return new Promise((resolve, reject) => {
@@ -467,12 +481,10 @@ const ImportFile = (props) => {
     const handleFile = (event) => {
         let fileObj = event.target.files[0];
 
-        console.log(fileObj);
         ExcelRenderer(fileObj, (err, resp) => {
             if (err) {
                 Swal.fire("Error", `${err}`, "Failure");
             } else {
-                console.log(resp);
                 setRows(resp.rows);
             }
         });
@@ -549,56 +561,6 @@ const NewItem = (props) => {
         setNewItemModalVisible(false);
     };
 
-    const validateNumber = (n, field) => {
-        n = Number(n);
-        if (Number.isNaN(n)) {
-            return `${field} is required`;
-        }
-    };
-
-    const validateNegative = (n, field) => {
-        n = Number(n);
-        if (n < 0) {
-            return `${field} is required to be postive`;
-        }
-    };
-
-    const validateRequired = (n, field) => {
-        if (!n) {
-            return `${field} is required`;
-        }
-    };
-
-    const validateRequiredNumberNegative = (n, field) => {
-        let err = validateRequired(n, field);
-        if (err) return err;
-        err = validateNumber(n, field);
-        if (err) return err;
-        return validateNegative(n, field);
-    };
-
-    const validateName = (name) => {
-        return validateRequired(name, "Name");
-    };
-
-    const validateCostPrice = (cp) => {
-        return validateRequiredNumberNegative(cp, "Costprice");
-    };
-
-    const validateRetailPrice = (rp) => {
-        return validateRequiredNumberNegative(rp, "Retailprice");
-    };
-
-    const validateQty = (qt, field) => {
-        if (qt) {
-            qt = Number(qt);
-            if (qt < 0) {
-                return `${field} is required to be postive`;
-            }
-        }
-    }
-
-
     const handleSuccessClick = async () => {
         let message;
         let err = validateName(name);
@@ -654,7 +616,6 @@ const NewItem = (props) => {
             getItems()
             setNewItemModalVisible(false);
         } catch (e) {
-            console.log(e);
             Swal.fire({
                 icon: "error",
                 title: "error",
@@ -691,8 +652,8 @@ const NewItem = (props) => {
                     </div>
                     <div class="categorySelect mb-3 w-75">
                         <select class="custom-select  " id="category" onChange={handleCategoryInput}>
-                            {props.categories.map((Category) =>
-                                <option value={category}>{Category.name}</option>
+                            {props.categories.map((cat) =>
+                                <option key={cat._id} value={cat._id}>{cat.name}</option>
                             )}
                         </select>
                     </div>
@@ -802,55 +763,6 @@ const EditItem = (props) => {
         setEditItemModalVisible(false);
     };
 
-    const validateNumber = (n, field) => {
-        n = Number(n);
-        if (Number.isNaN(n)) {
-            return `${field} is required`;
-        }
-    };
-
-    const validateNegative = (n, field) => {
-        n = Number(n);
-        if (n < 0) {
-            return `${field} is required to be postive`;
-        }
-    };
-
-    const validateRequired = (n, field) => {
-        if (!n) {
-            return `${field} is required`;
-        }
-    };
-
-    const validateRequiredNumberNegative = (n, field) => {
-        let err = validateRequired(n, field);
-        if (err) return err;
-        err = validateNumber(n, field);
-        if (err) return err;
-        return validateNegative(n, field);
-    };
-
-    const validateName = (name) => {
-        return validateRequired(name, "Name");
-    };
-
-    const validateCostPrice = (cp) => {
-        return validateRequiredNumberNegative(cp, "Costprice");
-    };
-
-    const validateRetailPrice = (rp) => {
-        return validateRequiredNumberNegative(rp, "Retailprice");
-    };
-
-    const validateQty = (qt, field) => {
-        if (qt) {
-            qt = Number(qt);
-            if (qt < 0) {
-                return `${field} is required to be postive`;
-            }
-        }
-    }
-
     const handleSuccessClick = async (e) => {
         let message;
         let err = validateName(name);
@@ -902,12 +814,11 @@ const EditItem = (props) => {
             getItems()
             Swal.fire(
                 "Updated!",
-                `Item: ${res.name} created successfully`,
+                `Item: ${res.name} updated successfully`,
                 "success"
             );
             setEditItemModalVisible(false);
         } catch (e) {
-            console.log(e);
             Swal.fire({
                 icon: "error",
                 title: "error",
@@ -945,8 +856,8 @@ const EditItem = (props) => {
                     </div>
                     <div class="categorySelect mb-3 w-75">
                         <select class="custom-select  " id="category" onChange={handleCategoryInput}>
-                            {props.categories.map((Category) =>
-                                <option value={category}>{Category.name}</option>
+                            {props.categories.map((cat) =>
+                                <option key={cat._id} value={cat._id}>{cat.name}</option>
                             )}
                         </select>
                     </div>
