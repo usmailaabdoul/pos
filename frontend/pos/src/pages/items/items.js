@@ -16,7 +16,7 @@ import ReactExport from "react-export-excel";
 import { connect } from 'react-redux';
 import { setItems } from '../../redux/actions/itemActions';
 import { bindActionCreators } from 'redux'
-import store from '../../store/index'
+import { Link } from 'react-router-dom'
 import "./items.css";
 
 const ExcelFile = ReactExport.ExcelFile;
@@ -240,9 +240,11 @@ function Items(props) {
                                 </button>
                             </div>
                             <div className="ml-2">
-                                <button className="btn btn-primary btn-sm">
-                                    <GetAppIcon style={{ position: "relative", bottom: "2" }} />
-                                    <span className="ml-3">Download sample</span>
+                                <button className="btn btn-primary btn-sm" >
+                                    <Link to="/sample.xlsx" target="_blank" download className="download-btn">
+                                        <GetAppIcon style={{ position: "relative", bottom: "2" }} />
+                                        <span className="ml-3">Download sample</span>
+                                    </Link>
                                 </button>
                             </div>
                             <div className="ml-2">
