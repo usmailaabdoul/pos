@@ -23,7 +23,6 @@ const ExcelFile = ReactExport.ExcelFile;
 const ExcelSheet = ReactExport.ExcelFile.ExcelSheet;
 const ExcelColumn = ReactExport.ExcelFile.ExcelColumn;
 
-
 const validateNumber = (n, field) => {
     n = Number(n);
     if (Number.isNaN(n)) {
@@ -61,6 +60,10 @@ const validateQty = (qty) => {
     return validateRequiredNumberNegative(qty, "Quantity");
 };
 
+const validateMinStockQty = (qty) => {
+    return validateRequiredNumberNegative(qty, "Min Stock Qty");
+};
+
 const validateBarcode = (barcode) => {
     return validateRequired(barcode, "Barcode");
 };
@@ -72,6 +75,16 @@ const validateCostPrice = (cp) => {
 const validateRetailPrice = (rp) => {
     return validateRequiredNumberNegative(rp, "Retailprice");
 };
+
+const validateMinRetailPrice = (mrp) => {
+    return validateRequiredNumberNegative(mrp, "MinRetailprice");
+};
+
+const validateMaxRetailPrice = (mrp) => {
+    return validateRequiredNumberNegative(mrp, "MaxRetailprice");
+};
+
+
 
 function Items(props) {
     const { items } = props
@@ -315,6 +328,19 @@ function Items(props) {
                             accessor: "retailPrice",
                         },
                         {
+                            Header: "Purchase Price",
+                            accessor: "purchasePrice",
+                        }, {
+                            Header: "Min-Retail Price",
+                            accessor: "minRetailPrice",
+                        }, {
+                            Header: "Max-Retail Price",
+                            accessor: "maxRetailPrice",
+                        }, {
+                            Header: "Min-Stock Quantity",
+                            accessor: "minStockQty",
+                        },
+                        {
                             Header: "Actions",
                             id: "actions",
                             Cell: (item) => {
@@ -442,22 +468,52 @@ const ImportFile = (props) => {
                 break;
             }
 
+            itemObj.purchasePrice = rows[i][6]
+            err = validateNegative(itemObj.purchasePrice, '"Purchase Price');
+            if (err) {
+                message = `${err} at row ${i} column ${6}`;
+            }
+
+            itemObj.minRetailPrice = rows[i][7]
+            err = validateMinRetailPrice(itemObj.minRetailPrice);
+            if (err) {
+                message = `${err} row ${i} column ${7}`;
+            }
+
+            itemObj.maxRetailPrice = rows[i][8];
+            err = validateMaxRetailPrice(itemObj.maxRetailPrice);
+            if (err) {
+                message = `${err} row ${i} column ${8}`;
+            }
+
+            itemObj.minStockQty = rows[i][9]
+            err = validateMinStockQty(itemObj.minStockQty);
+            if (err) {
+                message = `${err} row ${i} column ${9}`;
+            }
+
             try {
 
                 let _quantity;
+                let _minRetailPrice;
+                let _maxRetailPrice;
+                let _purchasePrice
+                let _minStock;
                 let _costPrice = Number(itemObj.costPrice)
                 let _retailPrice = Number(itemObj.retailPrice)
                 let barcode = itemObj.barcode.toString()
-                if (itemObj.qty) {
-                    _quantity = Number(itemObj.qty)
-                }
-                console.log('props.categories', props.categories)
+
+                itemObj.qty = itemObj.qty ? _quantity = Number(itemObj.qty) : ' ';
+                itemObj.minRetailPrice = itemObj.minRetailPrice ? _minRetailPrice = Number(itemObj.minRetailPrice) : ' ';
+                itemObj.maxRetailPrice = itemObj.maxRetailPrice ? _maxRetailPrice = Number(itemObj.maxRetailPrice) : ' ';
+                itemObj.purchasePrice = itemObj.purchasePrice ? _purchasePrice = Number(itemObj.purchasePrice) : ' ';
+                itemObj.minStock = itemObj.minStock ? _minStock = Number(itemObj.minStockQty) : ' ';
+
                 let cat = props.categories.find(c => c.name === itemObj.category)
                 if (!cat) {
                     message = `category: ${itemObj.category} does not exist. Create it first. Row ${i}`;
                     break;
                 }
-
 
                 let res = await apis.itemApi.addItem({
                     "name": itemObj.name,
@@ -466,6 +522,10 @@ const ImportFile = (props) => {
                     "category": cat._id,
                     "costPrice": _costPrice,
                     "retailPrice": _retailPrice,
+                    "purchasePrice": _purchasePrice,
+                    "minRetailPrice": _minRetailPrice,
+                    "maxRetailPrice": _maxRetailPrice,
+                    "minStockQty": _minStock,
                     "isRetired": false
                 });
                 Swal.fire(
@@ -563,7 +623,11 @@ const NewItem = (props) => {
     const [costPrice, setCostPrice] = useState(0);
     const [retailPrice, setRetailPrice] = useState(0);
     const [category, setCategory] = useState("");
-    const [quantity, setQuantity] = useState("");
+    const [_quantity, setQuantity] = useState("");
+    const [purchasePrice, setPurchasePrice] = useState(0);
+    const [minRetailPrice, setMinRetailPrice] = useState(0);
+    const [maxRetailPrice, setMaxRetailPrice] = useState(0);
+    const [minStockQty, setMinStockQty] = useState(0);
 
     const handleNameInput = (e) => setName(e.target.value);
     const handleBarcodeInput = (e) => setBarcode(e.target.value);
@@ -571,6 +635,10 @@ const NewItem = (props) => {
     const handleRetailPriceInput = (e) => setRetailPrice(e.target.value);
     const handleQuantityInput = (e) => setQuantity(e.target.value);
     const handleCategoryInput = (e) => setCategory(e.target.value);
+    const handlePurchasePriceInput = (e) => setPurchasePrice(e.target.value);
+    const handleminRetailPriceInput = (e) => setMinRetailPrice(e.target.value);
+    const handlemaxRetailPriceInput = (e) => setMaxRetailPrice(e.target.value);
+    const handleminStockInput = (e) => setMinStockQty(e.target.value);
 
     const handleCancleClick = () => {
         setNewItemModalVisible(false);
@@ -583,7 +651,12 @@ const NewItem = (props) => {
             message = `${err}`;
         }
 
-        err = validateQty(quantity, "Quantity");
+        err = validateQty(_quantity, "Quantity");
+        if (err) {
+            message = `${err} `;
+        }
+
+        err = validateMinStockQty(minStockQty);
         if (err) {
             message = `${err} `;
         }
@@ -598,6 +671,21 @@ const NewItem = (props) => {
             message = `${err} `;
         }
 
+        err = validateNegative(purchasePrice, '"Purchase Price');
+        if (err) {
+            message = `${err}`;
+        }
+
+        err = validateMinRetailPrice(minRetailPrice);
+        if (err) {
+            message = `${err}`;
+        }
+
+        err = validateMaxRetailPrice(maxRetailPrice);
+        if (err) {
+            message = `${err}`;
+        }
+
         if (message) {
             Swal.fire("Failure", `${message}`, "error");
             return;
@@ -606,20 +694,28 @@ const NewItem = (props) => {
         // handle error
         try {
 
-            let Quantity;
-            let CostPrice = Number(costPrice)
-            let RetailPrice = Number(retailPrice)
+            let _quantity;
+            let _costPrice = Number(costPrice)
+            let _retailPrice = Number(retailPrice)
+            let _minRetailPrice = Number(minRetailPrice);
+            let _maxRetailPrice = Number(maxRetailPrice);
+            let _purchasePrice = Number(purchasePrice);
+            let _minStock = Number(minStockQty)
 
-            if (quantity) {
-                Quantity = Number(quantity)
+            if (_quantity) {
+                _quantity = Number(_quantity)
             }
             let res = await apis.itemApi.addItem({
                 "name": name,
-                "qty": Quantity,
+                "qty": _quantity,
                 "barcode": barcode,
                 "category": category,
-                "costPrice": CostPrice,
-                "retailPrice": RetailPrice,
+                "costPrice": _costPrice,
+                "retailPrice": _retailPrice,
+                "purchasePrice": _purchasePrice,
+                "minRetailPrice": _minRetailPrice,
+                "maxRetailPrice": _maxRetailPrice,
+                "minStockQty": _minStock,
                 "isRetired": false
             });
             Swal.fire(
@@ -729,18 +825,89 @@ const NewItem = (props) => {
             <div className="mx-5">
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <div>
+                        <span className="w-25 text h6">Purchase Price</span>
+                    </div>
+                    <div class="input-group-prepend w-15">
+                        <div class="input-group-text">FCFA</div>
+                    </div>
+                    <input
+                        name="retailPrice"
+                        placeholder="retailPrice"
+                        value={purchasePrice}
+                        onChange={handlePurchasePriceInput}
+                        type="number"
+                        className={"form-control input text"}
+                    />
+                </div>
+            </div>
+            <div className="mx-5">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <span className="w-25 text h6">Min Retail Price</span>
+                    </div>
+                    <div class="input-group-prepend w-15">
+                        <div class="input-group-text">FCFA</div>
+                    </div>
+                    <input
+                        name="retailPrice"
+                        placeholder="retailPrice"
+                        value={minRetailPrice}
+                        onChange={handleminRetailPriceInput}
+                        type="number"
+                        className={"form-control input text"}
+                    />
+                </div>
+            </div>
+            <div className="mx-5">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <span className="w-25 text h6">Max Retail Price</span>
+                    </div>
+                    <div class="input-group-prepend w-15">
+                        <div class="input-group-text">FCFA</div>
+                    </div>
+                    <input
+                        name="retailPrice"
+                        placeholder="retailPrice"
+                        value={maxRetailPrice}
+                        onChange={handlemaxRetailPriceInput}
+                        type="number"
+                        className={"form-control input text"}
+                    />
+                </div>
+            </div>
+            <div className="mx-5">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <div>
                         <span className="w-25 text h6">Quantity</span>
                     </div>
                     <input
                         name="qty"
                         placeholder="1"
-                        value={quantity}
+                        value={_quantity}
                         onChange={handleQuantityInput}
                         type="number"
                         className={"w-75 form-control input"}
                     />
                 </div>
             </div>
+            <div className="mx-5">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <span className="w-25 text h6">Min Stock Quantity</span>
+                    </div>
+
+                    <input
+                        name="retailPrice"
+                        placeholder="retailPrice"
+                        value={minStockQty}
+                        onChange={handleminStockInput}
+                        type="number"
+                        className={"form-control input text"}
+                    />
+                </div>
+            </div>
+
             <div className="d-flex justify-content-between align-items-center mt-4 mx-5">
                 <button
                     onClick={() => handleCancleClick(false)}
@@ -767,6 +934,10 @@ const EditItem = (props) => {
     const [retailPrice, setRetailPrice] = useState(item.retailPrice);
     const [category, setCategory] = useState(item.category);
     const [quantity, setQuantity] = useState(item.qty);
+    const [purchasePrice, setPurchasePrice] = useState(0);
+    const [minRetailPrice, setMinRetailPrice] = useState(0);
+    const [maxRetailPrice, setMaxRetailPrice] = useState(0);
+    const [minStockQty, setMinStockQty] = useState(0);
 
     const handleNameInput = (e) => setName(e.target.value);
     const handleBarcodeInput = (e) => setBarcode(e.target.value);
@@ -774,6 +945,10 @@ const EditItem = (props) => {
     const handleRetailPriceInput = (e) => setRetailPrice(e.target.value);
     const handleQuantityInput = (e) => setQuantity(e.target.value);
     const handleCategoryInput = (e) => setCategory(e.target.value);
+    const handlePurchasePriceInput = (e) => setPurchasePrice(e.target.value);
+    const handleminRetailPriceInput = (e) => setMinRetailPrice(e.target.value);
+    const handlemaxRetailPriceInput = (e) => setMaxRetailPrice(e.target.value);
+    const handleminStockInput = (e) => setMinStockQty(e.target.value);
 
     const handleCancleClick = () => {
         setEditItemModalVisible(false);
@@ -801,9 +976,28 @@ const EditItem = (props) => {
             message = `${err} `;
         }
 
+        err = validateMinStockQty(minStockQty);
+        if (err) {
+            message = `${err} `;
+        }
+
+        err = validateNegative(purchasePrice, '"Purchase Price');
+        if (err) {
+            message = `${err} at purchase price`;
+        }
+
+        err = validateMinRetailPrice(minRetailPrice);
+        if (err) {
+            message = `${err}`;
+        }
+
+        err = validateMaxRetailPrice(maxRetailPrice);
+        if (err) {
+            message = `${err}`;
+        }
+
         if (message) {
             Swal.fire("Failure", `${message}`, "error");
-            setEditItemModalVisible(false);
             return;
         }
 
@@ -813,6 +1007,10 @@ const EditItem = (props) => {
             let qtty;
             let costprice = Number(costPrice)
             let retailprice = Number(retailPrice)
+            let _minRetailPrice = Number(minRetailPrice);
+            let _maxRetailPrice = Number(maxRetailPrice);
+            let _purchasePrice = Number(purchasePrice);
+            let _minStock = Number(minStockQty)
 
             if (quantity) {
                 qtty = Number(quantity)
@@ -824,6 +1022,10 @@ const EditItem = (props) => {
                 "category": category,
                 "costPrice": costprice,
                 "retailPrice": retailprice,
+                "purchasePrice": _purchasePrice,
+                "minRetailPrice": _minRetailPrice,
+                "maxRetailPrice": _maxRetailPrice,
+                "minStockQty": _minStock,
                 "isRetired": false
             });
 
@@ -933,6 +1135,60 @@ const EditItem = (props) => {
             <div className="mx-5">
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <div>
+                        <span className="w-25 text h6">Purchase Price</span>
+                    </div>
+                    <div class="input-group-prepend w-15">
+                        <div class="input-group-text">FCFA</div>
+                    </div>
+                    <input
+                        name="retailPrice"
+                        placeholder="retailPrice"
+                        value={purchasePrice}
+                        onChange={handlePurchasePriceInput}
+                        type="number"
+                        className={"form-control input text"}
+                    />
+                </div>
+            </div>
+            <div className="mx-5">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <span className="w-25 text h6">Min Retail Price</span>
+                    </div>
+                    <div class="input-group-prepend w-15">
+                        <div class="input-group-text">FCFA</div>
+                    </div>
+                    <input
+                        name="retailPrice"
+                        placeholder="retailPrice"
+                        value={minRetailPrice}
+                        onChange={handleminRetailPriceInput}
+                        type="number"
+                        className={"form-control input text"}
+                    />
+                </div>
+            </div>
+            <div className="mx-5">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <span className="w-25 text h6">Max Retail Price</span>
+                    </div>
+                    <div class="input-group-prepend w-15">
+                        <div class="input-group-text">FCFA</div>
+                    </div>
+                    <input
+                        name="retailPrice"
+                        placeholder="retailPrice"
+                        value={maxRetailPrice}
+                        onChange={handlemaxRetailPriceInput}
+                        type="number"
+                        className={"form-control input text"}
+                    />
+                </div>
+            </div>
+            <div className="mx-5">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <div>
                         <span className="w-25 text h6">Quantity</span>
                     </div>
                     <input
@@ -942,6 +1198,22 @@ const EditItem = (props) => {
                         onChange={handleQuantityInput}
                         type="number"
                         className={"w-75 form-control input"}
+                    />
+                </div>
+            </div>
+            <div className="mx-5">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <span className="w-25 text h6">Min Stock Quantity</span>
+                    </div>
+
+                    <input
+                        name="retailPrice"
+                        placeholder="retailPrice"
+                        value={minStockQty}
+                        onChange={handleminStockInput}
+                        type="number"
+                        className={"form-control input text"}
                     />
                 </div>
             </div>
