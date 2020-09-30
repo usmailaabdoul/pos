@@ -17,6 +17,7 @@ import { connect } from 'react-redux';
 import { setItems } from '../../redux/actions/itemActions';
 import { bindActionCreators } from 'redux'
 import { Link } from 'react-router-dom'
+import Switch from '@material-ui/core/Switch';
 import "./items.css";
 
 const ExcelFile = ReactExport.ExcelFile;
@@ -97,6 +98,8 @@ function Items(props) {
     const [filteredItems, setFilteredItems] = useState([]);
     const [isloading, setLoading] = useState(false);
     const [exportItems, setExportItems] = useState([])
+    const [lowStock, setLowStock] = useState(0);
+    const [showLowStock, setShowLowStock] = useState(false)
 
     useEffect(() => {
         getCategory().then((cats) => {
@@ -105,7 +108,7 @@ function Items(props) {
     }, []);
 
 
-    useEffect(() => { }, [_items, filteredItems, props])
+    useEffect(() => { }, [_items, filteredItems, props, lowStock])
 
     const getItems = async (cats) => {
         if (!cats) {
@@ -125,6 +128,14 @@ function Items(props) {
                 _item.category = cat ? cat.name : "N/A"
                 return _item
             })
+            let stock = 0;
+            res.forEach((item) => {
+                if (item.qty < item.minStock && !item.isRetired) {
+                    stock++;
+                }
+            })
+
+            setLowStock(stock);
             setExportItems(_exportItems)
             setLoading(false);
         } catch (e) {
@@ -191,6 +202,9 @@ function Items(props) {
 
     let nonRetiredItems = filteredItems.filter((item) => !item.isRetired);
 
+    let lowStockItems = _items.filter((item) => item.qty < item.minStock && !item.isRetired);
+
+
     const handleSearchInput = (e) => {
         if (!e) {
             setFilteredItems([...items]);
@@ -217,12 +231,23 @@ function Items(props) {
         setImportModalVisible(true);
     };
 
+    const showLowStockItems = () => {
+        setShowLowStock(!showLowStock);
+    }
+
     return (
         <div>
-            <div className="container">
+            <div className=" my-container-sm">
                 <div className="ml-0 my-3 band-header align-items-center">
                     <div className="d-flex justify-content-end align-items-center">
-                        {/* <button className="btn btn-primary ml-3 mr-5">Bulk Delete</button> */}
+                        <Switch
+                            checked={showLowStock}
+                            onChange={showLowStockItems}
+                            style={{ color: '#dc3545' }}
+                            name="checkedB"
+                            inputProps={{ 'aria-label': 'primary checkbox' }}
+                        />
+                        Show Low Stock({lowStock})
                         <div>
                             <span className="mr-3 ml-3">Filter</span>
                         </div>
@@ -287,7 +312,7 @@ function Items(props) {
                     showPagination={true}
                     showPageSizeOptions={false}
                     minRows={0}
-                    data={nonRetiredItems}
+                    data={showLowStock ? lowStockItems : nonRetiredItems}
                     defaultPageSize={10}
                     style={{ textAlign: "center" }}
                     loadingText="Loading Products ..."
@@ -309,7 +334,11 @@ function Items(props) {
                         },
                         {
                             Header: "Quantity",
-                            accessor: "qty",
+                            Cell: (row) => {
+                                return (
+                                    <div className={row.original.qty < row.original.minStock ? 'lowQty' : ' '}>{row.original.qty}</div>
+                                )
+                            }
                         },
                         {
                             Header: "Barcode",
