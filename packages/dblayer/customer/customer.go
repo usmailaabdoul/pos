@@ -84,10 +84,12 @@ func UpdateById(id string, item models.Customer) error {
 	}
 	filter := bson.D{primitive.E{Key: "_id", Value: objectId}}
 	value := bson.M{
-		"name":        item.Name,
-		"phoneNumber": item.PhoneNumber,
-		"updated_at":  time.Now(),
-		"created_at":  item.CreatedAt,
+		"name":         item.Name,
+		"phoneNumber":  item.PhoneNumber,
+		"debt":         item.Debt,
+		"debtPayments": item.DebtPayments,
+		"updated_at":   time.Now(),
+		"created_at":   item.CreatedAt,
 	}
 	update := bson.D{primitive.E{Key: "$set", Value: value}}
 	return collection().FindOneAndUpdate(ctx, filter, update).Err()
