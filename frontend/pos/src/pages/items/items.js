@@ -212,11 +212,13 @@ function Items(props) {
         }
         let searchString = e.target.value.toLowerCase();
         let tmp = items.filter((item) => {
+            console.log(item)
+            let cat = categories.find(c => c._id === item.category)
             return (
                 !item.isRetired && (
                     item.name.toLowerCase().indexOf(searchString) >= 0 ||
                     item.barcode.toLowerCase().indexOf(searchString) >= 0 ||
-                    item.retailPrice.toString().toLowerCase().indexOf(searchString) >= 0 ||
+                    cat.name.toLowerCase().indexOf(searchString) >= 0 ||
                     item.costPrice.toString().toLowerCase().indexOf(searchString) >= 0
                 ));
         });
