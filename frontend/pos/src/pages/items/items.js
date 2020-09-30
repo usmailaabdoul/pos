@@ -17,6 +17,7 @@ import { connect } from 'react-redux';
 import { setItems } from '../../redux/actions/itemActions';
 import { bindActionCreators } from 'redux'
 import { Link } from 'react-router-dom'
+import Switch from '@material-ui/core/Switch';
 import "./items.css";
 
 const ExcelFile = ReactExport.ExcelFile;
@@ -128,7 +129,7 @@ function Items(props) {
                 return _item
             })
             let stock = 0;
-            res.map((item) => (
+            res.forEach((item) => (
                 item.qty < item.minStock ? stock++ : ' '
             ))
 
@@ -199,7 +200,7 @@ function Items(props) {
 
     let nonRetiredItems = filteredItems.filter((item) => !item.isRetired);
 
-    let lowStockItems = filteredItems.filter((item) => item.qty < item.minStock);
+    let lowStockItems = _items.filter((item) => item.qty < item.minStock && !item.isRetired);
 
 
     const handleSearchInput = (e) => {
@@ -237,7 +238,14 @@ function Items(props) {
             <div className=" my-container-sm">
                 <div className="ml-0 my-3 band-header align-items-center">
                     <div className="d-flex justify-content-end align-items-center">
-                        <button className="btn btn-danger ml-3 mr-5" onClick={showLowStockItems}>{lowStock} Low Stock</button>
+                        <Switch
+                            checked={showLowStock}
+                            onChange={showLowStockItems}
+                            style={{ color: '#dc3545' }}
+                            name="checkedB"
+                            inputProps={{ 'aria-label': 'primary checkbox' }}
+                        />
+                        {lowStock} Low Stock
                         <div>
                             <span className="mr-3 ml-3">Filter</span>
                         </div>
