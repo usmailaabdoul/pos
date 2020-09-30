@@ -132,8 +132,8 @@ func updateItem(c echo.Context) error {
 	if req.CostPrice != 0 {
 		item.CostPrice = req.CostPrice
 	}
-	if req.RetailPrice != 0 {
-		item.RetailPrice = req.RetailPrice
+	if req.MinRetailPrice != 0 {
+		item.MinRetailPrice = req.MinRetailPrice
 	}
 	if req.Quantity != 0 {
 		item.Quantity = req.Quantity
@@ -265,16 +265,19 @@ func createItem(c echo.Context) error {
 	}
 
 	created, err := itemService.Create(models.Item{
-		ID:          primitive.NewObjectID(),
-		Name:        req.Name,
-		Quantity:    req.Quantity,
-		Barcode:     req.Barcode,
-		Category:    cat.ID,
-		CostPrice:   req.CostPrice,
-		RetailPrice: req.RetailPrice,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
-		IsRetired:   false,
+		ID:             primitive.NewObjectID(),
+		Name:           req.Name,
+		Quantity:       req.Quantity,
+		Barcode:        req.Barcode,
+		Category:       cat.ID,
+		CostPrice:      req.CostPrice,
+		PurchasePrice:  req.PurchasePrice,
+		MinRetailPrice: req.MinRetailPrice,
+		MaxRetailPrice: req.MaxRetailPrice,
+		MinStock:       req.MinStock,
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
+		IsRetired:      false,
 	})
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
@@ -290,19 +293,25 @@ type errorResponse struct {
 }
 
 type editRequest struct {
-	Name        string  `json:"name"`
-	Barcode     string  `json:"barcode"`
-	Category    string  `json:"category"`
-	CostPrice   float64 `json:"costPrice"`
-	RetailPrice float64 `json:"retailPrice"`
-	Quantity    uint32  `json:"qty"`
+	Name           string  `json:"name"`
+	Barcode        string  `json:"barcode"`
+	Category       string  `json:"category"`
+	CostPrice      float64 `json:"costPrice"`
+	PurchasePrice  float64 `json:"purchasePrice"`
+	MinRetailPrice float64 `json:"minRetailPrice"`
+	MaxRetailPrice float64 `json:"maxRetailPrice"`
+	Quantity       uint32  `json:"qty"`
+	MinStock       uint32  `json:"minStock"`
 }
 
 type createRequest struct {
-	Name        string  `json:"name" validate:"required"`
-	Barcode     string  `json:"barcode"`
-	Category    string  `json:"category"`
-	CostPrice   float64 `json:"costPrice" validate:"required"`
-	RetailPrice float64 `json:"retailPrice" validate:"required"`
-	Quantity    uint32  `json:"qty"`
+	Name           string  `json:"name" validate:"required"`
+	Barcode        string  `json:"barcode"`
+	Category       string  `json:"category"`
+	CostPrice      float64 `json:"costPrice" validate:"required"`
+	PurchasePrice  float64 `json:"purchasePrice" validate:"required"`
+	MinRetailPrice float64 `json:"minRetailPrice" validate:"required"`
+	MaxRetailPrice float64 `json:"maxRetailPrice" validate:"required"`
+	Quantity       uint32  `json:"qty"`
+	MinStock       uint32  `json:"minStock"`
 }
