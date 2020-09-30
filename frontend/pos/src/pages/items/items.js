@@ -1046,13 +1046,14 @@ const EditItem = (props) => {
                         name="name"
                         placeholder="name"
                         value={name}
+                        disabled={item.isSystem}
                         onChange={handleNameInput}
                         type="text"
                         className={"w-75 form-control input"}
                     />
                 </div>
             </div>
-            <div className="mx-5">
+            {!item.isSystem && <div className="mx-5">
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <span className="w-25 text h6">Category</span>
@@ -1065,8 +1066,8 @@ const EditItem = (props) => {
                         </select>
                     </div>
                 </div>
-            </div>
-            <div className="mx-5">
+            </div>}
+            {!item.isSystem && <div className="mx-5">
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <span className="w-25 text h6">Barcode</span>
@@ -1080,7 +1081,7 @@ const EditItem = (props) => {
                         className={"w-75 form-control input"}
                     />
                 </div>
-            </div>
+            </div>}
             <div className="mx-5">
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <div>
@@ -1154,7 +1155,7 @@ const EditItem = (props) => {
                     />
                 </div>
             </div>
-            <div className="mx-5">
+            {!item.isSystem && <div className="mx-5">
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <span className="w-25 text h6">Quantity</span>
@@ -1168,8 +1169,8 @@ const EditItem = (props) => {
                         className={"w-75 form-control input"}
                     />
                 </div>
-            </div>
-            <div className="mx-5">
+            </div>}
+            {!item.isSystem && <div className="mx-5">
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <span className="w-25 text h6">Min Stock Quantity</span>
@@ -1184,7 +1185,7 @@ const EditItem = (props) => {
                         className={"form-control input text"}
                     />
                 </div>
-            </div>
+            </div>}
             <div className="d-flex justify-content-between align-items-center mt-4 mx-5">
                 <button
                     onClick={() => handleCancleClick(false)}
