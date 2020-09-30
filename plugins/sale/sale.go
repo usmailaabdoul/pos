@@ -83,7 +83,19 @@ func init() {
 	sale.AddHandler(http.MethodGet, "/", list)
 	sale.AddHandler(http.MethodPost, "/", create)
 	sale.AddHandler(http.MethodGet, "/:id", get)
+	sale.AddHandler(http.MethodGet, "/customer/:id", getByCustomer)
 
+}
+
+func getByCustomer(c echo.Context) error {
+	id := c.Param("id")
+	sales, err := saleService.FindByCustomerID(id)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, errResponse{
+			Error: err.Error(),
+		})
+	}
+	return c.JSON(http.StatusOK, sales)
 }
 
 func get(c echo.Context) error {

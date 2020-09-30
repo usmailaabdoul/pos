@@ -45,6 +45,19 @@ func Create(item models.Sale) (created *models.Sale, err error) {
 	return
 }
 
+func FindByCustomerID(id string) (res []*models.Sale, err error) {
+	sales, err := FindAll()
+	if err != nil {
+		return
+	}
+	for _, sale := range sales {
+		if sale.Customer.ID.Hex() == id {
+			res = append(res, sale)
+		}
+	}
+	return
+}
+
 func FindById(id string) (item *models.Sale, err error) {
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {

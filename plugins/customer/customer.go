@@ -1,9 +1,13 @@
 package customer
 
 import (
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/acha-bill/pos/common"
+	userService "github.com/acha-bill/pos/packages/dblayer/user"
 
 	"github.com/acha-bill/pos/models"
 	customerService "github.com/acha-bill/pos/packages/dblayer/customer"
@@ -77,6 +81,73 @@ func init() {
 	auth.AddHandler(http.MethodPost, "/", create)
 	auth.AddHandler(http.MethodPut, "/:id", update)
 	auth.AddHandler(http.MethodGet, "/:id", get)
+	auth.AddHandler(http.MethodPost, "/:id/pay", payDebt)
+}
+
+func payDebt(c echo.Context) error {
+	id := c.Param("id")
+	customer, err := customerService.FindById(id)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, errorResponse{
+			Error: err.Error(),
+		})
+	}
+	if customer == nil {
+		return c.JSON(http.StatusNotFound, errorResponse{
+			Error: "category not found",
+		})
+	}
+
+	var req debtPaymentRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, errorResponse{
+			Error: err.Error(),
+		})
+	}
+
+	if err := validate.Struct(req); err != nil {
+		return c.JSON(http.StatusBadRequest, errorResponse{
+			Error: err.Error(),
+		})
+	}
+
+	if req.Amount > customer.Debt {
+		return c.JSON(http.StatusBadRequest, errorResponse{
+			Error: fmt.Sprintf("Amount of %f is greater than outstanding debt of %f", req.Amount, customer.Debt),
+		})
+	}
+
+	userID := common.GetClaims(c).Id
+	user, err := userService.FindById(userID)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, errorResponse{
+			Error: err.Error(),
+		})
+	}
+
+	debtPayments := customer.DebtPayments
+	debtPayments = append(debtPayments, models.DebtPayment{
+		Amount:    req.Amount,
+		Cashier:   *user,
+		CreatedAt: time.Now(),
+	})
+	customer.DebtPayments = debtPayments
+	customer.Debt = customer.Debt - req.Amount
+
+	err = customerService.UpdateById(customer.ID.Hex(), *customer)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, errorResponse{
+			Error: err.Error(),
+		})
+	}
+
+	updated, err := customerService.FindById(customer.ID.Hex())
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, errorResponse{
+			Error: err.Error(),
+		})
+	}
+	return c.JSON(http.StatusCreated, updated)
 }
 
 func get(c echo.Context) error {
@@ -194,4 +265,7 @@ type updateRequest struct {
 type createRequest struct {
 	Name        string `json:"name" validate:"required"`
 	PhoneNumber string `json:"phoneNumber" validate:"required"`
+}
+type debtPaymentRequest struct {
+	Amount float64 `json:"amount" validate:"required"`
 }
