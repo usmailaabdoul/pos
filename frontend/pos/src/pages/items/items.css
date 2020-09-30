@@ -30,3 +30,13 @@
   width: 100%;
   margin-left: -40%;
 }
+
+.download-btn {
+  color: white;
+  padding: 0.2rem 0;
+}
+
+.download-btn:hover {
+  color: white;
+  text-decoration: none;
+}
