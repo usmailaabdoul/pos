@@ -72,12 +72,12 @@ const validateCostPrice = (cp) => {
     return validateRequiredNumberNegative(cp, "Costprice");
 };
 
-const validateRetailPrice = (rp) => {
-    return validateRequiredNumberNegative(rp, "Retailprice");
-};
-
 const validateMinRetailPrice = (mrp) => {
     return validateRequiredNumberNegative(mrp, "MinRetailprice");
+};
+
+const validatePurchasePrice = (mrp) => {
+    return validateRequiredNumberNegative(mrp, "Purchase price");
 };
 
 const validateMaxRetailPrice = (mrp) => {
@@ -271,8 +271,11 @@ function Items(props) {
                                         <ExcelColumn label="Quantity" value="qty" />
                                         <ExcelColumn label="Barcode" value="barcode" />
                                         <ExcelColumn label="Category" value="category" />
-                                        <ExcelColumn label="Cost Price" value="costPrice" />
-                                        <ExcelColumn label="Retail Price" value="retailPrice" />
+                                        <ExcelColumn label="CostPrice" value="costPrice" />
+                                        <ExcelColumn label="MinRetailPrice" value="minRetailPrice" />
+                                        <ExcelColumn label="MaxRetailPrice" value="maxRetailPrice" />
+                                        <ExcelColumn label="PurchasePrice" value="purchasePrice" />
+                                        <ExcelColumn label="MinStockQty" value="minStock" />
                                     </ExcelSheet>
                                 </ExcelFile>
                             </div>
@@ -324,10 +327,6 @@ function Items(props) {
                             accessor: "costPrice",
                         },
                         {
-                            Header: "Retail Price",
-                            accessor: "retailPrice",
-                        },
-                        {
                             Header: "Purchase Price",
                             accessor: "purchasePrice",
                         }, {
@@ -338,7 +337,7 @@ function Items(props) {
                             accessor: "maxRetailPrice",
                         }, {
                             Header: "Min-Stock Quantity",
-                            accessor: "minStockQty",
+                            accessor: "minStock",
                         },
                         {
                             Header: "Actions",
@@ -461,35 +460,28 @@ const ImportFile = (props) => {
                 break;
             }
 
-            itemObj.retailPrice = rows[i][5];
-            err = validateName(itemObj.retailPrice);
+            itemObj.purchasePrice = rows[i][5]
+            err = validatePurchasePrice(itemObj.purchasePrice, '"Purchase Price');
             if (err) {
                 message = `${err} at row ${i} column ${5}`;
-                break;
             }
 
-            itemObj.purchasePrice = rows[i][6]
-            err = validateNegative(itemObj.purchasePrice, '"Purchase Price');
-            if (err) {
-                message = `${err} at row ${i} column ${6}`;
-            }
-
-            itemObj.minRetailPrice = rows[i][7]
+            itemObj.minRetailPrice = rows[i][6]
             err = validateMinRetailPrice(itemObj.minRetailPrice);
+            if (err) {
+                message = `${err} row ${i} column ${6}`;
+            }
+
+            itemObj.maxRetailPrice = rows[i][7];
+            err = validateMaxRetailPrice(itemObj.maxRetailPrice);
             if (err) {
                 message = `${err} row ${i} column ${7}`;
             }
 
-            itemObj.maxRetailPrice = rows[i][8];
-            err = validateMaxRetailPrice(itemObj.maxRetailPrice);
+            itemObj.minStock = rows[i][8]
+            err = validateMinStockQty(itemObj.minStock);
             if (err) {
                 message = `${err} row ${i} column ${8}`;
-            }
-
-            itemObj.minStockQty = rows[i][9]
-            err = validateMinStockQty(itemObj.minStockQty);
-            if (err) {
-                message = `${err} row ${i} column ${9}`;
             }
 
             try {
@@ -500,14 +492,13 @@ const ImportFile = (props) => {
                 let _purchasePrice
                 let _minStock;
                 let _costPrice = Number(itemObj.costPrice)
-                let _retailPrice = Number(itemObj.retailPrice)
                 let barcode = itemObj.barcode.toString()
 
                 itemObj.qty = itemObj.qty ? _quantity = Number(itemObj.qty) : ' ';
-                itemObj.minRetailPrice = itemObj.minRetailPrice ? _minRetailPrice = Number(itemObj.minRetailPrice) : ' ';
-                itemObj.maxRetailPrice = itemObj.maxRetailPrice ? _maxRetailPrice = Number(itemObj.maxRetailPrice) : ' ';
-                itemObj.purchasePrice = itemObj.purchasePrice ? _purchasePrice = Number(itemObj.purchasePrice) : ' ';
-                itemObj.minStock = itemObj.minStock ? _minStock = Number(itemObj.minStockQty) : ' ';
+                _minRetailPrice = Number(itemObj.minRetailPrice);
+                _maxRetailPrice = Number(itemObj.maxRetailPrice);
+                _purchasePrice = Number(itemObj.purchasePrice);
+                _minStock = Number(itemObj.minStockQty);
 
                 let cat = props.categories.find(c => c.name === itemObj.category)
                 if (!cat) {
@@ -521,11 +512,10 @@ const ImportFile = (props) => {
                     "barcode": barcode,
                     "category": cat._id,
                     "costPrice": _costPrice,
-                    "retailPrice": _retailPrice,
                     "purchasePrice": _purchasePrice,
                     "minRetailPrice": _minRetailPrice,
                     "maxRetailPrice": _maxRetailPrice,
-                    "minStockQty": _minStock,
+                    "minStock": _minStock,
                     "isRetired": false
                 });
                 Swal.fire(
@@ -621,7 +611,6 @@ const NewItem = (props) => {
     const [name, setName] = useState("");
     const [barcode, setBarcode] = useState("");
     const [costPrice, setCostPrice] = useState(0);
-    const [retailPrice, setRetailPrice] = useState(0);
     const [category, setCategory] = useState("");
     const [_quantity, setQuantity] = useState("");
     const [purchasePrice, setPurchasePrice] = useState(0);
@@ -632,7 +621,6 @@ const NewItem = (props) => {
     const handleNameInput = (e) => setName(e.target.value);
     const handleBarcodeInput = (e) => setBarcode(e.target.value);
     const handleCostPriceInput = (e) => setCostPrice(e.target.value);
-    const handleRetailPriceInput = (e) => setRetailPrice(e.target.value);
     const handleQuantityInput = (e) => setQuantity(e.target.value);
     const handleCategoryInput = (e) => setCategory(e.target.value);
     const handlePurchasePriceInput = (e) => setPurchasePrice(e.target.value);
@@ -666,12 +654,7 @@ const NewItem = (props) => {
             message = `${err}`;
         }
 
-        err = validateRetailPrice(retailPrice);
-        if (err) {
-            message = `${err} `;
-        }
-
-        err = validateNegative(purchasePrice, '"Purchase Price');
+        err = validatePurchasePrice(purchasePrice, '"Purchase Price');
         if (err) {
             message = `${err}`;
         }
@@ -696,7 +679,6 @@ const NewItem = (props) => {
 
             let _quantity;
             let _costPrice = Number(costPrice)
-            let _retailPrice = Number(retailPrice)
             let _minRetailPrice = Number(minRetailPrice);
             let _maxRetailPrice = Number(maxRetailPrice);
             let _purchasePrice = Number(purchasePrice);
@@ -711,11 +693,10 @@ const NewItem = (props) => {
                 "barcode": barcode,
                 "category": category,
                 "costPrice": _costPrice,
-                "retailPrice": _retailPrice,
                 "purchasePrice": _purchasePrice,
                 "minRetailPrice": _minRetailPrice,
                 "maxRetailPrice": _maxRetailPrice,
-                "minStockQty": _minStock,
+                "minStock": _minStock,
                 "isRetired": false
             });
             Swal.fire(
@@ -799,24 +780,6 @@ const NewItem = (props) => {
                         placeholder="0"
                         value={costPrice}
                         onChange={handleCostPriceInput}
-                        type="number"
-                        className={"form-control input text"}
-                    />
-                </div>
-            </div>
-            <div className="mx-5">
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <span className="w-25 text h6">Retail Price</span>
-                    </div>
-                    <div class="input-group-prepend w-15">
-                        <div class="input-group-text">FCFA</div>
-                    </div>
-                    <input
-                        name="retailPrice"
-                        placeholder="retailPrice"
-                        value={retailPrice}
-                        onChange={handleRetailPriceInput}
                         type="number"
                         className={"form-control input text"}
                     />
@@ -931,18 +894,16 @@ const EditItem = (props) => {
     const [name, setName] = useState(item.name);
     const [barcode, setBarcode] = useState(item.barcode);
     const [costPrice, setCostPrice] = useState(item.costPrice);
-    const [retailPrice, setRetailPrice] = useState(item.retailPrice);
     const [category, setCategory] = useState(item.category);
     const [quantity, setQuantity] = useState(item.qty);
-    const [purchasePrice, setPurchasePrice] = useState(0);
-    const [minRetailPrice, setMinRetailPrice] = useState(0);
-    const [maxRetailPrice, setMaxRetailPrice] = useState(0);
-    const [minStockQty, setMinStockQty] = useState(0);
+    const [purchasePrice, setPurchasePrice] = useState(item.purchasePrice);
+    const [minRetailPrice, setMinRetailPrice] = useState(item.minRetailPrice);
+    const [maxRetailPrice, setMaxRetailPrice] = useState(item.maxRetailPrice);
+    const [minStockQty, setMinStockQty] = useState(item.minStock);
 
     const handleNameInput = (e) => setName(e.target.value);
     const handleBarcodeInput = (e) => setBarcode(e.target.value);
     const handleCostPriceInput = (e) => setCostPrice(e.target.value);
-    const handleRetailPriceInput = (e) => setRetailPrice(e.target.value);
     const handleQuantityInput = (e) => setQuantity(e.target.value);
     const handleCategoryInput = (e) => setCategory(e.target.value);
     const handlePurchasePriceInput = (e) => setPurchasePrice(e.target.value);
@@ -971,19 +932,14 @@ const EditItem = (props) => {
             message = `${err}`;
         }
 
-        err = validateRetailPrice(retailPrice);
-        if (err) {
-            message = `${err} `;
-        }
-
         err = validateMinStockQty(minStockQty);
         if (err) {
             message = `${err} `;
         }
 
-        err = validateNegative(purchasePrice, '"Purchase Price');
+        err = validatePurchasePrice(purchasePrice);
         if (err) {
-            message = `${err} at purchase price`;
+            message = `${err}`;
         }
 
         err = validateMinRetailPrice(minRetailPrice);
@@ -1006,7 +962,6 @@ const EditItem = (props) => {
 
             let qtty;
             let costprice = Number(costPrice)
-            let retailprice = Number(retailPrice)
             let _minRetailPrice = Number(minRetailPrice);
             let _maxRetailPrice = Number(maxRetailPrice);
             let _purchasePrice = Number(purchasePrice);
@@ -1021,11 +976,10 @@ const EditItem = (props) => {
                 "barcode": barcode,
                 "category": category,
                 "costPrice": costprice,
-                "retailPrice": retailprice,
                 "purchasePrice": _purchasePrice,
                 "minRetailPrice": _minRetailPrice,
                 "maxRetailPrice": _maxRetailPrice,
-                "minStockQty": _minStock,
+                "minStock": _minStock,
                 "isRetired": false
             });
 
@@ -1114,24 +1068,7 @@ const EditItem = (props) => {
                     />
                 </div>
             </div>
-            <div className="mx-5">
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <span className="w-25 text h6">Retail Price</span>
-                    </div>
-                    <div class="input-group-prepend w-15">
-                        <div class="input-group-text">FCFA</div>
-                    </div>
-                    <input
-                        name="retailPrice"
-                        placeholder="retailPrice"
-                        value={retailPrice}
-                        onChange={handleRetailPriceInput}
-                        type="number"
-                        className={"form-control input text"}
-                    />
-                </div>
-            </div>
+
             <div className="mx-5">
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <div>
@@ -1141,8 +1078,8 @@ const EditItem = (props) => {
                         <div class="input-group-text">FCFA</div>
                     </div>
                     <input
-                        name="retailPrice"
-                        placeholder="retailPrice"
+                        name=" purchasePrice"
+                        placeholder=" purchasePrice"
                         value={purchasePrice}
                         onChange={handlePurchasePriceInput}
                         type="number"
@@ -1159,8 +1096,8 @@ const EditItem = (props) => {
                         <div class="input-group-text">FCFA</div>
                     </div>
                     <input
-                        name="retailPrice"
-                        placeholder="retailPrice"
+                        name="minRetailPrice"
+                        placeholder="minRetailPrice"
                         value={minRetailPrice}
                         onChange={handleminRetailPriceInput}
                         type="number"
@@ -1177,8 +1114,8 @@ const EditItem = (props) => {
                         <div class="input-group-text">FCFA</div>
                     </div>
                     <input
-                        name="retailPrice"
-                        placeholder="retailPrice"
+                        name="maxRetailPrice"
+                        placeholder="maxRetailPrice"
                         value={maxRetailPrice}
                         onChange={handlemaxRetailPriceInput}
                         type="number"
@@ -1208,8 +1145,8 @@ const EditItem = (props) => {
                     </div>
 
                     <input
-                        name="retailPrice"
-                        placeholder="retailPrice"
+                        name="minStockQty"
+                        placeholder="minStockQty"
                         value={minStockQty}
                         onChange={handleminStockInput}
                         type="number"

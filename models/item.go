@@ -8,14 +8,17 @@ import (
 
 // Item defines an item
 type Item struct {
-	ID          primitive.ObjectID `bson:"_id" json:"_id"`
-	Name        string             `bson:"name" json:"name"`
-	Quantity    uint32             `bson:"qty" json:"qty"`
-	Barcode     string             `bson:"barcode" json:"barcode"`
-	Category    primitive.ObjectID `bson:"category" json:"category"`
-	CostPrice   float64            `bson:"costPrice" json:"costPrice"`
-	RetailPrice float64            `bson:"retailPrice" json:"retailPrice"`
-	CreatedAt   time.Time          `bson:"created_at" json:"created_at"`
-	UpdatedAt   time.Time          `bson:"updated_at" json:"updated_at"`
-	IsRetired   bool               `bson:"isRetired" json:"isRetired"`
+	ID             primitive.ObjectID `bson:"_id" json:"_id"`
+	Name           string             `bson:"name" json:"name"`
+	Quantity       uint32             `bson:"qty" json:"qty"`
+	Barcode        string             `bson:"barcode" json:"barcode"`
+	Category       primitive.ObjectID `bson:"category" json:"category"`
+	CostPrice      float64            `bson:"costPrice" json:"costPrice"`
+	PurchasePrice  float64            `bson:"purchasePrice" json:"purchasePrice"`
+	MinRetailPrice float64            `bson:"minRetailPrice" json:"minRetailPrice"`
+	MaxRetailPrice float64            `bson:"maxRetailPrice" json:"maxRetailPrice"`
+	MinStock       uint32             `bson:"minStock" json:"minStock"`
+	CreatedAt      time.Time          `bson:"created_at" json:"created_at"`
+	UpdatedAt      time.Time          `bson:"updated_at" json:"updated_at"`
+	IsRetired      bool               `bson:"isRetired" json:"isRetired"`
 }
