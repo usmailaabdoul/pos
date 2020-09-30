@@ -5,13 +5,12 @@ import { ActionModal } from '../../components';
 import AddIcon from '@material-ui/icons/Add';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import ReactTable from 'react-table-v6'
+import { connect } from 'react-redux';
+import { setCustomers } from '../../redux/actions/customerActions';
+import { bindActionCreators } from 'redux';
+import apis from '../../apis/apis';
 
 import "./customers.css";
-
-const data = []
-for (let i = 0; i < 50; i++) {
-  data.push({ id: i + 1, name: 'Mary Johnson ' + i, phoneNumber: '679883344', lastTransaction: new Date().toDateString(), debt: i % 4 === 0 ? 100 : 0 })
-}
 
 const data2 = []
 for (let i = 0; i < 5; i++) {
@@ -31,23 +30,64 @@ const data3 = {
   ]
 }
 
-export default function CustomersPage() {
+const CustomersPage = (props) => {
+  const { customers } = props;
 
   const [isNewCustomerModalVisible, setNewCustomerModalVisible] = useState(false)
   const [isEditCustomerModalVisible, setEditCustomerModalVisible] = useState(false)
   const [isPayDebtModalVisible, setPayDebtModalVisibile] = useState(false)
   const [isBasketDetailModalVisible, setBasketDetailModalVisible] = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState(null)
-  const [customers, setCustomers] = useState([])
   const [filteredCustomers, setFilterdCustomers] = useState([])
   const [transactions, setTransactions] = useState([])
   const [basket, setBasket] = useState(null)
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [transactionIsLoading, setTransactionIsLoading] = useState(false);
 
   useEffect(() => {
-    setCustomers(data)
-    setFilterdCustomers(data)
-  }, [])
+    getCustomers();
+  }, []);
+
+  useEffect(() => {
+  }, [props])
+
+  const getCustomers = async () => {
+    setIsLoading(false)
+
+    try {
+      let res = await apis.customerApi.customers();
+
+      props.setCustomers(res);
+      setFilterdCustomers(res)
+      setIsLoading(false)
+    } catch (e) {
+      setIsLoading(false)
+      Swal.fire({
+        icon: 'error',
+        title: 'error',
+        text: e.message
+      })
+    }
+  }
+
+  const getTransactions = async (id) => {
+    setTransactionIsLoading(false)
+
+    try {
+      let res = await apis.saleApi.getCustomerSales(id);
+
+      console.log(res)
+      setTransactions(data2)
+      setTransactionIsLoading(false)
+    } catch (e) {
+      setTransactionIsLoading(false)
+      Swal.fire({
+        icon: 'error',
+        title: 'error',
+        text: e.message
+      })
+    }
+  }
 
   const handleSearchInput = e => {
     if (!e) {
@@ -68,7 +108,7 @@ export default function CustomersPage() {
 
   const viewTransactions = (customer) => {
     setSelectedCustomer(customer)
-    setTransactions(data2)
+    getTransactions(customer._id)
   }
 
   const viewBasketDetail = () => {
@@ -101,79 +141,98 @@ export default function CustomersPage() {
               </div>
             </div>
 
-            <ReactTable
-              showPagination={true}
-              showPageSizeOptions={false}
-              minRows={0}
-              data={filteredCustomers}
-              defaultPageSize={10}
-              style={{textAlign: 'center'}}
-              loadingText='Loading Products ...'
-              noDataText='No products found'
-              className="-highlight -striped rt-rows-height ReactTable"
-              columns={[
-                {
-                  Header: "",
-                  id: "row",
-                  maxWidth: 50,
-                  filterable: false,
-                  Cell: (row) => {
-                    return <div>{row.index + 1}</div>;
-                  }
-                },
-                {
-                  Header: "Name",
-                  accessor: "name",
-                  headerStyle: { textAlign: 'left' }
+            {
+              isLoading ?
+                <div class="d-flex justify-content-center align-items-center">
+                  <div class="spinner-border" style={{ width: "3rem", height: "3rem", color: '#2980B9' }} role="status">
+                    <span class="sr-only">Loading...</span>
+                  </div>
+                </div>
+                :
+                <ReactTable
+                  showPagination={true}
+                  showPageSizeOptions={false}
+                  minRows={0}
+                  data={filteredCustomers}
+                  defaultPageSize={10}
+                  style={{ textAlign: 'center' }}
+                  loadingText='Loading Products ...'
+                  noDataText='No products found'
+                  className="-highlight -striped rt-rows-height ReactTable"
+                  columns={[
+                    {
+                      Header: "",
+                      id: "row",
+                      maxWidth: 50,
+                      filterable: false,
+                      Cell: (row) => {
+                        return <div>{row.index + 1}</div>;
+                      }
+                    },
+                    {
+                      Header: "Name",
+                      accessor: "name",
+                      headerStyle: { textAlign: 'center' }
 
-                },
-                {
-                  Header: "Phone",
-                  accessor: "phoneNumber",
-                  headerStyle: { textAlign: 'left' }
-                },
-                {
-                  Header: "Last Transaction",
-                  accessor: "lastTransaction",
-                  headerStyle: { textAlign: 'left' }
-                },
-                {
-                  Header: "Debt (XAF)",
-                  id: "debt",
-                  headerStyle: { textAlign: 'left' },
-                  maxWidth: 150,
-                  Cell: customer => {
-                    return (
-                      <div>
-                        <span>{customer.original.debt}</span>
-                        {customer.original.debt > 0 && (<button onClick={() => payDebt(customer.original)} className="btn btn-success btn-sm ml-2">pay</button>)}
-                      </div>
-                    )
-                  }
-                },
-                {
-                  Header: '',
-                  maxWidth: 100,
-                  id: "actions",
-                  Cell: customer => {
-                    return (
-                      <div>
-                        <span onClick={() => viewTransactions(customer.original)} className="mr-4 table-icons"><VisibilityIcon style={{ fontSize: 20 }} /></span>
-                        <span onClick={() => editCustomer(customer.original)} className="mr-4 table-icons"><EditIcon style={{ fontSize: 20 }} /></span>
-                      </div>
-                    )
-                  }
-                }
-              ]}
-            />
+                    },
+                    {
+                      Header: "Phone",
+                      accessor: "phoneNumber",
+                      headerStyle: { textAlign: 'center' }
+                    },
+                    {
+                      Header: "Debt (XAF)",
+                      id: "debt",
+                      headerStyle: { textAlign: 'center' },
+                      maxWidth: 150,
+                      Cell: customer => {
+                        return (
+                          <div>
+                            <span>{customer.original.debt}</span>
+                            {customer.original.debt > 0 && (<button onClick={() => payDebt(customer.original)} className="btn btn-success btn-sm ml-2">pay</button>)}
+                          </div>
+                        )
+                      }
+                    },
+                    {
+                      Header: 'Actions',
+                      maxWidth: 150,
+                      id: "actions",
+                      Cell: customer => {
+                        return (
+                          <div>
+                            <span onClick={() => viewTransactions(customer.original)} className="mr-4 table-icons"><VisibilityIcon style={{ fontSize: 20 }} /></span>
+                            <span onClick={() => editCustomer(customer.original)} className="mr-4 table-icons"><EditIcon style={{ fontSize: 20 }} /></span>
+                          </div>
+                        )
+                      }
+                    }
+                  ]}
+                />
+            }
+
             {isNewCustomerModalVisible && (
-              <NewCustomer setNewCustomerModalVisible={() => setNewCustomerModalVisible(false)} isNewCustomerModalVisible={isNewCustomerModalVisible} />
+              <NewCustomer
+                setNewCustomerModalVisible={() => setNewCustomerModalVisible(false)}
+                isNewCustomerModalVisible={isNewCustomerModalVisible}
+                getCustomers={() => getCustomers()}
+              />
             )}
             {isEditCustomerModalVisible && (
-              <EditCustomer setEditCustomerModalVisible={() => setEditCustomerModalVisible(false)} isEditCustomerModalVisible={isEditCustomerModalVisible} customer={selectedCustomer} />
+              <EditCustomer
+                setEditCustomerModalVisible={() => setEditCustomerModalVisible(false)}
+                isEditCustomerModalVisible={isEditCustomerModalVisible}
+                customer={selectedCustomer}
+                getCustomers={() => getCustomers()}
+              />
             )}
             {isPayDebtModalVisible && (
-              <PayDebt setPayDebtModalVisibile={() => setPayDebtModalVisibile(false)} isPayDebtModalVisible={isPayDebtModalVisible} customer={selectedCustomer} />
+              <PayDebt 
+                setPayDebtModalVisibile={() => setPayDebtModalVisibile(false)} 
+                isPayDebtModalVisible={isPayDebtModalVisible}
+                customer={selectedCustomer} 
+                getCustomers={() => getCustomers()}
+              />
             )}
             {isBasketDetailModalVisible && (
               <BasketDetail setBasketDetailModalVisible={() => setBasketDetailModalVisible(false)} isBasketDetailModalVisible={isBasketDetailModalVisible} basket={basket} />
@@ -184,50 +243,59 @@ export default function CustomersPage() {
               {!selectedCustomer && (<span>Transactions for selected customer will show here</span>)}
               {selectedCustomer && (<span>Transactions for: {selectedCustomer.name} </span>)}
 
-              <ReactTable
-                showPagination={true}
-                showPageSizeOptions={false}
-                minRows={0}
-                data={transactions}
-                defaultPageSize={10}
-                style={{textAlign: 'center'}}
-                loadingText='Loading transactions ...'
-                noDataText='No transactions found'
-                className="-highlight -striped rt-rows-height ReactTable"
-                columns={[
-                  {
-                    Header: "",
-                    id: "row",
-                    maxWidth: 50,
-                    filterable: false,
-                    Cell: (row) => {
-                      return <div>{row.index + 1}</div>;
-                    }
-                  },
-                  {
-                    Header: "Date",
-                    accessor: "date",
-                    headerStyle: { textAlign: 'left' }
-                  },
-                  {
-                    Header: "Total (XAF)",
-                    accessor: "total",
-                    headerStyle: { textAlign: 'left' }
-                  },
-                  {
-                    Header: '',
-                    maxWidth: 100,
-                    id: "actions",
-                    Cell: customer => {
-                      return (
-                        <div>
-                          <span onClick={() => viewBasketDetail(customer.original)} className="mr-4 table-icons"><VisibilityIcon style={{ fontSize: 20 }} /></span>
-                        </div>
-                      )
-                    }
-                  }
-                ]}
-              />
+              {
+                transactionIsLoading ?
+                  <div class="d-flex justify-content-center align-items-center">
+                    <div class="spinner-border" style={{ width: "3rem", height: "3rem", color: '#2980B9' }} role="status">
+                      <span class="sr-only">Loading...</span>
+                    </div>
+                  </div>
+                  :
+                  <ReactTable
+                    showPagination={true}
+                    showPageSizeOptions={false}
+                    minRows={0}
+                    data={transactions}
+                    defaultPageSize={10}
+                    style={{ textAlign: 'center' }}
+                    loadingText='Loading transactions ...'
+                    noDataText='No transactions found'
+                    className="-highlight -striped rt-rows-height ReactTable"
+                    columns={[
+                      {
+                        Header: "",
+                        id: "row",
+                        maxWidth: 50,
+                        filterable: false,
+                        Cell: (row) => {
+                          return <div>{row.index + 1}</div>;
+                        }
+                      },
+                      {
+                        Header: "Date",
+                        accessor: "date",
+                        headerStyle: { textAlign: 'left' }
+                      },
+                      {
+                        Header: "Total (XAF)",
+                        accessor: "total",
+                        headerStyle: { textAlign: 'left' }
+                      },
+                      {
+                        Header: '',
+                        maxWidth: 100,
+                        id: "actions",
+                        Cell: customer => {
+                          return (
+                            <div>
+                              <span onClick={() => viewBasketDetail(customer.original)} className="mr-4 table-icons"><VisibilityIcon style={{ fontSize: 20 }} /></span>
+                            </div>
+                          )
+                        }
+                      }
+                    ]}
+                  />
+              }
             </div>
           </div>
         </div>
@@ -236,9 +304,20 @@ export default function CustomersPage() {
   )
 }
 
+const mapStateToProps = ({ customer }) => {
+  return {
+    customers: customer.customers,
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return bindActionCreators({ setCustomers }, dispatch);
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(CustomersPage);
 
 const NewCustomer = (props) => {
-  const { setNewCustomerModalVisible, isNewCustomerModalVisible } = props;
+  const { setNewCustomerModalVisible, isNewCustomerModalVisible, getCustomers } = props;
   const [name, setName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
 
@@ -249,15 +328,29 @@ const NewCustomer = (props) => {
     setName('')
     setNewCustomerModalVisible(false)
   }
-  const handleSuccessClick = (e) => {
-    // api to update name
-    // handle error
-    Swal.fire(
-      'Created!',
-      `customer: ${name} created successfully`,
-      'success'
-    )
-    setNewCustomerModalVisible(false)
+  const handleSuccessClick = async () => {
+    let obj = { name, phoneNumber }
+
+    // console.log(obj);
+
+    try {
+      let res = await apis.customerApi.addCustomer(obj);
+      // console.log(res)
+      Swal.fire(
+        'Created!',
+        `customer: ${res.name} created successfully`,
+        'success'
+      )
+      getCustomers()
+      setNewCustomerModalVisible(false)
+    } catch (e) {
+      console.log(e);
+      Swal.fire({
+        icon: 'error',
+        title: 'error',
+        text: 'Something unexpected happened'
+      })
+    }
   }
 
   return (
@@ -274,13 +367,13 @@ const NewCustomer = (props) => {
       <div className="mx-5">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div><span className="w-25 text h6">PhoneNumber</span></div>
-          <input name="phoneNumber" placeholder="" value={phoneNumber} onChange={handlePhoneInput} type="text" className={"w-75 form-control input"} />
+          <input name="phoneNumber" placeholder="6*** ****" value={phoneNumber} onChange={handlePhoneInput} type="text" className={"w-75 form-control input"} />
         </div>
       </div>
       <div className="d-flex justify-content-between align-items-center mt-4 mx-5">
-        <button onClick={() => handleCancleClick(false)} className="btn btn-danger mr-2"><span
+        <button onClick={() => handleCancleClick()} className="btn btn-danger mr-2"><span
           className="h5 px-2">Cancel</span></button>
-        <button onClick={() => handleSuccessClick(false)} className="btn btn-success mr-2"><span
+        <button onClick={() => handleSuccessClick()} className="btn btn-success mr-2"><span
           className="h5 px-2">Save</span></button>
       </div>
     </ActionModal>
@@ -289,7 +382,7 @@ const NewCustomer = (props) => {
 
 
 const EditCustomer = (props) => {
-  const { setEditCustomerModalVisible, isEditCustomerModalVisible, customer } = props;
+  const { setEditCustomerModalVisible, isEditCustomerModalVisible, customer, getCustomers } = props;
   const [name, setName] = useState(customer.name)
   const [phoneNumber, setPhoneNumber] = useState(customer.phoneNumber)
 
@@ -300,22 +393,34 @@ const EditCustomer = (props) => {
     setName('')
     setEditCustomerModalVisible(false)
   }
-  const handleSuccessClick = (e) => {
-    // api to update name
-    // handle error
-    Swal.fire(
-      'Created!',
-      `customer: ${name} updated successfully`,
-      'success'
-    )
-    setEditCustomerModalVisible(false)
+  const handleSuccessClick = async () => {
+    let obj = { name, phoneNumber }
+
+    try {
+      let res = await apis.customerApi.editCustomer(customer._id, obj);
+      Swal.fire(
+        'Updated!',
+        `customer: ${res.name} updated successfully`,
+        'success'
+      )
+      getCustomers()
+      setEditCustomerModalVisible(false)
+      // console.log(res)
+    } catch (e) {
+      console.log(e);
+      Swal.fire({
+        icon: 'error',
+        title: 'error',
+        text: 'Something unexpected happened'
+      })
+    }
   }
 
   return (
     <ActionModal
       isVisible={isEditCustomerModalVisible}
       setIsVisible={() => setEditCustomerModalVisible(false)}
-      title="New Customer">
+      title="Edit Customer">
       <div className="mx-5">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div><span className="w-25 text h6">Name</span></div>
@@ -329,17 +434,17 @@ const EditCustomer = (props) => {
         </div>
       </div>
       <div className="d-flex justify-content-between align-items-center mt-4 mx-5">
-        <button onClick={() => handleCancleClick(false)} className="btn btn-danger mr-2"><span
+        <button onClick={() => handleCancleClick()} className="btn btn-danger mr-2"><span
           className="h5 px-2">Cancel</span></button>
-        <button onClick={() => handleSuccessClick(false)} className="btn btn-success mr-2"><span
-          className="h5 px-2">Save</span></button>
+        <button onClick={() => handleSuccessClick()} className="btn btn-success mr-2"><span
+          className="h5 px-2">Update</span></button>
       </div>
     </ActionModal>
   )
 }
 
 const PayDebt = (props) => {
-  const { setPayDebtModalVisibile, isPayDebtModalVisible, customer } = props;
+  const { setPayDebtModalVisibile, isPayDebtModalVisible, customer, getCustomers } = props;
   const [name, setName] = useState(customer.name)
   const [debt] = useState(customer.debt)
   const [amount, setAmount] = useState(0)
@@ -354,15 +459,27 @@ const PayDebt = (props) => {
     setName('')
     setPayDebtModalVisibile(false)
   }
-  const handleSuccessClick = (e) => {
-    // api to update name
-    // handle error
-    Swal.fire(
-      'Payed!',
-      `Payment successful`,
-      'success'
-    )
-    setPayDebtModalVisibile(false)
+  const handleSuccessClick = async () => {
+    let obj = { dept: amount }
+
+    try {
+      let res = await apis.customerApi.editCustomer(customer._id, obj);
+      Swal.fire(
+        'Updated!',
+        `customer: ${res.name} updated successfully`,
+        'success'
+      )
+      getCustomers()
+      setPayDebtModalVisibile(false)
+      // console.log(res)
+    } catch (e) {
+      console.log(e);
+      Swal.fire({
+        icon: 'error',
+        title: 'error',
+        text: 'Something unexpected happened'
+      })
+    }
   }
 
 
@@ -393,9 +510,9 @@ const PayDebt = (props) => {
         <div><span className="w-25 text">Balance: {balance} XAF</span></div>
       </div>
       <div className="d-flex justify-content-between align-items-center mt-4 mx-5">
-        <button onClick={() => handleCancleClick(false)} className="btn btn-danger mr-2"><span
+        <button onClick={() => handleCancleClick()} className="btn btn-danger mr-2"><span
           className="h5 px-2">Cancel</span></button>
-        <button onClick={() => handleSuccessClick(false)} className="btn btn-success mr-2"><span
+        <button onClick={() => handleSuccessClick()} className="btn btn-success mr-2"><span
           className="h5 px-2">Pay</span></button>
       </div>
     </ActionModal >
@@ -416,7 +533,7 @@ const BasketDetail = (props) => {
         minRows={0}
         data={basketDetails}
         defaultPageSize={10}
-        style={{textAlign: 'center'}}
+        style={{ textAlign: 'center' }}
         className="-highlight -striped rt-rows-height ReactTable"
         columns={[
           {

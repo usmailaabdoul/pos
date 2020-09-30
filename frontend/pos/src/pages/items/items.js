@@ -129,9 +129,11 @@ function Items(props) {
                 return _item
             })
             let stock = 0;
-            res.forEach((item) => (
-                item.qty < item.minStock ? stock++ : ' '
-            ))
+            res.forEach((item) => {
+                if (item.qty < item.minStock && !item.isRetired) {
+                    stock++;
+                }
+            })
 
             setLowStock(stock);
             setExportItems(_exportItems)
@@ -245,7 +247,7 @@ function Items(props) {
                             name="checkedB"
                             inputProps={{ 'aria-label': 'primary checkbox' }}
                         />
-                        {lowStock} Low Stock
+                        Show Low Stock({lowStock})
                         <div>
                             <span className="mr-3 ml-3">Filter</span>
                         </div>

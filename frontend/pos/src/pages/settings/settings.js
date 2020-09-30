@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import "./settings.css";
 import Roles from "../../components/SettingsComponents/Roles";
+import Backups from "../../components/SettingsComponents/Backups";
 
 const routes = [
   { id: 1, name: "Roles" },
   { id: 2, name: "Store Information" },
   { id: 3, name: "Store Settings" },
   { id: 4, name: "Data Settings" },
+  { id: 5, name: "Backups" },
 ];
 
 const Settings = () => {
@@ -22,7 +24,8 @@ const Settings = () => {
         return <p>The store settings</p>;
       case 4:
         return <p>The data Settings</p>;
-
+      case 5:
+        return <Backups />;
       default:
         return <Roles />;
     }
