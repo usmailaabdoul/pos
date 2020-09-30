@@ -132,11 +132,20 @@ func updateItem(c echo.Context) error {
 	if req.CostPrice != 0 {
 		item.CostPrice = req.CostPrice
 	}
+	if req.PurchasePrice != 0 {
+		item.PurchasePrice = req.PurchasePrice
+	}
 	if req.MinRetailPrice != 0 {
 		item.MinRetailPrice = req.MinRetailPrice
 	}
+	if req.MaxRetailPrice != 0 {
+		item.MaxRetailPrice = req.MaxRetailPrice
+	}
 	if req.Quantity != 0 {
 		item.Quantity = req.Quantity
+	}
+	if req.MinStock != 0 {
+		item.MinStock = req.MinStock
 	}
 	item.UpdatedAt = time.Now()
 
