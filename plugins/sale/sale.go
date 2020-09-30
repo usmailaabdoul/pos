@@ -2,6 +2,7 @@ package sale
 
 import (
 	"fmt"
+	"math"
 	"net/http"
 	"sync"
 	"time"
@@ -128,7 +129,7 @@ func create(c echo.Context) error {
 		})
 	}
 
-	var customer models.Customer
+	var customer *models.Customer
 	if req.CustomerID != "" {
 		cu, err := customerService.FindById(req.CustomerID)
 		if err != nil {
@@ -136,7 +137,7 @@ func create(c echo.Context) error {
 				Error: err.Error(),
 			})
 		}
-		customer = *cu
+		customer = cu
 	}
 
 	userID := common.GetClaims(c).Id
@@ -197,11 +198,18 @@ func create(c echo.Context) error {
 		})
 	}
 
+	if customer != nil {
+		if req.Change < 0 {
+			customer.Debt = customer.Debt + math.Abs(req.Change)
+		}
+	} else {
+		customer = &models.Customer{}
+	}
 	created, err := saleService.Create(models.Sale{
 		ID:        primitive.NewObjectID(),
 		LineItems: lineItems,
 		Total:     req.Total,
-		Customer:  customer,
+		Customer:  *customer,
 		Paid:      req.Paid,
 		Change:    req.Change,
 		Comment:   req.Comment,

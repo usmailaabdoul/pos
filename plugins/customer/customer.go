@@ -240,11 +240,12 @@ func create(c echo.Context) error {
 	}
 
 	created, err := customerService.Create(models.Customer{
-		ID:          primitive.NewObjectID(),
-		Name:        req.Name,
-		PhoneNumber: req.PhoneNumber,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+		ID:           primitive.NewObjectID(),
+		Name:         req.Name,
+		PhoneNumber:  req.PhoneNumber,
+		DebtPayments: []models.DebtPayment{},
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
 	})
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
