@@ -4,6 +4,8 @@ import CategoryApi from "./category";
 import RoleApi from "./role";
 import ItemApi from "./item";
 import EmployeeApi from './employee';
+import CustomerApi from './customer';
+import SaleApi from './sale';
 
 class Apis {
     initialize(token) {
@@ -15,6 +17,8 @@ class Apis {
         this.roleApi = new RoleApi(this.api)
         this.employeeApi = new EmployeeApi(this.api)
         this.itemApi = new ItemApi(this.api);
+        this.customerApi = new CustomerApi(this.api);
+        this.saleApi = new SaleApi(this.api);
 
     }
 }

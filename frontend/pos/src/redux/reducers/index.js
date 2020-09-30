@@ -4,6 +4,7 @@ import categoryReducer from './categoryReducer';
 import employeeReducer from './employeeReducer';
 import authReducer from './authReducer';
 import roleReducer from './roleReducers'
+import customerReducer from './customerReducer'
 
 const rootReducer = combineReducers({
     category: categoryReducer,
@@ -11,7 +12,7 @@ const rootReducer = combineReducers({
     auth: authReducer,
     role: roleReducer,
     item: itemReducer,
-
+    customer: customerReducer,
 });
 
 export default rootReducer;
