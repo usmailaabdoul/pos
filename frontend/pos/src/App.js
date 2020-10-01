@@ -21,11 +21,11 @@ const App = ({ token }) => {
     const [showAlert, setShowAlert] = useState(false)
     const [items, setItems] = useState([]);
 
-    useEffect(() => {
-        setInterval(getItems, 10000)
-    }, [])
+    // useEffect(() => {
+    //     setInterval(getItems, 10000)
+    // }, [])
 
-    useEffect(() => { checkLow() }, [])
+    // useEffect(() => { checkLow() }, [])
 
     const getItems = async () => {
         try {
