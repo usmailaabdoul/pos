@@ -175,11 +175,11 @@ func create(c echo.Context) error {
 			})
 		}
 
-		if item.Quantity < line.Quantity {
-			return c.JSON(http.StatusBadRequest, errResponse{
-				Error: fmt.Sprintf("not enough qty for item %s: qty: %d", item.Name, item.Quantity),
-			})
-		}
+		// if item.Quantity < line.Quantity {
+		// 	return c.JSON(http.StatusBadRequest, errResponse{
+		// 		Error: fmt.Sprintf("not enough qty for item %s: qty: %d", item.Name, item.Quantity),
+		// 	})
+		// }
 
 		lineItems = append(lineItems, models.LineItem{
 			Item:        *item,
@@ -246,7 +246,7 @@ type createRequest struct {
 	Total      float64    `json:"total"`
 	CustomerID string     `json:"customerId"`
 	Paid       float64    `json:"paid" validate:"required"`
-	Change     float64    `json:"change" validate:"required"`
+	Change     float64    `json:"change"`
 	Comment    string     `json:"comment"`
 }
 
