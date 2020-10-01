@@ -19,15 +19,13 @@ import { Link } from 'react-router-dom'
 
 const App = ({ token }) => {
     const [showAlert, setShowAlert] = useState(false)
-    const [dontShow, setDontShow] = useState(false)
     const [items, setItems] = useState([]);
 
     useEffect(() => {
         setInterval(getItems, 10000)
-        setDontShow(true)
     }, [])
 
-    useEffect(() => { checkLow() }, [items])
+    useEffect(() => { checkLow() }, [])
 
     const getItems = async () => {
         try {
@@ -44,9 +42,14 @@ const App = ({ token }) => {
     }
 
     const checkLow = () => {
+        let count = 0;
         items.forEach(item => {
-            if (item.qty < item.minStock) {
-                setInterval(setShowAlert(!showAlert), 1000)
+            if (item.qty < item.minStock && !item.isRetired) {
+                count++
+            }
+
+            if (count > 0) {
+                setShowAlert(true)
             }
         });
     }
@@ -88,31 +91,30 @@ const App = ({ token }) => {
                             <Navbar />
 
                             {
-                                showAlert && dontShow ?
-                                    <Alert variant="danger" onClose={() => setShowAlert(false)} dismissible>
-                                        <Alert.Heading>Oh snap! You have a few low stock items!</Alert.Heading>
-                                        <p>
-                                            We have noticed there are a few items which are low in stock.
-                                            We suggest you check them out now before they completely run out.
+                                showAlert &&
+                                <Alert variant="danger" onClose={() => setShowAlert(false)} dismissible>
+                                    <Alert.Heading>Oh snap! You have a few low stock items!</Alert.Heading>
+                                    <p>
+                                        We have noticed there are a few items which are low in stock.
+                                        We suggest you check them out now before they completely run out.
                                             </p>
-                                        <hr />
-                                        <div className="d-flex justify-content-end">
-                                            <button onClick={() => setDontShow(false)} type="button" class="btn btn-outline-danger">
-                                                Don't Show again
+                                    <hr />
+                                    <div className="d-flex justify-content-end">
+                                        {/* <button onClick={() = setShowAlert(false)} type="button" class="btn btn-outline-danger">
+                                            Don't Show again
+                                                </button> */}
+
+                                        <button onClick={() => setShowAlert(false)} type="button" class="btn btn-outline-danger">
+                                            Dismiss
                                                 </button>
 
-                                            <button onClick={() => setShowAlert(false)} type="button" class="btn btn-outline-danger">
-                                                Dismiss
-                                                </button>
-
-                                            <button onClick={() => setDontShow(false)} type="button" class="btn btn-outline-primary">
-                                                <Link to={{ pathname: "/items", state: { showLowStock: true } }}>
-                                                    <span className="ml-3">Check Items</span>
-                                                </Link>
-                                            </button>
-                                        </div>
-                                    </Alert> :
-                                    " "
+                                        <button onClick={() => setShowAlert(false)} type="button" class="btn btn-outline-primary">
+                                            <Link to={{ pathname: "/items", state: { showLowStock: true } }}>
+                                                <span className="ml-3">Check Items</span>
+                                            </Link>
+                                        </button>
+                                    </div>
+                                </Alert>
                             }
                             <Switch>
                                 <Route path="/" component={Sales} exact={true} />
