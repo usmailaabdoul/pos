@@ -89,6 +89,7 @@ const validateMaxRetailPrice = (mrp) => {
 
 function Items(props) {
     const { items } = props
+    const showLowStockDefault = props.location.state.showLowStock ? props.location.state.showLowStock : false;
     const [isEditItemModalVisible, setEditItemModalVisible] = useState(false);
     const [isNewItemModalVisible, setNewItemModalVisible] = useState(false);
     const [isImportModalVisible, setImportModalVisible] = useState(false);
@@ -99,7 +100,7 @@ function Items(props) {
     const [isloading, setLoading] = useState(false);
     const [exportItems, setExportItems] = useState([])
     const [lowStock, setLowStock] = useState(0);
-    const [showLowStock, setShowLowStock] = useState(false)
+    const [showLowStock, setShowLowStock] = useState(showLowStockDefault)
 
     useEffect(() => {
         getCategory().then((cats) => {
