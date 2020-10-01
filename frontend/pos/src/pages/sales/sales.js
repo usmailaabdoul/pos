@@ -1,17 +1,125 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {ActionModal} from "../../components";
 import Print from "@material-ui/icons/Print";
 import PeopleAltIcon from "@material-ui/icons/PeopleAlt";
 import DeleteIcon from '@material-ui/icons/Delete';
+import { Form } from 'react-bootstrap';
+import apis from "../../apis/apis";
+import Swal from "sweetalert2";
+import { Typeahead } from 'react-bootstrap-typeahead';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './sales.css';
 
 const Sales = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [price, setPrice] = useState(0);
+  const [quantity, setQuantity] = useState(1);
+  const [discount, setDiscount] = useState(0);
+  const [items, setItems] = useState([]);
+  const [selectItem] = useState([]);
+  const [products, setProducts] = useState([])
 
-  const handleSearchInput = () => {
-    console.log('input');
+  useEffect(() => {
+    getItems();
+  }, []);
+
+  const getItems = async () => {
+    try {
+      let res = await apis.itemApi.items();
+      console.log(res);
+      setItems(res);
+  } catch (e) {
+      Swal.fire({
+          icon: "error",
+          title: "error",
+          text: e.message,
+      });
+  }
+  }
+
+  const handleSearchInput = (e) => {
+    let _product = products;
+    let _items = [...items];
+    let newProduct = _items.find((d) => d._id === e[0]._id);
+
+    newProduct.retailPrice = 0;
+    newProduct.discount = 0;
+    newProduct.qty = 1;
+    newProduct.total = 0;
+
+    _product.push(newProduct);
+
+    setProducts([..._product]);
+  }
+
+  const handlePriceInput = (e, id) => {
+
+    let index = products.findIndex(p => p._id === id);
+    if (index > -1) {
+      products[index].retailPrice = +e.target.value;
+      let discount = products[index].discount;
+      
+      if (discount !== 0) {
+        let total = +e.target.value * products[index].qty * discount;
+        products[index].total = total;
+      } else {
+        let total = +e.target.value * products[index].qty;
+        products[index].total = total;
+      }
+      
+    };
+
+    setPrice(e.target.value)
+  }
+
+  const handleQuantityInput = (e, id) => {
+
+    let index = products.findIndex(p => p._id === id);
+    if (index > -1) {
+      products[index].qty = +e.target.value;
+      let discount = products[index].discount;
+
+      if (discount !== 0) {
+        let total = +e.target.value * products[index].retailPrice * discount;
+        products[index].total = total;
+      } else {
+        let total = +e.target.value * products[index].retailPrice;
+        products[index].total = total;
+      }
+    };
+
+    setQuantity(e.target.value)
+  }
+
+  const handleDiscountInput = (e, id) => {
+
+    let index = products.findIndex(p => p._id === id);
+
+    if (index > -1) {
+      products[index].discount = +e.target.value;
+
+      let price = products[index].retailPrice;
+      let discount = +e.target.value;
+      let qty = products[index].qty;
+
+      if (discount <= price) {
+        let total = (price * qty) - discount;
+        products[index].total = total;
+      }
+  }
+
+    setDiscount(e.target.value)
+  }
+
+  const deleteItem = (id) => {
+    let index = products.findIndex(p => p._id === id);
+
+    if (index > -1) {
+      products.splice(index, 1);
+    }
+
+    setProducts([...products]);
   }
 
   return (
@@ -19,10 +127,18 @@ const Sales = () => {
     <div className="d-flex container">
       <div className="" style={{ width: '70%' }}>
         <div className="row ml-0 my-3 band-header align-items-center">
-          <div className="d-flex justify-content-end align-items-center">
+          <div className="d-flex justify-content-end align-items-center w-50">
             <div className="mr-3 ml-3"><span>Find or Scan item</span></div>
-            <div className="">
-              <input type="text" onChange={handleSearchInput} placeholder="search" name="searchInput" className={"form-control input"} />
+            <div className="" style={{flex: 1}}>
+              <Form.Group  className="m-0">
+                <Typeahead
+                  labelKey="name"
+                  onChange={handleSearchInput}
+                  options={items}
+                  placeholder="Search or select items"
+                  selected={selectItem}
+                />
+              </Form.Group>
             </div>
           </div>
           <div className="col d-flex justify-content-end align-items-center">
@@ -41,25 +157,32 @@ const Sales = () => {
                 <th className="text-center">Name</th>
                 <th className="text-center">Price</th>
                 <th className="text-center">Qty</th>
-                <th className="text-center">Discount %</th>
+                <th className="text-center">Discount</th>
                 <th className="text-center">Total</th>
               </tr>
             </thead>
             <tbody>
-              <tr className="table-row">
-                <td onClick={() => console.log('clicked')} className="text-center text trash-icon"><DeleteIcon style={{fontSize: 20}} /></td>
-                <td className="text-center text" >Mark</td>
-                <td className="text-center">
-                  <input className={"items-table-input input text"} type="text" onChange={handleSearchInput} />
-                </td>
-                <td className="text-center">
-                  <input className={"items-table-input input text"} type="text" onChange={handleSearchInput} />
-                </td>
-                <td className="text-center">
-                  <input className={"items-table-input input text"} type="text" onChange={handleSearchInput} />
-                </td>
-                <td className="text-center amt-text" >20,000 XAF</td>
-              </tr>
+              {
+                products && products.map((product, key) => {
+                  return (
+                    <tr key={key} className="table-row">
+                      <td onClick={() => deleteItem(product._id)} className="text-center text trash-icon"><DeleteIcon style={{fontSize: 20}} /></td>
+                      <td className="text-center text" >{product.name}</td>
+                      <td className="text-center">
+                        <span className="mr-2">{product.minRetailPrice}</span>
+                          <input className={"items-table-input input text"} value={product.retailPrice} min="1" max="5" type="number" onChange={(e) => handlePriceInput(e, product._id)} />
+                        <span className="ml-2">{product.maxRetailPrice}</span>
+                      </td>
+                      <td className="text-center">
+                        <input className={"items-table-input input text"} value={product.qty} min="1" type="number" onChange={(e) => handleQuantityInput(e, product._id)} />
+                      </td>
+                      <td className="text-center">
+                        <input className={"items-table-input input text"} value={product.discount} min="0" type="number" onChange={(e) => handleDiscountInput(e, product._id)} />
+                      </td>
+                      <td className="text-center amt-text" >{product.total} XAF</td>
+                    </tr>
+                  )})
+              }
             </tbody>
           </table>
         </div>
