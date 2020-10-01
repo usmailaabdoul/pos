@@ -20,12 +20,13 @@ import { Link } from 'react-router-dom'
 const App = ({ token }) => {
     const [showAlert, setShowAlert] = useState(false)
     const [items, setItems] = useState([]);
+    const [showLowStock, setShowLowStock] = useState(false)
 
     useEffect(() => {
         setInterval(getItems, 10000)
     }, [])
 
-    useEffect(() => { checkLow() }, [])
+    useEffect(() => { checkLow() }, [items])
 
     const getItems = async () => {
         try {
