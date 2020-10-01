@@ -2,6 +2,7 @@ package item
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"sync"
 	"time"
@@ -19,6 +20,8 @@ const (
 	// PluginName defines the name of the plugin
 	PluginName = "item"
 )
+
+var systemItems = []string{"Photocopy", "Print", "Scan", "Spiral"}
 
 var (
 	plugin   *Item
@@ -71,6 +74,31 @@ func Plugin() *Item {
 		validate = validator.New()
 	})
 	return plugin
+}
+
+func Seed() (res []*models.Item, err error) {
+	for _, name := range systemItems {
+		item, err := itemService.FindByName(name)
+		if err != nil {
+			log.Panicf("error creating roles: %s", err.Error())
+		}
+		if item != nil {
+			continue
+		}
+		i := models.Item{
+			ID:        primitive.NewObjectID(),
+			Name:      name,
+			CreatedAt: time.Now(),
+			IsSystem:  true,
+		}
+		_i, err := itemService.Create(i)
+		if err != nil {
+			log.Panicf("error creating roles: %s", err.Error())
+		}
+		res = append(res, _i)
+	}
+
+	return
 }
 
 func init() {
@@ -227,6 +255,14 @@ func createItem(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: err.Error(),
 		})
+	}
+
+	for _, name := range systemItems {
+		if name == req.Name {
+			return c.JSON(http.StatusBadRequest, errorResponse{
+				Error: fmt.Sprintf("%s is a system item and cannot be created/updated", req.Name),
+			})
+		}
 	}
 
 	var categoryID string

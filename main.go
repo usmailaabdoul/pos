@@ -4,6 +4,7 @@ import (
 	"github.com/acha-bill/pos/packages/mongodb"
 	"github.com/acha-bill/pos/packages/server"
 	"github.com/acha-bill/pos/plugins/category"
+	"github.com/acha-bill/pos/plugins/item"
 	"github.com/acha-bill/pos/plugins/role"
 	"github.com/acha-bill/pos/plugins/user"
 	"github.com/joho/godotenv"
@@ -64,6 +65,11 @@ func main() {
 	_, err = category.Seed()
 	if err != nil {
 		log.Errorf("error seeding default categories: %w", err)
+	}
+
+	_, err = item.Seed()
+	if err != nil {
+		log.Errorf("error seeding default items: %w", err)
 	}
 
 	e := server.Instance()
