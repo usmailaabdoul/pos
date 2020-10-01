@@ -386,12 +386,16 @@ function Items(props) {
                                         >
                                             <EditIcon style={{ fontSize: 20 }} />
                                         </span>
-                                        <span
-                                            onClick={() => deleteItem(item.original)}
-                                            className="table-icons"
-                                        >
-                                            <DeleteIcon style={{ fontSize: 20 }} />
-                                        </span>
+                                        {
+                                          !item.original.isSystem && 
+                                            <span
+                                              onClick={() => deleteItem(item.original)}
+                                              className="table-icons"
+                                          >
+                                              <DeleteIcon style={{ fontSize: 20 }} />
+                                          </span>
+                                        }
+                                        
                                     </div>
                                 );
                             },

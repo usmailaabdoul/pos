@@ -204,15 +204,26 @@ const Sales = () => {
   };
 
   const confirmSale = () => {
-    products.forEach((p) => {
-      if (p.lineItemQty < p.minRetailPrice || p.lineItemQty > p.maxRetailPrice) {
-        return Swal.fire({
-          icon: 'error',
-          title: 'Warning',
-          text: `Retail price for ${p.name} should be between ${p.minRetailPrice} and ${p.maxRetailPrice}`
-        })
+    let hasError = false;
+    let p;
+
+    for (let i = 0; i < products.length; i++) {
+      p = products[i];
+
+      if (p.lineItemPrice < p.minRetailPrice || p.lineItemPrice > p.maxRetailPrice) {
+        console.log(p.lineItemPrice, p.minRetailPrice, p.maxRetailPrice)
+        hasError = true;
+        break;
       }
-    })
+    }
+
+    if (hasError) {
+      return Swal.fire({
+        icon: 'error',
+        title: 'Warning',
+        text: `Retail price for ${p.name} should be between ${p.minRetailPrice} and ${p.maxRetailPrice}`
+      })
+    }
 
     let lineItems = products.map((product) => {
       return {
@@ -294,6 +305,23 @@ const Sales = () => {
     setSelectCustomer([]);
   };
 
+  const addSystemItem = (item) => {
+    let _product = products;
+
+    items.forEach((i) => {
+      if (i.name === item) {
+        i.lineItemPrice = 0;
+        i.lineItemDiscount = 0;
+        i.lineItemQty = 1;
+        i.lineItemTotal = 0;
+
+        _product.push(i);
+
+        setProducts([..._product]);
+      }
+    })
+  };
+
   return (
     <div>
     <div className="d-flex container">
@@ -315,10 +343,10 @@ const Sales = () => {
             </div>
           </div>
           <div className="col d-flex justify-content-end align-items-center">
-              <button className="btn btn-primary ml-2"><span className="mr-2"><Print style={{fontSize: 20}}/></span>Print</button>
-              <button className="btn btn-primary ml-2"><span className="mr-2"><Print style={{fontSize: 20}}/></span>Photocopy</button>
-              <button className="btn btn-primary ml-2"><span className="mr-2"><Print style={{fontSize: 20}}/></span>Spiral</button>
-              <button className="btn btn-primary ml-2"><span className="mr-2"><Print style={{fontSize: 20}}/></span>Scan</button>
+              <button onClick={() => addSystemItem('Print')} className="btn btn-primary ml-2"><span className="mr-2"><Print style={{fontSize: 20}}/></span>Print</button>
+              <button onClick={() => addSystemItem('Photocopy')} className="btn btn-primary ml-2"><span className="mr-2"><Print style={{fontSize: 20}}/></span>Photocopy</button>
+              <button onClick={() => addSystemItem('Spiral')} className="btn btn-primary ml-2"><span className="mr-2"><Print style={{fontSize: 20}}/></span>Spiral</button>
+              <button onClick={() => addSystemItem('Scan')} className="btn btn-primary ml-2"><span className="mr-2"><Print style={{fontSize: 20}}/></span>Scan</button>
           </div>
         </div>
 
@@ -349,7 +377,7 @@ const Sales = () => {
                       <td className="text-center">
                         <input className={"items-table-input input text"} value={product.lineItemQty} min="1" max={`${product.qty}`} type="number" onChange={(e) => handleQuantityInput(e, product._id)} />
                         <span className="ml-2" style={product.qty === 0 ? {color: 'red'} : {color: 'green'}}>
-                          {product.qty === 0 ? 'out of stock' : product.qty  }
+                          {product.isSystem ? null : product.qty === 0 ?  'out of stock' : product.qty}
                         </span>
                       </td>
                       <td className="text-center">
