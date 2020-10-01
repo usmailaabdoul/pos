@@ -46,6 +46,7 @@ func Create(item models.Sale) (created *models.Sale, err error) {
 }
 
 func FindByCustomerID(id string) (res []*models.Sale, err error) {
+	res = []*models.Sale{}
 	sales, err := FindAll()
 	if err != nil {
 		return

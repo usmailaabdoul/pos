@@ -156,6 +156,7 @@ func create(c echo.Context) error {
 
 	var total float64
 	var lineItems []models.LineItem
+	var updatedItems []*models.Item
 	for _, line := range req.LineItems {
 		item, err := itemService.FindById(line.ItemID)
 		if err != nil {
@@ -214,8 +215,8 @@ func create(c echo.Context) error {
 		Change:    req.Change,
 		Comment:   req.Comment,
 		Cashier:   *user,
-		CreatedAt: time.Time{},
-		UpdatedAt: time.Time{},
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	})
 
 	if err != nil {
