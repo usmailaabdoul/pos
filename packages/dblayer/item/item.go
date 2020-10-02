@@ -111,18 +111,20 @@ func UpdateById(id string, item models.Item) error {
 	}
 	filter := bson.D{primitive.E{Key: "_id", Value: objectId}}
 	value := bson.M{
-		"name":           item.Name,
-		"barcode":        item.Barcode,
-		"category":       item.Category,
-		"costPrice":      item.CostPrice,
-		"purchasePrice":  item.PurchasePrice,
-		"qty":            item.Quantity,
-		"minStock":       item.MinStock,
-		"minRetailPrice": item.MinRetailPrice,
-		"maxRetailPrice": item.MaxRetailPrice,
-		"created_at":     item.CreatedAt,
-		"updated_at":     time.Now(),
-		"isRetired":      item.IsRetired,
+		"name":              item.Name,
+		"barcode":           item.Barcode,
+		"category":          item.Category,
+		"costPrice":         item.CostPrice,
+		"purchasePrice":     item.PurchasePrice,
+		"qty":               item.Quantity,
+		"minStock":          item.MinStock,
+		"minRetailPrice":    item.MinRetailPrice,
+		"maxRetailPrice":    item.MaxRetailPrice,
+		"minWholeSalePrice": item.MinWholeSalePrice,
+		"maxWholeSalePrice": item.MaxWholeSalePrice,
+		"created_at":        item.CreatedAt,
+		"updated_at":        time.Now(),
+		"isRetired":         item.IsRetired,
 	}
 	update := bson.D{primitive.E{Key: "$set", Value: value}}
 	return collection().FindOneAndUpdate(ctx, filter, update).Err()

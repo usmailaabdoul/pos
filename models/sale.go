@@ -27,4 +27,5 @@ type LineItem struct {
 	RetailPrice float64 `bson:"retailPrice" json:"retailPrice"`
 	Discount    uint32  `bson:"discount" json:"discount"`
 	Total       float64 `bson:"total" json:"total"`
+	IsWholeSale bool    `bson:"isWholeSale" json:"isWholeSale"`
 }

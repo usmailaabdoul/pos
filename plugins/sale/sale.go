@@ -165,15 +165,28 @@ func create(c echo.Context) error {
 			})
 		}
 
-		if line.RetailPrice < item.MinRetailPrice {
-			return c.JSON(http.StatusBadRequest, errResponse{
-				Error: fmt.Sprintf("item cannot be sold for less than %f", item.MinRetailPrice),
-			})
-		}
-		if line.RetailPrice > item.MaxRetailPrice {
-			return c.JSON(http.StatusBadRequest, errResponse{
-				Error: fmt.Sprintf("item cannot be sold for more than %f", item.MaxRetailPrice),
-			})
+		if line.IsWholeSale {
+			if line.RetailPrice < item.MinWholeSalePrice {
+				return c.JSON(http.StatusBadRequest, errResponse{
+					Error: fmt.Sprintf("item cannot be sold for less than %f", item.MinWholeSalePrice),
+				})
+			}
+			if line.RetailPrice > item.MaxWholeSalePrice {
+				return c.JSON(http.StatusBadRequest, errResponse{
+					Error: fmt.Sprintf("item cannot be sold for more than %f", item.MaxWholeSalePrice),
+				})
+			}
+		} else {
+			if line.RetailPrice < item.MinRetailPrice {
+				return c.JSON(http.StatusBadRequest, errResponse{
+					Error: fmt.Sprintf("item cannot be sold for less than %f", item.MinRetailPrice),
+				})
+			}
+			if line.RetailPrice > item.MaxRetailPrice {
+				return c.JSON(http.StatusBadRequest, errResponse{
+					Error: fmt.Sprintf("item cannot be sold for more than %f", item.MaxRetailPrice),
+				})
+			}
 		}
 
 		lineItems = append(lineItems, models.LineItem{
@@ -259,4 +272,5 @@ type lineItem struct {
 	RetailPrice float64 `json:"retailPrice"`
 	Discount    uint32  `json:"discount"`
 	Total       float64 `json:"total"`
+	IsWholeSale bool    `json:"isWholeSale"`
 }
