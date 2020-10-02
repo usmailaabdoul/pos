@@ -52,3 +52,10 @@
   background: #fff;
   color: #2980b9;
 }
+
+.nav__ {
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+  margin-bottom: 0;
+}

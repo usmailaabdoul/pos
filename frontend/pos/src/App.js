@@ -17,13 +17,17 @@ import { connect } from "react-redux";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Link } from 'react-router-dom'
 
-const App = ({ token, items }) => {
+const App = ({ token, items, user }) => {
     const [showAlert, setShowAlert] = useState(false)
     const [showAgain, setShowAgain] = useState(true)
+    const [showLowStock, setShowLowStock] = useState(false);
+    const [returnRoute, setReturnRoute] = useState('')
 
     useEffect(() => {
         setInterval(checkLow, 10000)
     })
+
+    useEffect(() => { checkLow() }, [items])
 
     const checkLow = () => {
         let count = 0;
@@ -102,13 +106,80 @@ const App = ({ token, items }) => {
                             }
                             <Switch>
                                 <Route path="/" component={Sales} exact={true} />
-                                <Route path="/items" component={Items} />
-                                <Route path="/customers" component={Customers} />
-                                <Route path="/sales" component={Sales} />
-                                <Route path="/employees" component={Employees} />
-                                <Route path="/categories" component={Categories} />
-                                <Route path="/settings" component={Settings} />
-                                <Route path="/reports" component={Reports} />
+                                {
+                                    user.roles && user.roles.map((role) => {
+                                        switch (role.name) {
+                                            case "Administrator":
+                                                return (
+                                                    role.name === "Administrator" ? (
+                                                        <Switch>
+                                                            <Route path="/items" component={Items} />
+                                                            <Route path="/sales" component={Sales} />
+                                                            <Route path="/customers" component={Customers} />
+                                                            <Route path="/categories" component={Categories} />
+                                                            <Route path="/employees" component={Employees} />
+                                                            <Route path="/reports" component={Reports} />
+                                                            <Route path="/settings" component={Settings} />
+                                                        </Switch>
+                                                    ) : (
+                                                            <Route component={Login} />
+                                                        )
+                                                )
+                                            case "Items":
+                                                return (
+                                                    role.name === "Items" ? (
+                                                        <Route path="/items" component={Items} />
+                                                    ) : (
+                                                            <Route path="/login" component={Login} />
+                                                        )
+                                                )
+                                            case "Sales":
+                                                return (
+                                                    role.name === "Sale" ? (
+                                                        <Route path="/sales" component={Sales} />
+                                                    ) : (
+                                                            <Route path="/login" component={Login} />
+                                                        )
+                                                )
+                                            case "Employees":
+                                                return (
+                                                    role.name === "Employees" ? (
+                                                        <Route path="/employees" component={Employees} />
+                                                    ) : (
+                                                            <Route path="/login" component={Login} />
+                                                        )
+                                                )
+                                            case "Categories":
+                                                return (
+                                                    role.name === "Categories" ? (
+                                                        <Route path="/categories" component={Categories} />
+                                                    ) : (
+                                                            <Route path="/login" component={Login} />
+                                                        )
+                                                )
+                                            case "Customers":
+                                                return (
+                                                    role.name === "Customers" ? (
+                                                        <Route path="/customers" component={Customers} />
+                                                    ) : (
+                                                            <Route path="/login" component={Login} />
+                                                        )
+                                                )
+                                            case "Settings":
+                                                return (
+                                                    role.name === "Settings" ? (
+                                                        <Route path="/settings" component={Settings} />
+                                                    ) : (
+                                                            <Route path="/login" component={Login} />
+                                                        )
+                                                )
+
+                                            default:
+                                                return (<Route path="/login" component={Login} />);
+                                        }
+                                    })
+                                }
+
                                 <Route component={NotFound} />
                             </Switch>
                         </>
@@ -118,9 +189,10 @@ const App = ({ token, items }) => {
     );
 }
 
-const mapStatesToProps = ({ auth, item }) => {
+const mapStatesToProps = ({ auth, role, item }) => {
     return {
         token: auth.token,
+        user: auth.user,
         items: item.items
     }
 }
