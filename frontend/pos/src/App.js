@@ -22,7 +22,7 @@ const App = ({ token, items }) => {
     const [showAgain, setShowAgain] = useState(true)
 
     useEffect(() => {
-        // setInterval(checkLow, 10000)
+        setInterval(checkLow, 10000)
     })
 
     const checkLow = () => {

@@ -2,9 +2,13 @@ package report
 
 import (
 	"net/http"
+	"sort"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/acha-bill/pos/models"
+	itemService "github.com/acha-bill/pos/packages/dblayer/item"
 
 	saleService "github.com/acha-bill/pos/packages/dblayer/sale"
 
@@ -74,6 +78,8 @@ func Plugin() *Report {
 func init() {
 	auth := Plugin()
 	auth.AddHandler(http.MethodGet, "/sales", sales)
+	auth.AddHandler(http.MethodGet, "/selling", sellingItems)
+
 }
 
 // times in nano seconds
@@ -157,6 +163,72 @@ func isSameMonth(t1 time.Time, t2 time.Time) bool {
 }
 func isSameYear(t1 time.Time, t2 time.Time) bool {
 	return t1.Year() == t2.Year()
+}
+
+type sellingItem struct {
+	Item       models.Item `json:"item"`
+	GrossSales float64     `json:"grossSales"`
+}
+type sellingResponse struct {
+	TopSelling   []sellingItem `json:"topSelling"`
+	WorstSelling []sellingItem `json:"worstSelling"`
+}
+
+func sellingItems(c echo.Context) error {
+	items, _ := itemService.FindAll()
+	itemMap := make(map[*models.Item]float64)
+	for _, item := range items {
+		itemMap[item] = getSalesForItem(item)
+	}
+
+	sort.SliceStable(items, func(i, j int) bool {
+		return itemMap[items[i]] < itemMap[items[j]]
+	})
+
+	limit := 5
+	if len(items) < limit {
+		limit = len(items)
+	}
+	bottom := items[0:limit]
+	top := items[len(items)-limit:]
+	//reverse top
+	for i, j := 0, len(top)-1; i < j; i, j = i+1, j-1 {
+		top[i], top[j] = top[j], top[i]
+	}
+
+	topSelling := []sellingItem{}
+	worstSelling := []sellingItem{}
+
+	for _, item := range top {
+		topSelling = append(topSelling, sellingItem{
+			Item:       *item,
+			GrossSales: itemMap[item],
+		})
+	}
+	for _, item := range bottom {
+		worstSelling = append(worstSelling, sellingItem{
+			Item:       *item,
+			GrossSales: itemMap[item],
+		})
+	}
+
+	return c.JSON(http.StatusOK, sellingResponse{
+		TopSelling:   topSelling,
+		WorstSelling: worstSelling,
+	})
+}
+
+func getSalesForItem(item *models.Item) float64 {
+	sales, _ := saleService.FindAll()
+	grossSale := 0.0
+	for _, sale := range sales {
+		for _, li := range sale.LineItems {
+			if li.Item.ID.Hex() == item.ID.Hex() {
+				grossSale += li.Total
+			}
+		}
+	}
+	return grossSale
 }
 
 func sales(c echo.Context) error {
