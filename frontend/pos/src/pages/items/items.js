@@ -85,7 +85,13 @@ const validateMaxRetailPrice = (mrp) => {
     return validateRequiredNumberNegative(mrp, "MaxRetailprice");
 };
 
+const validateMaxWholeSalePrice = (mrp) => {
+  return validateRequiredNumberNegative(mrp, "MaxWholeSalePrice");
+};
 
+const validateMinWholeSalePrice = (mrp) => {
+  return validateRequiredNumberNegative(mrp, "MinWholeSalePrice");
+};
 
 function Items(props) {
     const { items } = props
@@ -305,6 +311,8 @@ function Items(props) {
                                         <ExcelColumn label="CostPrice" value="costPrice" />
                                         <ExcelColumn label="MinRetailPrice" value="minRetailPrice" />
                                         <ExcelColumn label="MaxRetailPrice" value="maxRetailPrice" />
+                                        <ExcelColumn label="maxWholeSalePrice" value="maxWholeSalePrice" />
+                                        <ExcelColumn label="minWholeSalePrice" value="minWholeSalePrice" />
                                         <ExcelColumn label="PurchasePrice" value="purchasePrice" />
                                         <ExcelColumn label="MinStockQty" value="minStock" />
                                     </ExcelSheet>
@@ -373,6 +381,16 @@ function Items(props) {
                         }, {
                             Header: "Min-Stock Quantity",
                             accessor: "minStock",
+                        },
+                        {
+                          Header: "Max-WholeSale Price",
+                          maxWidth: 150,
+                          accessor: "maxWholeSalePrice",
+                        }, 
+                        {
+                            Header: "Min-WholeSale Quantity",
+                            maxWidth: 150,
+                            accessor: "minWholeSalePrice",
                         },
                         {
                             Header: "Actions",
@@ -517,10 +535,22 @@ const ImportFile = (props) => {
                 message = `${err} row ${i} column ${7}`;
             }
 
-            itemObj.minStock = rows[i][8]
-            err = validateMinStockQty(itemObj.minStock);
+            itemObj.maxWholeSalePrice = rows[i][8];
+            err = validateMaxWholeSalePrice(itemObj.maxWholeSalePrice);
             if (err) {
                 message = `${err} row ${i} column ${8}`;
+            }
+
+            itemObj.minWholeSalePrice = rows[i][9];
+            err = validateMinWholeSalePrice(itemObj.minWholeSalePrice);
+            if (err) {
+                message = `${err} row ${i} column ${9}`;
+            }
+
+            itemObj.minStock = rows[i][10]
+            err = validateMinStockQty(itemObj.minStock);
+            if (err) {
+                message = `${err} row ${i} column ${10}`;
             }
 
             try {
@@ -538,6 +568,8 @@ const ImportFile = (props) => {
                 _maxRetailPrice = Number(itemObj.maxRetailPrice);
                 _purchasePrice = Number(itemObj.purchasePrice);
                 _minStock = Number(itemObj.minStockQty);
+                let _minWholeSalePrice = Number(itemObj.minWholeSalePrice);
+                let _maxWholeSalePrice = Number(itemObj.maxWholeSalePrice);
 
                 let cat = props.categories.find(c => c.name === itemObj.category)
                 if (!cat) {
@@ -555,6 +587,8 @@ const ImportFile = (props) => {
                     "minRetailPrice": _minRetailPrice,
                     "maxRetailPrice": _maxRetailPrice,
                     "minStock": _minStock,
+                    "minWholeSalePrice": _minWholeSalePrice,
+                    "maxWholeSalePrice": _maxWholeSalePrice,
                     "isRetired": false
                 });
                 Swal.fire(
@@ -651,11 +685,13 @@ const NewItem = (props) => {
     const [barcode, setBarcode] = useState("");
     const [costPrice, setCostPrice] = useState(0);
     const [category, setCategory] = useState("");
-    const [_quantity, setQuantity] = useState("");
+    const [quantity, setQuantity] = useState("");
     const [purchasePrice, setPurchasePrice] = useState(0);
     const [minRetailPrice, setMinRetailPrice] = useState(0);
     const [maxRetailPrice, setMaxRetailPrice] = useState(0);
     const [minStockQty, setMinStockQty] = useState(0);
+    const [maxWholeSalePrice, setMaxWholeSalePrice] = useState(0);
+    const [minWholeSalePrice, setMinWholeSalePrice] = useState(0);
 
     const handleNameInput = (e) => setName(e.target.value);
     const handleBarcodeInput = (e) => setBarcode(e.target.value);
@@ -666,6 +702,8 @@ const NewItem = (props) => {
     const handleminRetailPriceInput = (e) => setMinRetailPrice(e.target.value);
     const handlemaxRetailPriceInput = (e) => setMaxRetailPrice(e.target.value);
     const handleminStockInput = (e) => setMinStockQty(e.target.value);
+    const handlemaxWholeSalePrice = (e) => setMaxWholeSalePrice(e.target.value);
+    const handleminWholeSalePrice = (e) => setMinWholeSalePrice(e.target.value);
 
     const handleCancleClick = () => {
         setNewItemModalVisible(false);
@@ -678,7 +716,7 @@ const NewItem = (props) => {
             message = `${err}`;
         }
 
-        err = validateQty(_quantity, "Quantity");
+        err = validateQty(quantity, "Quantity");
         if (err) {
             message = `${err} `;
         }
@@ -708,6 +746,16 @@ const NewItem = (props) => {
             message = `${err}`;
         }
 
+        err = validateMaxWholeSalePrice(maxWholeSalePrice);
+        if (err) {
+            message = `${err}`;
+        }
+
+        err = validateMinWholeSalePrice(minWholeSalePrice);
+        if (err) {
+            message = `${err}`;
+        }
+
         if (message) {
             Swal.fire("Failure", `${message}`, "error");
             return;
@@ -716,12 +764,14 @@ const NewItem = (props) => {
         // handle error
         try {
 
-            let _quantity;
+            let _quantity = Number(quantity);
             let _costPrice = Number(costPrice)
             let _minRetailPrice = Number(minRetailPrice);
             let _maxRetailPrice = Number(maxRetailPrice);
             let _purchasePrice = Number(purchasePrice);
-            let _minStock = Number(minStockQty)
+            let _minStock = Number(minStockQty);
+            let _minWholeSalePrice = Number(minWholeSalePrice);
+            let _maxWholeSalePrice = Number(maxWholeSalePrice);
 
             if (_quantity) {
                 _quantity = Number(_quantity)
@@ -736,6 +786,8 @@ const NewItem = (props) => {
                 "minRetailPrice": _minRetailPrice,
                 "maxRetailPrice": _maxRetailPrice,
                 "minStock": _minStock,
+                "minWholeSalePrice": _minWholeSalePrice,
+                "maxWholeSalePrice": _maxWholeSalePrice,
                 "isRetired": false
             });
             Swal.fire(
@@ -812,7 +864,7 @@ const NewItem = (props) => {
                         <span className="w-25 text h6">Cost Price</span>
                     </div>
                     <div class="input-group-prepend w-15">
-                        <div class="input-group-text">FCFA</div>
+                        <div class="input-group-text">XAF</div>
                     </div>
                     <input
                         name="costPrice"
@@ -830,7 +882,7 @@ const NewItem = (props) => {
                         <span className="w-25 text h6">Purchase Price</span>
                     </div>
                     <div class="input-group-prepend w-15">
-                        <div class="input-group-text">FCFA</div>
+                        <div class="input-group-text">XAF</div>
                     </div>
                     <input
                         name="retailPrice"
@@ -848,7 +900,7 @@ const NewItem = (props) => {
                         <span className="w-25 text h6">Min Retail Price</span>
                     </div>
                     <div class="input-group-prepend w-15">
-                        <div class="input-group-text">FCFA</div>
+                        <div class="input-group-text">XAF</div>
                     </div>
                     <input
                         name="retailPrice"
@@ -866,7 +918,7 @@ const NewItem = (props) => {
                         <span className="w-25 text h6">Max Retail Price</span>
                     </div>
                     <div class="input-group-prepend w-15">
-                        <div class="input-group-text">FCFA</div>
+                        <div class="input-group-text">XAF</div>
                     </div>
                     <input
                         name="retailPrice"
@@ -881,12 +933,48 @@ const NewItem = (props) => {
             <div className="mx-5">
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <div>
+                        <span className="w-25 text h6">Max WholeSale Price</span>
+                    </div>
+                    <div class="input-group-prepend w-15">
+                        <div class="input-group-text">XAF</div>
+                    </div>
+                    <input
+                        name="retailPrice"
+                        placeholder="retailPrice"
+                        value={maxWholeSalePrice}
+                        onChange={handlemaxWholeSalePrice}
+                        type="number"
+                        className={"form-control input text"}
+                    />
+                </div>
+            </div>
+            <div className="mx-5">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <span className="w-25 text h6">Min WholeSale Price</span>
+                    </div>
+                    <div class="input-group-prepend w-15">
+                        <div class="input-group-text">XAF</div>
+                    </div>
+                    <input
+                        name="retailPrice"
+                        placeholder="retailPrice"
+                        value={minWholeSalePrice}
+                        onChange={handleminWholeSalePrice}
+                        type="number"
+                        className={"form-control input text"}
+                    />
+                </div>
+            </div>
+            <div className="mx-5">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <div>
                         <span className="w-25 text h6">Quantity</span>
                     </div>
                     <input
                         name="qty"
                         placeholder="1"
-                        value={_quantity}
+                        value={quantity}
                         onChange={handleQuantityInput}
                         type="number"
                         className={"w-75 form-control input"}
@@ -939,6 +1027,8 @@ const EditItem = (props) => {
     const [minRetailPrice, setMinRetailPrice] = useState(item.minRetailPrice);
     const [maxRetailPrice, setMaxRetailPrice] = useState(item.maxRetailPrice);
     const [minStockQty, setMinStockQty] = useState(item.minStock);
+    const [maxWholeSalePrice, setMaxWholeSalePrice] = useState(item.maxWholeSalePrice);
+    const [minWholeSalePrice, setMinWholeSalePrice] = useState(item.minWholeSalePrice);
 
     const handleNameInput = (e) => setName(e.target.value);
     const handleBarcodeInput = (e) => setBarcode(e.target.value);
@@ -949,6 +1039,8 @@ const EditItem = (props) => {
     const handleminRetailPriceInput = (e) => setMinRetailPrice(e.target.value);
     const handlemaxRetailPriceInput = (e) => setMaxRetailPrice(e.target.value);
     const handleminStockInput = (e) => setMinStockQty(e.target.value);
+    const handlemaxWholeSalePrice = (e) => setMaxWholeSalePrice(e.target.value);
+    const handleminWholeSalePrice = (e) => setMinWholeSalePrice(e.target.value);
 
     const handleCancleClick = () => {
         setEditItemModalVisible(false);
@@ -991,6 +1083,16 @@ const EditItem = (props) => {
             message = `${err}`;
         }
 
+        err = validateMaxRetailPrice(maxWholeSalePrice);
+        if (err) {
+            message = `${err}`;
+        }
+
+        err = validateMaxRetailPrice(minWholeSalePrice);
+        if (err) {
+            message = `${err}`;
+        }
+
         if (message) {
             Swal.fire("Failure", `${message}`, "error");
             return;
@@ -1004,7 +1106,9 @@ const EditItem = (props) => {
             let _minRetailPrice = Number(minRetailPrice);
             let _maxRetailPrice = Number(maxRetailPrice);
             let _purchasePrice = Number(purchasePrice);
-            let _minStock = Number(minStockQty)
+            let _minStock = Number(minStockQty);
+            let _minWholeSalePrice = Number(minWholeSalePrice);
+            let _maxWholeSalePrice = Number(maxWholeSalePrice);
 
             if (quantity) {
                 qtty = Number(quantity)
@@ -1019,6 +1123,8 @@ const EditItem = (props) => {
                 "minRetailPrice": _minRetailPrice,
                 "maxRetailPrice": _maxRetailPrice,
                 "minStock": _minStock,
+                "minWholeSalePrice": _minWholeSalePrice,
+                "maxWholeSalePrice": _maxWholeSalePrice,
                 "isRetired": false
             });
 
@@ -1096,7 +1202,7 @@ const EditItem = (props) => {
                         <span className="w-25 text h6">Cost Price</span>
                     </div>
                     <div class="input-group-prepend w-15">
-                        <div class="input-group-text">FCFA</div>
+                        <div class="input-group-text">XAF</div>
                     </div>
                     <input
                         name="costPrice"
@@ -1115,7 +1221,7 @@ const EditItem = (props) => {
                         <span className="w-25 text h6">Purchase Price</span>
                     </div>
                     <div class="input-group-prepend w-15">
-                        <div class="input-group-text">FCFA</div>
+                        <div class="input-group-text">XAF</div>
                     </div>
                     <input
                         name=" purchasePrice"
@@ -1133,7 +1239,7 @@ const EditItem = (props) => {
                         <span className="w-25 text h6">Min Retail Price</span>
                     </div>
                     <div class="input-group-prepend w-15">
-                        <div class="input-group-text">FCFA</div>
+                        <div class="input-group-text">XAF</div>
                     </div>
                     <input
                         name="minRetailPrice"
@@ -1151,13 +1257,49 @@ const EditItem = (props) => {
                         <span className="w-25 text h6">Max Retail Price</span>
                     </div>
                     <div class="input-group-prepend w-15">
-                        <div class="input-group-text">FCFA</div>
+                        <div class="input-group-text">XAF</div>
                     </div>
                     <input
                         name="maxRetailPrice"
                         placeholder="maxRetailPrice"
                         value={maxRetailPrice}
                         onChange={handlemaxRetailPriceInput}
+                        type="number"
+                        className={"form-control input text"}
+                    />
+                </div>
+            </div>
+            <div className="mx-5">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <span className="w-25 text h6">Max WholeSale Price</span>
+                    </div>
+                    <div class="input-group-prepend w-15">
+                        <div class="input-group-text">XAF</div>
+                    </div>
+                    <input
+                        name="retailPrice"
+                        placeholder="retailPrice"
+                        value={maxWholeSalePrice}
+                        onChange={handlemaxWholeSalePrice}
+                        type="number"
+                        className={"form-control input text"}
+                    />
+                </div>
+            </div>
+            <div className="mx-5">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <span className="w-25 text h6">Min WholeSale Price</span>
+                    </div>
+                    <div class="input-group-prepend w-15">
+                        <div class="input-group-text">XAF</div>
+                    </div>
+                    <input
+                        name="retailPrice"
+                        placeholder="retailPrice"
+                        value={minWholeSalePrice}
+                        onChange={handleminWholeSalePrice}
                         type="number"
                         className={"form-control input text"}
                     />
