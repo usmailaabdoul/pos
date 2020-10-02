@@ -30,22 +30,14 @@ export default class ReportApi {
         }
     }
 
-    async bestSelling(start, end) {
+    async selling(start, end) {
         try {
-            let res = await this.api.get(`${baseUrl}/best?start=${start}&end=${end}`)
+            let res = await this.api.get(`${baseUrl}/selling?start=${start}&end=${end}`)
             return res.data
         } catch (e) {
             throw e
         }
     }
 
-    async worstSelling(start, end) {
-        try {
-            let res = await this.api.get(`${baseUrl}/best?start=${start}&end=${end}`)
-            return res.data
-        } catch (e) {
-            throw e
-        }
-    }
 
 }
