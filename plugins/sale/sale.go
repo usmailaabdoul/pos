@@ -176,12 +176,6 @@ func create(c echo.Context) error {
 			})
 		}
 
-		// if item.Quantity < line.Quantity {
-		// 	return c.JSON(http.StatusBadRequest, errResponse{
-		// 		Error: fmt.Sprintf("not enough qty for item %s: qty: %d", item.Name, item.Quantity),
-		// 	})
-		// }
-
 		lineItems = append(lineItems, models.LineItem{
 			Item:        *item,
 			Quantity:    line.Quantity,
@@ -191,6 +185,9 @@ func create(c echo.Context) error {
 		})
 
 		total += line.Total
+
+		item.Quantity = item.Quantity - line.Quantity
+		updatedItems = append(updatedItems, item)
 	}
 
 	if total != req.Total {
@@ -202,9 +199,14 @@ func create(c echo.Context) error {
 	if customer != nil {
 		if req.Change < 0 {
 			customer.Debt = customer.Debt + math.Abs(req.Change)
+			_ = customerService.UpdateById(customer.ID.Hex(), *customer)
 		}
 	} else {
 		customer = &models.Customer{}
+	}
+
+	for _, item := range updatedItems {
+		_ = itemService.UpdateById(item.ID.Hex(), *item)
 	}
 	created, err := saleService.Create(models.Sale{
 		ID:        primitive.NewObjectID(),

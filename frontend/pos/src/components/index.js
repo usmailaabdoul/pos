@@ -1,6 +1,4 @@
 import ActionModal from './ActionModal/ActionModal';
-import PrimaryPieChart from './primaryPieChart/primaryPieChart';
-import MainBarChart from './barChart/barchart'
-import SecondaryPieChart from './secondaryPieChart/secondaryPieChart';
+import DateRangePicker from './dateRangePicker/dateRangePicker'
 
-export { ActionModal, MainBarChart, PrimaryPieChart, SecondaryPieChart }
+export { ActionModal, DateRangePicker }

@@ -1,30 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './dash.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import CachedIcon from '@material-ui/icons/Cached';
-import { MainBarChart, PrimaryPieChart } from '../../components';
+import { BarChart, PieChart, Pie, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, } from 'recharts';
+import { renderCustomizedLabel, COLORS } from '../../components/primaryPieChart/primaryPieChart';
+import { DateRangePicker } from '../../components';
+import EditIcon from '@material-ui/icons/Edit';
+
 
 const graphData = [
     {
-        year: '2015', sales: 4000, qnty: 2400, amt: 2400,
+        year: '2015', sales: 4000,
     },
     {
-        year: '2016', sales: 3000, qnty: 1398, amt: 2210,
-    },
-    {
-        year: '2017', sales: 2000, qnty: 9800, amt: 2290,
-    },
-    {
-        year: '2018', sales: 2780, qnty: 3908, amt: 2000,
-    },
-    {
-        year: '2019', sales: 1890, qnty: 4800, amt: 2181,
-    },
-    {
-        year: '2020', sales: 2390, qnty: 3800, amt: 2500,
-    },
-    {
-        year: '2014', sales: 3490, qnty: 4300, amt: 2100,
+        year: '2016', sales: 3000,
     },
 ];
 
@@ -42,6 +31,11 @@ var formatedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate(
 
 const Dashboard = () => {
 
+    const [startDate, setStartDate] = useState(new Date())
+    const [endDate, setEndDate] = useState(new Date())
+    const [isStartDatePickerOpen, setStartDatePickerOpen] = useState(false)
+    const [isEndDatePickerOpen, setEndDatePickerOpen] = useState(false)
+
     return (
         <div>
             <div>
@@ -49,10 +43,12 @@ const Dashboard = () => {
                     <h5>Sale overview</h5>
                     <div className="overview__inputs">
                         <div>
-                            Start date: <input type="datetime-local" id="myDate" value={new Date().toISOString().slice(0, -5)} />
+                            Start date <span className="ml-2" onClick={() => setStartDatePickerOpen(true)}><EditIcon style={{ fontSize: 20 }} /></span>
+                            {isStartDatePickerOpen && <DateRangePicker label="dashboard" default="week" onClose={() => setStartDatePickerOpen(false)} onSave={(dates) => { console.log(dates) }}></DateRangePicker>}
                         </div>
                         <div>
-                            End date: <input type="datetime-local" id="endDate" value={new Date().toISOString().slice(0, -5)} />
+                            End date <span className="ml-2" onClick={() => setEndDatePickerOpen(true)}><EditIcon style={{ fontSize: 20 }} /></span>
+                            {isEndDatePickerOpen && <DateRangePicker label="dashboard" default="week" onClose={() => setEndDatePickerOpen(false)} onSave={(dates) => { console.log(dates) }}></DateRangePicker>}
                         </div>
                         <button type="button" class="btn btn-secondary">
                             <CachedIcon />
@@ -91,20 +87,63 @@ const Dashboard = () => {
                     <div>
                         <h4 className="card-title text-center">Quantity of products sold over time</h4>
                     </div>
-                    <MainBarChart data={graphData} />
+                    <BarChart
+                        width={1000}
+                        height={300}
+                        data={graphData}
+                        margin={{
+                            top: 5, right: 30, left: 20, bottom: 5,
+                        }}
+                    >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="year" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="sales" fill="#8884d8" />
+                    </BarChart>
                 </div>
                 <div class="row row-cols-2 ">
                     <div class="col">
                         <div>
                             <h4 className="card-title text-center">Top selling items</h4>
                         </div>
-                        <PrimaryPieChart data={pieChartData} />
+                        <PieChart width={500} height={300} >
+                            <Pie
+                                data={pieChartData}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                label={renderCustomizedLabel}
+                                outerRadius={80}
+                                fill="#8884d8"
+                                dataKey="value"
+                            > {
+                                    pieChartData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
+                                }
+                            </Pie>
+                        </PieChart>
                     </div>
                     <div class="col">
                         <div>
                             <h4 className="card-title text-center">Worst selling items</h4>
                         </div>
-                        <PrimaryPieChart data={pieChartData} />
+                        <PieChart width={500} height={300} >
+                            <Pie
+                                data={pieChartData}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                label={renderCustomizedLabel}
+                                outerRadius={80}
+                                fill="#8884d8"
+                                dataKey="value"
+                            >
+                                {
+                                    pieChartData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
+                                }
+                            </Pie>
+                        </PieChart>
                     </div>
                 </div>
             </div>
