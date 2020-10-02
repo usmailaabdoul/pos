@@ -197,7 +197,7 @@ func create(c echo.Context) error {
 	}
 
 	if customer != nil {
-		if req.Change < 0 {
+		if req.Change != 0 {
 			customer.Debt = customer.Debt + math.Abs(req.Change)
 			_ = customerService.UpdateById(customer.ID.Hex(), *customer)
 		}
