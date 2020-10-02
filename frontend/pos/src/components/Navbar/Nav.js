@@ -40,6 +40,10 @@ function Nav(props) {
                             <ShoppingCartIcon />
                             <p className="nav__text">Sales</p>
                         </NavLink>
+                        <NavLink className="nav__item" to="/items" activeClassName="is-active">
+                            <LibraryBooksIcon />
+                            <p className="nav__text">Items</p>
+                        </NavLink>
                         <NavLink className="nav__item" to="/categories" activeClassName="is-active">
                             <CategoryIcon />
                             <p className="nav__text">Categories</p>
@@ -249,6 +253,7 @@ function Nav(props) {
                     )
                 })
             }
+
         </nav>
     );
 }

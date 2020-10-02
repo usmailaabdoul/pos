@@ -10,11 +10,15 @@ const CustomRoute = props => {
             switch (role.name) {
                 case "Administrator":
                     return setReturnedRoute(
-                        <Route {...props} />
-                    )
+                        role.name === "Administrator" ? (
+                            <Route {...props} />
+                        ) : (
+                                <Route component={props.notFound} />
+                            )
+                    );
                 case "Items":
                     return setReturnedRoute(
-                        role.name === "Administrator" || role.name === "Items" ? (
+                        role.name === "Items" ? (
                             <Route {...props} />
                         ) : (
                                 <Route component={props.notFound} />
@@ -41,7 +45,8 @@ const CustomRoute = props => {
                         role === "Reports" ? (
                             <Route {...props} />
                         ) : (
-                                <Redirect to="/index" />
+
+                                <Route component={props.notFound} />
                             )
                     );
                 case "Employees":
@@ -49,7 +54,7 @@ const CustomRoute = props => {
                         role === "Employees" ? (
                             <Route {...props} />
                         ) : (
-                                <Redirect to="/index" />
+                                <Route component={props.notFound} />
                             )
                     );
                 case "Settings":
@@ -57,7 +62,7 @@ const CustomRoute = props => {
                         role === "Settings" ? (
                             <Route {...props} />
                         ) : (
-                                <Redirect to="/index" />
+                                <Route component={props.notFound} />
                             )
                     );
 
