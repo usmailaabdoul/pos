@@ -26,9 +26,11 @@ const Dashboard = () => {
     const startMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0)
     const [startDate, setStartDate] = useState(startMonth)
     const [endDate, setEndDate] = useState(currentDate)
-    const [isStartDatePickerOpen, setStartDatePickerOpen] = useState(false)
-    const [isEndDatePickerOpen, setEndDatePickerOpen] = useState(false)
-    const [salesData, setSalesData] = useState([])
+    const [rangeType, setRangeType] = useState("day")
+    const [isDatePickerOPen, setDatePickerOpen] = useState(false)
+    const [saleData, setSaleData] = useState([])
+    const [grossSales, setGrossSales] = useState(0)
+    const [grossProfit, setGrossProfit] = useState(0)
 
 
     useEffect(() => {
@@ -36,13 +38,33 @@ const Dashboard = () => {
     }, [])
 
     const getSales = async () => {
-        const data = await apis.reportApi.sales(startDate.getTime(), endDate.getTime(), "", "", "day")
-        let tmp = []
-        Object.keys(data).forEach(key => {
-            tmp.push({ label: new Date(key).toLocaleDateString(), total: data[key] })
+        const res = await apis.reportApi.sales(startDate.getTime(), endDate.getTime(), "", "", rangeType)
+        const { saleData, grossSales, grossProfit } = res
+
+        let tmpSaleData = []
+        Object.keys(saleData).forEach(key => {
+            tmpSaleData.push({ label: new Date(key).toLocaleDateString(), total: saleData[key] })
         })
-        setSalesData(tmp)
+        setSaleData(tmpSaleData)
+        setGrossSales(grossSales)
+        setGrossProfit(grossProfit)
     }
+
+
+    const handleDatePickerSaved = (dates) => {
+        let _startDate = new Date(dates.start);
+        let _endDate = new Date(dates.end);
+        if (dates.type === 'year') {
+            _startDate = new Date(dates.start, 0)
+            _endDate = new Date(dates.end, 0)
+        }
+        setStartDate(_startDate)
+        setEndDate(_endDate)
+        setRangeType(dates.type)
+        setDatePickerOpen(false)
+    }
+
+
 
     return (
         <div>
@@ -51,14 +73,11 @@ const Dashboard = () => {
                     <h5>Sale overview</h5>
                     <div className="overview__inputs">
                         <div>
-                            Start date <span className="ml-2" onClick={() => setStartDatePickerOpen(true)}><EditIcon style={{ fontSize: 20 }} /></span> <span>{startDate.toLocaleDateString()}</span>
-                            {isStartDatePickerOpen && <DateRangePicker label="dashboard" default="week" onClose={() => setStartDatePickerOpen(false)} onSave={(dates) => { console.log(dates) }}></DateRangePicker>}
+                            Start date {startDate.toLocaleDateString()}&nbsp;
+                            End date {endDate.toLocaleDateString()} &nbsp;  <span className="ml-2" onClick={() => setDatePickerOpen(true)}><EditIcon style={{ fontSize: 20 }} /></span>
+                            {isDatePickerOPen && <DateRangePicker label="dashboard" default="week" onClose={() => setDatePickerOpen(false)} onSave={handleDatePickerSaved}></DateRangePicker>}
                         </div>
-                        <div>
-                            End date <span className="ml-2" onClick={() => setEndDatePickerOpen(true)}><EditIcon style={{ fontSize: 20 }} /></span><span>{endDate.toLocaleDateString()}</span>
-                            {isEndDatePickerOpen && <DateRangePicker label="dashboard" default="week" onClose={() => setEndDatePickerOpen(false)} onSave={(dates) => { console.log(dates) }}></DateRangePicker>}
-                        </div>
-                        <button type="button" class="btn btn-secondary">
+                        <button onClick={getSales} type="button" class="btn btn-secondary">
                             <CachedIcon />
                             Refresh
                         </button>
@@ -69,21 +88,14 @@ const Dashboard = () => {
                     <div className="col p-0 card mx-4 text-white bg-primary shadow" style={{ maxWidth: "12rem" }}>
                         <div className="card-header text-center">gross sales</div>
                         <div className="card-body">
-                            <h5 className="card-title text-center">79,850 XAF</h5>
+                            <h5 className="card-title text-center">{grossSales} XAF</h5>
                             <p className="card-text text-center"><small>Last updated 3 mins ago</small></p>
                         </div>
                     </div>
                     <div className="col p-0 card mx-4 text-white bg-success shadow" style={{ maxWidth: "12rem" }}>
-                        <div className="card-header text-center">net sales</div>
+                        <div className="card-header text-center">gross profit</div>
                         <div className="card-body">
-                            <h5 className="card-title text-center">79,850 XAF</h5>
-                            <p className="card-text text-center"><small>Last updated 3 mins ago</small></p>
-                        </div>
-                    </div>
-                    <div className="col p-0 card mx-4 text-white bg-info shadow" style={{ maxWidth: "12rem" }}>
-                        <div className="card-header text-center">products sold/mth</div>
-                        <div className="card-body">
-                            <h5 className="card-title text-center">150</h5>
+                            <h5 className="card-title text-center">{grossProfit} XAF</h5>
                             <p className="card-text text-center"><small>Last updated 3 mins ago</small></p>
                         </div>
                     </div>
@@ -98,13 +110,13 @@ const Dashboard = () => {
                     <BarChart
                         width={1000}
                         height={300}
-                        data={salesData}
+                        data={saleData}
                         margin={{
                             top: 5, right: 30, left: 20, bottom: 5,
                         }}
                     >
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="total" />
+                        <XAxis dataKey="label" />
                         <YAxis />
                         <Tooltip />
                         <Legend />

@@ -99,7 +99,7 @@ func getTimeLabels(start int64, end int64, rangeType string) (res []time.Time) {
 		nextWeek := startDate
 		res = append(res, startDate)
 		for {
-			nextWeek = startDate.AddDate(0, 0, 7)
+			nextWeek = nextWeek.AddDate(0, 0, 7)
 			if nextWeek.UnixNano() <= end {
 				res = append(res, nextWeek)
 			} else {
@@ -114,7 +114,7 @@ func getTimeLabels(start int64, end int64, rangeType string) (res []time.Time) {
 		nextMonth := startDate
 		res = append(res, startDate)
 		for {
-			nextMonth = startDate.AddDate(0, 1, 0)
+			nextMonth = nextMonth.AddDate(0, 1, 0)
 			if nextMonth.UnixNano() <= end {
 				res = append(res, nextMonth)
 			} else {
@@ -129,7 +129,7 @@ func getTimeLabels(start int64, end int64, rangeType string) (res []time.Time) {
 		nextYear := startDate
 		res = append(res, startDate)
 		for {
-			nextYear = startDate.AddDate(1, 0, 0)
+			nextYear = nextYear.AddDate(1, 0, 0)
 			if nextYear.UnixNano() <= end {
 				res = append(res, nextYear)
 			} else {
