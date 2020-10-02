@@ -104,7 +104,7 @@ const Dashboard = () => {
                         }}
                     >
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="label" />
+                        <XAxis dataKey="total" />
                         <YAxis />
                         <Tooltip />
                         <Legend />

@@ -142,6 +142,23 @@ func getTimeLabels(start int64, end int64, rangeType string) (res []time.Time) {
 	return
 }
 
+func isSameDay(t1 time.Time, t2 time.Time) bool {
+	return (t1.Year() == t2.Year()) && (t1.Month() == t2.Month()) && (t1.Day() == t2.Day())
+}
+
+func getWeek(t time.Time) int {
+	return t.Day() / 7
+}
+func isSameWeek(t1 time.Time, t2 time.Time) bool {
+	return (t1.Year() == t2.Year()) && (t1.Month() == t2.Month()) && (getWeek(t1) == getWeek(t2))
+}
+func isSameMonth(t1 time.Time, t2 time.Time) bool {
+	return (t1.Year() == t2.Year()) && (t1.Month() == t2.Month())
+}
+func isSameYear(t1 time.Time, t2 time.Time) bool {
+	return t1.Year() == t2.Year()
+}
+
 func sales(c echo.Context) error {
 	startStr := c.QueryParam("start")
 	endStr := c.QueryParam("end")
@@ -166,50 +183,92 @@ func sales(c echo.Context) error {
 		})
 	}
 	timeLabels := getTimeLabels(start*1000000, end*1000000, rangeType)
-	data := make(map[time.Time]float64)
+	salesData := make(map[time.Time]float64)
+	profitData := make(map[time.Time]float64)
 
 	sales, _ := saleService.FindAll()
+	totalGrossSales := 0.0
+	totalGrossProfit := 0.0
+
+	for _, t := range timeLabels {
+		salesData[t] = 0
+		profitData[t] = 0
+	}
+
 	for _, t := range timeLabels {
 		for _, sale := range sales {
 			if rangeType == "day" {
-				if sale.CreatedAt.Day() != t.Day() {
+				if !isSameDay(sale.CreatedAt, t) {
 					continue
 				}
 			} else if rangeType == "week" {
-				if sale.CreatedAt.Weekday() != t.Weekday() {
+				if !isSameWeek(sale.CreatedAt, t) {
 					continue
 				}
 			} else if rangeType == "month" {
-				if sale.CreatedAt.Month() != t.Month() {
+				if !isSameMonth(sale.CreatedAt, t) {
 					continue
 				}
 			} else {
-				if sale.CreatedAt.Year() != t.Year() {
+				if !isSameYear(sale.CreatedAt, t) {
 					continue
 				}
 			}
 
+			isCategory := false
 			if categoryID != "" {
 				for _, li := range sale.LineItems {
-					if li.Item.Category.Hex() != categoryID {
-						continue
+					if li.Item.Category.Hex() == categoryID {
+						salesData[t] += li.Total
+						totalGrossSales += li.Total
+						lineCost := float64(li.Quantity) * li.Item.PurchasePrice
+						profitData[t] += li.Total - lineCost
+						totalGrossProfit += li.Total - lineCost
+						isCategory = true
 					}
 				}
 			}
-			if itemID != "" {
+			isItem := false
+			if !isCategory && itemID != "" {
 				for _, li := range sale.LineItems {
-					if li.Item.ID.Hex() != itemID {
-						continue
+					if li.Item.ID.Hex() == itemID {
+						salesData[t] += li.Total
+						totalGrossSales += li.Total
+						lineCost := float64(li.Quantity) * li.Item.PurchasePrice
+						profitData[t] += li.Total - lineCost
+						totalGrossProfit += li.Total - lineCost
+						isItem = true
 					}
 				}
 			}
-			data[t] += sale.Total
+			if !isCategory && !isItem {
+				salesData[t] += sale.Total
+				totalGrossSales += sale.Total
+				saleCost := 0.0
+				for _, li := range sale.LineItems {
+					saleCost += float64(li.Quantity) * li.Item.PurchasePrice
+				}
+				profitData[t] += sale.Total - saleCost
+				totalGrossProfit += sale.Total - saleCost
+			}
 		}
 	}
 
-	return c.JSON(http.StatusOK, data)
+	return c.JSON(http.StatusOK, saleResponse{
+		GrossSales:  totalGrossSales,
+		GrossProfit: totalGrossProfit,
+		SalesData:   salesData,
+		ProfitData:  profitData,
+	})
 }
 
 type errorResponse struct {
 	Error string `json:"error"`
+}
+
+type saleResponse struct {
+	GrossSales  float64               `json:"grossSales"`
+	GrossProfit float64               `json:"grossProfit"`
+	SalesData   map[time.Time]float64 `json:"saleData"`
+	ProfitData  map[time.Time]float64 `json:"profitData"`
 }
