@@ -12,24 +12,6 @@ import apis from '../../apis/apis';
 
 import "./customers.css";
 
-const data2 = []
-for (let i = 0; i < 5; i++) {
-  data2.push({ id: i + 1, date: new Date().toDateString(), total: i + 1000 })
-}
-
-const data3 = {
-  total: 9000,
-  date: new Date(),
-  balance: 1000,
-  paid: 10000,
-  cashier: 'Silvia Ann',
-  basketDetails: [
-    { id: 1, name: 'red pen', qty: 4, price: 200, total: 800, discountPer: 0 },
-    { id: 2, name: 'school bag', qty: 1, price: 8000, total: 8000, discountPer: 0 },
-    { id: 3, name: 'ruler', qty: 1, price: 300, total: 300, discountPer: 0 }
-  ]
-}
-
 const CustomersPage = (props) => {
   const { customers } = props;
 
@@ -77,8 +59,10 @@ const CustomersPage = (props) => {
       let res = await apis.saleApi.getCustomerSales(id);
 
       console.log(res)
-      setTransactions(data2)
       setTransactionIsLoading(false)
+      res.forEach(t => t.created_at = new Date(t.created_at).toDateString());
+
+      setTransactions(res)
     } catch (e) {
       setTransactionIsLoading(false)
       Swal.fire({
@@ -111,8 +95,8 @@ const CustomersPage = (props) => {
     getTransactions(customer._id)
   }
 
-  const viewBasketDetail = () => {
-    setBasket(data3)
+  const viewBasketDetail = (basket) => {
+    setBasket(basket)
     setBasketDetailModalVisible(true)
   }
 
@@ -273,7 +257,7 @@ const CustomersPage = (props) => {
                       },
                       {
                         Header: "Date",
-                        accessor: "date",
+                        accessor: "created_at",
                         headerStyle: { textAlign: 'left' }
                       },
                       {
@@ -460,13 +444,26 @@ const PayDebt = (props) => {
     setPayDebtModalVisibile(false)
   }
   const handleSuccessClick = async () => {
-    let obj = { dept: amount }
+    let obj = { amount: Number(amount) }
+    let hasError = false;
 
+    if (Number(amount) > debt) {
+      hasError = true;
+    };
+
+    if (hasError) {
+      return Swal.fire({
+        icon: 'error',
+        title: 'Warning',
+        text: 'The amount entered is more than Dept'
+      })
+    }
+    
     try {
-      let res = await apis.customerApi.editCustomer(customer._id, obj);
+      let res = await apis.customerApi.payCustomerDept(customer._id, obj);
       Swal.fire(
         'Updated!',
-        `customer: ${res.name} updated successfully`,
+        `customer: ${res.name} paid dept successfully`,
         'success'
       )
       getCustomers()
@@ -474,7 +471,7 @@ const PayDebt = (props) => {
       // console.log(res)
     } catch (e) {
       console.log(e);
-      Swal.fire({
+      return Swal.fire({
         icon: 'error',
         title: 'error',
         text: 'Something unexpected happened'
@@ -521,7 +518,7 @@ const PayDebt = (props) => {
 
 const BasketDetail = (props) => {
   const { setBasketDetailModalVisible, isBasketDetailModalVisible, basket } = props;
-  const { date, total, cashier, basketDetails, paid, balance } = basket
+  const { created_at, total, cashier, lineItems, paid, change } = basket
   return (
     <ActionModal
       isVisible={isBasketDetailModalVisible}
@@ -531,7 +528,7 @@ const BasketDetail = (props) => {
         showPagination={false}
         showPageSizeOptions={false}
         minRows={0}
-        data={basketDetails}
+        data={lineItems}
         defaultPageSize={10}
         style={{ textAlign: 'center' }}
         className="-highlight -striped rt-rows-height ReactTable"
@@ -547,14 +544,17 @@ const BasketDetail = (props) => {
           },
           {
             Header: "Item",
-            accessor: "name",
-            headerStyle: { textAlign: 'left' }
-
+            Cell: (item) => {
+              console.log('item', item.original.item.name)
+              return <div>{item.original.item.name}</div>;
+            }
           },
           {
             Header: "Price",
-            accessor: "price",
-            headerStyle: { textAlign: 'left' }
+            Cell: (item) => {
+              console.log('item', item.original.item.name)
+              return <div>{item.original.item.purchasePrice}</div>;
+            }
           },
           {
             Header: "Qty",
@@ -562,8 +562,8 @@ const BasketDetail = (props) => {
             headerStyle: { textAlign: 'left' }
           },
           {
-            Header: "Discount %",
-            accessor: "discountPer",
+            Header: "Discount",
+            accessor: "discount",
             headerStyle: { textAlign: 'left' }
           },
           {
@@ -576,7 +576,7 @@ const BasketDetail = (props) => {
       <div className="mx-5 mt-4">
         <div className="d-flex justify-content-between align-items-center mb-2">
           <span className="w-25 text">Date:</span>
-          <span>{date.toDateString()}</span>
+          <span>{new Date(created_at).toDateString()}</span>
         </div>
       </div>
       <div className="mx-5">
@@ -594,13 +594,13 @@ const BasketDetail = (props) => {
       <div className="mx-5">
         <div className="d-flex justify-content-between align-items-center mb-2">
           <span className="w-25 text">Balance:</span>
-          <span>{balance}</span>
+          <span>{change}</span>
         </div>
       </div>
       <div className="mx-5">
         <div className="d-flex justify-content-between align-items-center mb-2">
           <span className="w-25 text">Cashier:</span>
-          <span>{cashier}</span>
+          <span>{cashier.name}</span>
         </div>
       </div>
     </ActionModal >
