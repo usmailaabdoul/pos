@@ -97,17 +97,6 @@ const Sales = () => {
     if (index > -1) {
       retailPrice = products[index].lineItemPrice = +e.target.value;
       let discount = products[index].lineItemDiscount;
-      let maxRetailPrice = products[index].maxRetailPrice;
-      let minRetailPrice = products[index].minRetailPrice;
-
-      // console.log(retailPrice, maxRetailPrice)
-      // if (retailPrice < minRetailPrice || retailPrice > maxRetailPrice) {
-      //   return Swal.fire({
-      //     icon: 'error',
-      //     title: 'Warning',
-      //     text: `Amount should be in the specified range of ${minRetailPrice} and ${maxRetailPrice}`
-      //   })
-      // }
 
       if (discount !== 0) {
         let total = retailPrice * products[index].lineItemQty * discount;
@@ -303,6 +292,7 @@ const Sales = () => {
     setAmountPaid(0);
     setComment('');
     setSelectCustomer([]);
+    getItems()
   };
 
   const addSystemItem = (item) => {

@@ -29,9 +29,9 @@ export default class CustomerApi {
     }
   }
 
-  async payDept(id) {
+  async payCustomerDept(id, obj) {
     try {
-      let res = await this.api.get(`${baseUrl}/${id}/pay`)
+      let res = await this.api.post(`${baseUrl}/${id}/pay`, obj)
       return res.data
     } catch (e) {
       throw e
