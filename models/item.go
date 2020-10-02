@@ -19,7 +19,7 @@ type Item struct {
 	MaxRetailPrice    float64            `bson:"maxRetailPrice" json:"maxRetailPrice"`
 	MinWholeSalePrice float64            `bson:"minWholeSalePrice" json:"minWholeSalePrice"`
 	MaxWholeSalePrice float64            `bson:"maxWholeSalePrice" json:"maxWholeSalePrice"`
-	MinStock          uint32             `bson:"minStock" json:"minStock"`
+	MinStock          int                `bson:"minStock" json:"minStock"`
 	CreatedAt         time.Time          `bson:"created_at" json:"created_at"`
 	UpdatedAt         time.Time          `bson:"updated_at" json:"updated_at"`
 	IsRetired         bool               `bson:"isRetired" json:"isRetired"`

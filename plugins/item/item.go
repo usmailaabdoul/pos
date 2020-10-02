@@ -355,8 +355,8 @@ type editRequest struct {
 	MaxRetailPrice    float64 `json:"maxRetailPrice"`
 	MinWholeSalePrice float64 `json:"minWholeSalePrice"`
 	MaxWholeSalePrice float64 `json:"maxWholeSalePrice"`
-	Quantity          uint32  `json:"qty"`
-	MinStock          uint32  `json:"minStock"`
+	Quantity          int     `json:"qty"`
+	MinStock          int     `json:"minStock"`
 }
 
 type createRequest struct {
@@ -369,6 +369,6 @@ type createRequest struct {
 	MaxRetailPrice    float64 `json:"maxRetailPrice" validate:"required"`
 	MinWholeSalePrice float64 `json:"minWholeSalePrice"`
 	MaxWholeSalePrice float64 `json:"maxWholeSalePrice"`
-	Quantity          uint32  `json:"qty"`
-	MinStock          uint32  `json:"minStock"`
+	Quantity          int     `json:"qty"`
+	MinStock          int     `json:"minStock"`
 }

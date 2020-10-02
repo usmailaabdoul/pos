@@ -17,30 +17,13 @@ import { connect } from "react-redux";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Link } from 'react-router-dom'
 
-const App = ({ token }) => {
+const App = ({ token, items }) => {
     const [showAlert, setShowAlert] = useState(false)
-    const [items, setItems] = useState([]);
-    const [showLowStock, setShowLowStock] = useState(false)
+    const [showAgain, setShowAgain] = useState(true)
 
     useEffect(() => {
-        setInterval(getItems, 10000)
-    }, [])
-
-    useEffect(() => { checkLow() }, [items])
-
-    const getItems = async () => {
-        try {
-            let res = await apis.itemApi.items();
-            setItems(res);
-
-        } catch (e) {
-            Swal.fire({
-                icon: "error",
-                title: "error",
-                text: e.message,
-            });
-        }
-    }
+        setInterval(checkLow, 10000)
+    })
 
     const checkLow = () => {
         let count = 0;
@@ -92,7 +75,7 @@ const App = ({ token }) => {
                             <Navbar />
 
                             {
-                                showAlert &&
+                                showAlert && showAgain &&
                                 <Alert variant="danger" onClose={() => setShowAlert(false)} dismissible>
                                     <Alert.Heading>Oh snap! You have a few low stock items!</Alert.Heading>
                                     <p>
@@ -101,9 +84,9 @@ const App = ({ token }) => {
                                             </p>
                                     <hr />
                                     <div className="d-flex justify-content-end">
-                                        {/* <button onClick={() = setShowAlert(false)} type="button" class="btn btn-outline-danger">
+                                        <button onClick={() => setShowAgain(false)} type="button" class="btn btn-outline-danger">
                                             Don't Show again
-                                                </button> */}
+                                                </button>
 
                                         <button onClick={() => setShowAlert(false)} type="button" class="btn btn-outline-danger">
                                             Dismiss
@@ -135,9 +118,10 @@ const App = ({ token }) => {
     );
 }
 
-const mapStatesToProps = ({ auth }) => {
+const mapStatesToProps = ({ auth, item }) => {
     return {
-        token: auth.token
+        token: auth.token,
+        items: item.items
     }
 }
 
