@@ -231,6 +231,108 @@ func getSalesForItem(item *models.Item) float64 {
 	return grossSale
 }
 
+func salesReport(c echo.Context) error {
+	startStr := c.QueryParam("start")
+	endStr := c.QueryParam("end")
+	rangeType := c.QueryParam("rangeType")
+	if startStr == "" || endStr == "" || rangeType == "" {
+		return c.JSON(http.StatusBadRequest, errorResponse{
+			Error: "start, end and rangeType are required",
+		})
+	}
+	itemID := c.QueryParam("itemId")
+	categoryID := c.QueryParam("categoryID")
+	start, err := strconv.ParseInt(startStr, 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, errorResponse{
+			Error: err.Error(),
+		})
+	}
+	end, err := strconv.ParseInt(endStr, 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, errorResponse{
+			Error: err.Error(),
+		})
+	}
+	timeLabels := getTimeLabels(start*1000000, end*1000000, rangeType)
+	salesData := make(map[time.Time]float64)
+	profitData := make(map[time.Time]float64)
+
+	sales, _ := saleService.FindAll()
+	totalGrossSales := 0.0
+	totalGrossProfit := 0.0
+
+	for _, t := range timeLabels {
+		salesData[t] = 0
+		profitData[t] = 0
+	}
+
+	for _, t := range timeLabels {
+		for _, sale := range sales {
+			if rangeType == "day" {
+				if !isSameDay(sale.CreatedAt, t) {
+					continue
+				}
+			} else if rangeType == "week" {
+				if !isSameWeek(sale.CreatedAt, t) {
+					continue
+				}
+			} else if rangeType == "month" {
+				if !isSameMonth(sale.CreatedAt, t) {
+					continue
+				}
+			} else {
+				if !isSameYear(sale.CreatedAt, t) {
+					continue
+				}
+			}
+
+			isCategory := false
+			if categoryID != "" {
+				for _, li := range sale.LineItems {
+					if li.Item.Category.Hex() == categoryID {
+						salesData[t] += li.Total
+						totalGrossSales += li.Total
+						lineCost := float64(li.Quantity) * li.Item.PurchasePrice
+						profitData[t] += li.Total - lineCost
+						totalGrossProfit += li.Total - lineCost
+						isCategory = true
+					}
+				}
+			}
+			isItem := false
+			if !isCategory && itemID != "" {
+				for _, li := range sale.LineItems {
+					if li.Item.ID.Hex() == itemID {
+						salesData[t] += li.Total
+						totalGrossSales += li.Total
+						lineCost := float64(li.Quantity) * li.Item.PurchasePrice
+						profitData[t] += li.Total - lineCost
+						totalGrossProfit += li.Total - lineCost
+						isItem = true
+					}
+				}
+			}
+			if !isCategory && !isItem {
+				salesData[t] += sale.Total
+				totalGrossSales += sale.Total
+				saleCost := 0.0
+				for _, li := range sale.LineItems {
+					saleCost += float64(li.Quantity) * li.Item.PurchasePrice
+				}
+				profitData[t] += sale.Total - saleCost
+				totalGrossProfit += sale.Total - saleCost
+			}
+		}
+	}
+
+	return c.JSON(http.StatusOK, saleResponse{
+		GrossSales:  totalGrossSales,
+		GrossProfit: totalGrossProfit,
+		SalesData:   salesData,
+		ProfitData:  profitData,
+	})
+}
 func sales(c echo.Context) error {
 	startStr := c.QueryParam("start")
 	endStr := c.QueryParam("end")
