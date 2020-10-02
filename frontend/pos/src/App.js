@@ -16,14 +16,19 @@ import Swal from "sweetalert2";
 import { connect } from "react-redux";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Link } from 'react-router-dom'
+import CustomRoute from './CustomRoute'
 
-const App = ({ token, items }) => {
+const App = ({ token, items, user }) => {
     const [showAlert, setShowAlert] = useState(false)
     const [showAgain, setShowAgain] = useState(true)
+    const [showLowStock, setShowLowStock] = useState(false);
+    const [returnRoute, setReturnRoute] = useState('')
 
     useEffect(() => {
         setInterval(checkLow, 10000)
     })
+
+    useEffect(() => { checkLow() }, [items])
 
     const checkLow = () => {
         let count = 0;
@@ -102,13 +107,56 @@ const App = ({ token, items }) => {
                             }
                             <Switch>
                                 <Route path="/" component={Sales} exact={true} />
-                                <Route path="/items" component={Items} />
-                                <Route path="/customers" component={Customers} />
-                                <Route path="/sales" component={Sales} />
-                                <Route path="/employees" component={Employees} />
-                                <Route path="/categories" component={Categories} />
-                                <Route path="/settings" component={Settings} />
-                                <Route path="/reports" component={Reports} />
+
+                                <CustomRoute
+                                    notFound={Login}
+                                    User={user}
+                                    exact
+                                    path="/items"
+                                    component={Items}
+                                />
+                                <CustomRoute
+                                    notFound={Login}
+                                    User={user}
+                                    exact
+                                    path="/sales"
+                                    component={Sales}
+                                />
+                                <CustomRoute
+                                    notFound={Login}
+                                    User={user}
+                                    exact
+                                    path="/customers"
+                                    component={Customers}
+                                />
+                                <CustomRoute
+                                    notFound={Login}
+                                    User={user}
+                                    exact
+                                    path="/employees"
+                                    component={Employees}
+                                />
+                                <CustomRoute
+                                    notFound={Login}
+                                    User={user}
+                                    exact
+                                    path="/categories"
+                                    component={Categories}
+                                />
+                                <CustomRoute
+                                    notFound={Login}
+                                    User={user}
+                                    exact
+                                    path="/settings"
+                                    component={Settings}
+                                />
+                                <CustomRoute
+                                    notFound={Login}
+                                    User={user}
+                                    exact
+                                    path="/reports"
+                                    component={Reports}
+                                />
                                 <Route component={NotFound} />
                             </Switch>
                         </>
@@ -118,9 +166,10 @@ const App = ({ token, items }) => {
     );
 }
 
-const mapStatesToProps = ({ auth, item }) => {
+const mapStatesToProps = ({ auth, role, item }) => {
     return {
         token: auth.token,
+        user: auth.user,
         items: item.items
     }
 }
