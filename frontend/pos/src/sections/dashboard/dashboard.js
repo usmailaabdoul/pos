@@ -7,6 +7,7 @@ import { renderCustomizedLabel, COLORS } from '../../components/primaryPieChart/
 import { DateRangePicker } from '../../components';
 import EditIcon from '@material-ui/icons/Edit';
 import apis from "../../apis/apis";
+import Moment from 'react-moment';
 
 
 const pieChartData = [
@@ -15,9 +16,6 @@ const pieChartData = [
     { name: 'Group C', value: 300 },
     { name: 'Group D', value: 200 },
 ];
-
-var date = new Date();
-var formatedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}  ${date.getHours()}:${date}`
 
 
 const Dashboard = () => {
@@ -31,10 +29,14 @@ const Dashboard = () => {
     const [saleData, setSaleData] = useState([])
     const [grossSales, setGrossSales] = useState(0)
     const [grossProfit, setGrossProfit] = useState(0)
+    const [topSellingData, setTopSellingData] = useState([])
+    const [worstSellingData, setWorstSellingData] = useState([])
+    const [updatedAt, setUpdatedAt] = useState(new Date())
 
 
     useEffect(() => {
         getSales()
+        getSelling()
     }, [])
 
     const getSales = async () => {
@@ -48,6 +50,40 @@ const Dashboard = () => {
         setSaleData(tmpSaleData)
         setGrossSales(grossSales)
         setGrossProfit(grossProfit)
+        setUpdatedAt(new Date())
+
+    }
+
+    const getSelling = async () => {
+        const res = await apis.reportApi.selling(startDate.getTime(), endDate.getTime())
+        let worstSellingData = []
+        let topSellingData = []
+
+        res.worstSelling.forEach(s => {
+            worstSellingData.push({ name: s.item.name, value: s.grossSales })
+        })
+        res.topSelling.forEach(s => {
+            topSellingData.push({ name: s.item.name, value: s.grossSales })
+        })
+
+        //normalze worst selling items
+        if (worstSellingData.filter(i => i.value === 0).length === worstSellingData.length) {
+            worstSellingData = worstSellingData.map(i => {
+                i.value = 100 / worstSellingData.length
+                return i
+            })
+        }
+
+        //normalze top selling items
+        if (topSellingData.filter(i => i.value === 0).length === topSellingData.length) {
+            topSellingData = topSellingData.map(i => {
+                i.value = 100 / topSellingData.length
+                return i
+            })
+        }
+        setTopSellingData(topSellingData)
+        setWorstSellingData(worstSellingData)
+        setUpdatedAt(new Date())
     }
 
 
@@ -64,6 +100,10 @@ const Dashboard = () => {
         setDatePickerOpen(false)
     }
 
+    const handleRefresh = () => {
+        getSales()
+        getSelling()
+    }
 
 
     return (
@@ -77,26 +117,26 @@ const Dashboard = () => {
                             End date {endDate.toLocaleDateString()} &nbsp;  <span className="ml-2" onClick={() => setDatePickerOpen(true)}><EditIcon style={{ fontSize: 20 }} /></span>
                             {isDatePickerOPen && <DateRangePicker label="dashboard" default="week" onClose={() => setDatePickerOpen(false)} onSave={handleDatePickerSaved}></DateRangePicker>}
                         </div>
-                        <button onClick={getSales} type="button" class="btn btn-secondary">
+                        <button onClick={handleRefresh} type="button" class="btn btn-secondary">
                             <CachedIcon />
                             Refresh
                         </button>
 
                     </div>
                 </div>
-                <div className="row row-cols-5 d-flex justify-content-center align-items-center">
-                    <div className="col p-0 card mx-4 text-white bg-primary shadow" style={{ maxWidth: "12rem" }}>
+                <div className="row row-cols-4 d-flex justify-content-center align-items-center">
+                    <div className="col p-0 card mx-4 text-white bg-primary shadow" style={{ maxWidth: "15rem" }}>
                         <div className="card-header text-center">gross sales</div>
                         <div className="card-body">
                             <h5 className="card-title text-center">{grossSales} XAF</h5>
-                            <p className="card-text text-center"><small>Last updated 3 mins ago</small></p>
+                            <p className="card-text text-center"><small>Last updated  <Moment fromNow>{updatedAt}</Moment></small></p>
                         </div>
                     </div>
-                    <div className="col p-0 card mx-4 text-white bg-success shadow" style={{ maxWidth: "12rem" }}>
+                    <div className="col p-0 card mx-4 text-white bg-success shadow" style={{ maxWidth: "15rem" }}>
                         <div className="card-header text-center">gross profit</div>
                         <div className="card-body">
                             <h5 className="card-title text-center">{grossProfit} XAF</h5>
-                            <p className="card-text text-center"><small>Last updated 3 mins ago</small></p>
+                            <p className="card-text text-center"><small>Last updated  <Moment fromNow>{updatedAt}</Moment></small></p>
                         </div>
                     </div>
                 </div>
@@ -130,7 +170,7 @@ const Dashboard = () => {
                         </div>
                         <PieChart width={500} height={300} >
                             <Pie
-                                data={pieChartData}
+                                data={topSellingData}
                                 cx="50%"
                                 cy="50%"
                                 labelLine={false}
@@ -139,7 +179,7 @@ const Dashboard = () => {
                                 fill="#8884d8"
                                 dataKey="value"
                             > {
-                                    pieChartData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
+                                    topSellingData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
                                 }
                             </Pie>
                         </PieChart>
@@ -150,7 +190,7 @@ const Dashboard = () => {
                         </div>
                         <PieChart width={500} height={300} >
                             <Pie
-                                data={pieChartData}
+                                data={worstSellingData}
                                 cx="50%"
                                 cy="50%"
                                 labelLine={false}
@@ -160,7 +200,7 @@ const Dashboard = () => {
                                 dataKey="value"
                             >
                                 {
-                                    pieChartData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
+                                    worstSellingData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
                                 }
                             </Pie>
                         </PieChart>
