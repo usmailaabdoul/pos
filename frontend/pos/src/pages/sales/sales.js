@@ -8,60 +8,79 @@ import apis from "../../apis/apis";
 import Swal from "sweetalert2";
 import { Typeahead } from 'react-bootstrap-typeahead';
 import Switch from '@material-ui/core/Switch';
+import { connect } from 'react-redux';
+import { setItems } from '../../redux/actions/itemActions';
+import {  setCustomers } from '../../redux/actions/customerActions'
+import {  setEmployees } from '../../redux/actions/employeeActions'
+import { bindActionCreators } from 'redux';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './sales.css';
 
-const Sales = () => {
+const Sales = (props) => {
+  const {items, customers} = props;
   const [price, setPrice] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [discount, setDiscount] = useState(0);
-  const [items, setItems] = useState([]);
   const [selectItem] = useState([]);
   const [products, setProducts] = useState([])
-  const [customers, setCustomers] = useState([])
   const [selectCustomer, setSelectCustomer] = useState([]);
   const [isNewCustomerModalVisible, setNewCustomerModalVisible] = useState(false)
   const [grandTotal, setGrandTotal] = useState(0);
   const [amountPaid, setAmountPaid] = useState(0);
   const [change, setChange] = useState(0);
   const [comment, setComment] = useState('');
-  // const [isWholeSale, ] = useState(false);
 
   useEffect(() => {
     getItems();
     getCustomers();
+    getEmployees();
   }, []);
 
   useEffect(() => {
     computeGrandTotal()
   }, [price, quantity, discount])
 
+  useEffect(() => {
+  }, [props])
+
   const getItems = async () => {
     try {
       let res = await apis.itemApi.items();
       console.log(res);
-      setItems(res);
-  } catch (e) {
-      Swal.fire({
-          icon: "error",
-          title: "error",
-          text: e.message,
-      });
-  }
-  }
-
-  const getCustomers = async () => {
-    try {
-      let res = await apis.customerApi.customers();
-      // console.log(res);
-      setCustomers(res);
+      props.setItems(res)
     } catch (e) {
         Swal.fire({
             icon: "error",
             title: "error",
             text: e.message,
         });
+    }
+  }
+
+  const getCustomers = async () => {
+    try {
+      let res = await apis.customerApi.customers();
+      props.setCustomers(res)
+    } catch (e) {
+        Swal.fire({
+            icon: "error",
+            title: "error",
+            text: e.message,
+        });
+    }
+  }
+
+  const getEmployees = async () => {
+    try {
+      let res = await apis.employeeApi.employees();
+      props.setEmployees(res);
+    } catch (e) {
+      Swal.fire({
+        icon: 'error',
+        title: 'error',
+        text: e.message
+      })
     }
   }
 
@@ -457,7 +476,7 @@ const Sales = () => {
           <div className="separator"></div>
           <div className="mx-4">
             <div className="text mb-2">Comments</div>
-            <textarea className="input rounded w-100 text-sm-left" rows="5" cols="50" onChange={handleCommentInput}></textarea>
+            <textarea className="input rounded w-100 text-sm-left" rows="5" value={comment} cols="50" onChange={handleCommentInput}></textarea>
           </div>
           <div className="d-flex justify-content-end align-items-center mr-3 mt-4" >
             <button onClick={() => cancelSale()} className="btn btn-danger mr-2"><span className="h5">Cancel</span></button>
@@ -478,8 +497,18 @@ const Sales = () => {
   );
 };
 
-export default Sales;
+const mapStateToProps = ({ item, customer }) => {
+  return {
+    items: item.items,
+    customers: customer.customers,
+  }
+}
 
+const mapDispatchToProps = (dispatch) => {
+  return bindActionCreators({ setCustomers, setItems, setEmployees }, dispatch);
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Sales);
 
 const NewCustomer = (props) => {
   const { setNewCustomerModalVisible, isNewCustomerModalVisible, getCustomers, customerInfo } = props;
