@@ -186,7 +186,7 @@ func create(c echo.Context) error {
 
 		total += line.Total
 
-		item.Quantity = item.Quantity - line.Quantity
+		item.Quantity = item.Quantity - int(line.Quantity)
 		updatedItems = append(updatedItems, item)
 	}
 

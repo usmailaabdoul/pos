@@ -170,7 +170,7 @@ func updateItem(c echo.Context) error {
 		item.MaxRetailPrice = req.MaxRetailPrice
 	}
 	if req.Quantity != 0 {
-		item.Quantity = req.Quantity
+		item.Quantity = int(req.Quantity)
 	}
 	if req.MinStock != 0 {
 		item.MinStock = req.MinStock
@@ -302,7 +302,7 @@ func createItem(c echo.Context) error {
 		})
 	}
 	if _item != nil {
-		_item.Quantity += req.Quantity
+		_item.Quantity += int(req.Quantity)
 		_item.UpdatedAt = time.Now()
 		_ = itemService.UpdateById(_item.ID.Hex(), *_item)
 		updated, _ := itemService.FindById(_item.ID.Hex())
@@ -312,7 +312,7 @@ func createItem(c echo.Context) error {
 	created, err := itemService.Create(models.Item{
 		ID:             primitive.NewObjectID(),
 		Name:           req.Name,
-		Quantity:       req.Quantity,
+		Quantity:       int(req.Quantity),
 		Barcode:        req.Barcode,
 		Category:       cat.ID,
 		CostPrice:      req.CostPrice,
