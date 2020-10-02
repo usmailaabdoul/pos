@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './dash.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import CachedIcon from '@material-ui/icons/Cached';
@@ -6,16 +6,7 @@ import { BarChart, PieChart, Pie, Bar, Cell, XAxis, YAxis, CartesianGrid, Toolti
 import { renderCustomizedLabel, COLORS } from '../../components/primaryPieChart/primaryPieChart';
 import { DateRangePicker } from '../../components';
 import EditIcon from '@material-ui/icons/Edit';
-
-
-const graphData = [
-    {
-        year: '2015', sales: 4000,
-    },
-    {
-        year: '2016', sales: 3000,
-    },
-];
+import apis from "../../apis/apis";
 
 
 const pieChartData = [
@@ -31,10 +22,27 @@ var formatedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate(
 
 const Dashboard = () => {
 
-    const [startDate, setStartDate] = useState(new Date())
-    const [endDate, setEndDate] = useState(new Date())
+    const currentDate = new Date()
+    const startMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0)
+    const [startDate, setStartDate] = useState(startMonth)
+    const [endDate, setEndDate] = useState(currentDate)
     const [isStartDatePickerOpen, setStartDatePickerOpen] = useState(false)
     const [isEndDatePickerOpen, setEndDatePickerOpen] = useState(false)
+    const [salesData, setSalesData] = useState([])
+
+
+    useEffect(() => {
+        getSales()
+    }, [])
+
+    const getSales = async () => {
+        const data = await apis.reportApi.sales(startDate.getTime(), endDate.getTime(), "", "", "day")
+        let tmp = []
+        Object.keys(data).forEach(key => {
+            tmp.push({ label: new Date(key).toLocaleDateString(), total: data[key] })
+        })
+        setSalesData(tmp)
+    }
 
     return (
         <div>
@@ -43,11 +51,11 @@ const Dashboard = () => {
                     <h5>Sale overview</h5>
                     <div className="overview__inputs">
                         <div>
-                            Start date <span className="ml-2" onClick={() => setStartDatePickerOpen(true)}><EditIcon style={{ fontSize: 20 }} /></span>
+                            Start date <span className="ml-2" onClick={() => setStartDatePickerOpen(true)}><EditIcon style={{ fontSize: 20 }} /></span> <span>{startDate.toLocaleDateString()}</span>
                             {isStartDatePickerOpen && <DateRangePicker label="dashboard" default="week" onClose={() => setStartDatePickerOpen(false)} onSave={(dates) => { console.log(dates) }}></DateRangePicker>}
                         </div>
                         <div>
-                            End date <span className="ml-2" onClick={() => setEndDatePickerOpen(true)}><EditIcon style={{ fontSize: 20 }} /></span>
+                            End date <span className="ml-2" onClick={() => setEndDatePickerOpen(true)}><EditIcon style={{ fontSize: 20 }} /></span><span>{endDate.toLocaleDateString()}</span>
                             {isEndDatePickerOpen && <DateRangePicker label="dashboard" default="week" onClose={() => setEndDatePickerOpen(false)} onSave={(dates) => { console.log(dates) }}></DateRangePicker>}
                         </div>
                         <button type="button" class="btn btn-secondary">
@@ -85,22 +93,22 @@ const Dashboard = () => {
             <div class="container mt-5">
                 <div class="col mt-2">
                     <div>
-                        <h4 className="card-title text-center">Quantity of products sold over time</h4>
+                        <h4 className="card-title text-center">Sales</h4>
                     </div>
                     <BarChart
                         width={1000}
                         height={300}
-                        data={graphData}
+                        data={salesData}
                         margin={{
                             top: 5, right: 30, left: 20, bottom: 5,
                         }}
                     >
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="year" />
+                        <XAxis dataKey="label" />
                         <YAxis />
                         <Tooltip />
                         <Legend />
-                        <Bar dataKey="sales" fill="#8884d8" />
+                        <Bar dataKey="total" fill="#8884d8" />
                     </BarChart>
                 </div>
                 <div class="row row-cols-2 ">

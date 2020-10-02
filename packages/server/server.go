@@ -8,6 +8,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/acha-bill/pos/plugins/report"
+
 	"github.com/acha-bill/pos/plugins/customer"
 
 	"github.com/acha-bill/pos/plugins/sale"
@@ -48,6 +50,7 @@ var (
 		user.Plugin(),
 		sale.Plugin(),
 		customer.Plugin(),
+		report.Plugin(),
 	}
 )
 
