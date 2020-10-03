@@ -1,6 +1,15 @@
 package main
 
 import (
+	"fmt"
+	"os"
+	"os/exec"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"github.com/acha-bill/pos/models"
+	backupService "github.com/acha-bill/pos/packages/dblayer/backup"
 	"github.com/acha-bill/pos/packages/mongodb"
 	"github.com/acha-bill/pos/packages/server"
 	"github.com/acha-bill/pos/plugins/category"
@@ -9,6 +18,7 @@ import (
 	"github.com/acha-bill/pos/plugins/user"
 	"github.com/joho/godotenv"
 	"github.com/labstack/gommon/log"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func init() {
@@ -74,5 +84,46 @@ func main() {
 
 	e := server.Instance()
 	e.Static("/", "./public")
+
+	dir, err := os.Getwd()
+	if err != nil {
+		log.Errorf("error getting work dir: %w", err)
+	}
+	backupDir := dir + "/backups"
+	if _, err := os.Stat(backupDir); os.IsNotExist(err) {
+		err = os.Mkdir(backupDir, 0777)
+		if err != nil {
+			log.Errorf("error creating backup dir: %w", err)
+		}
+	}
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGKILL)
+	go backupWorker(backupDir, c)
+
 	e.Logger.Fatal(e.Start(":8081"))
+}
+
+func backupWorker(backupDir string, c chan os.Signal) {
+	ticker := time.NewTicker(1 * time.Hour)
+	for {
+		select {
+		case <-ticker.C:
+			_, err := exec.Command("mongodump", "--out", backupDir).Output()
+			status := true
+			if err != nil {
+				log.Error(err.Error())
+				status = false
+			}
+			_, _ = backupService.Create(models.Backup{
+				ID:        primitive.NewObjectID(),
+				Path:      backupDir,
+				CreatedAt: time.Now(),
+				Status:    status,
+			})
+		case <-c:
+			fmt.Println("shutdown...")
+			return
+		}
+	}
 }

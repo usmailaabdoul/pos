@@ -7,6 +7,7 @@ import EmployeeApi from './employee';
 import CustomerApi from './customer';
 import SaleApi from './sale';
 import ReportApi from "./report";
+import BackupApi from "./backup";
 
 class Apis {
     initialize(token) {
@@ -21,6 +22,7 @@ class Apis {
         this.customerApi = new CustomerApi(this.api);
         this.saleApi = new SaleApi(this.api);
         this.reportApi = new ReportApi(this.api)
+        this.backupApi = new BackupApi(this.api)
 
     }
 }
