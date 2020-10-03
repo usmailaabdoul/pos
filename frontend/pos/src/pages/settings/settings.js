@@ -5,10 +5,10 @@ import Backups from "../../components/SettingsComponents/Backups";
 
 const routes = [
   { id: 1, name: "Roles" },
-  { id: 2, name: "Store Information" },
-  { id: 3, name: "Store Settings" },
-  { id: 4, name: "Data Settings" },
-  { id: 5, name: "Backups" },
+  { id: 2, name: "Backups" },
+  // { id: 3, name: "Store Information" },
+  // { id: 4, name: "Store Settings" },
+  // { id: 5, name: "Data Settings" },
 ];
 
 const Settings = () => {
@@ -19,13 +19,13 @@ const Settings = () => {
       case 1:
         return <Roles />;
       case 2:
-        return <p>The store information</p>;
-      case 3:
-        return <p>The store settings</p>;
-      case 4:
-        return <p>The data Settings</p>;
-      case 5:
         return <Backups />;
+      // case 3:
+      //   return <p>The store information</p>;
+      // case 4:
+      //   return <p>The store settings</p>;
+      // case 5:
+      //   return <p>The data Settings</p>;
       default:
         return <Roles />;
     }
