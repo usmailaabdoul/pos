@@ -16,8 +16,11 @@ import Swal from "sweetalert2";
 import { connect } from "react-redux";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Link } from 'react-router-dom'
+import { bindActionCreators } from 'redux';
+import {setToken, setUser} from './redux/actions/authActions';
 
-const App = ({ token, items, user }) => {
+const App = (props) => {
+    const { token, items, user, history } = props;
     const [showAlert, setShowAlert] = useState(false)
     const [showAgain, setShowAgain] = useState(true)
     const [showLowStock, setShowLowStock] = useState(false);
@@ -25,6 +28,18 @@ const App = ({ token, items, user }) => {
     useEffect(() => {
         setInterval(checkLow, 900000) //15 mins
     })
+
+    useEffect(() => {
+      let token = sessionStorage.getItem('TOKEN');
+      let user = sessionStorage.getItem('USER');
+
+      let _user = JSON.parse(user);
+      if (token && token.length > 0 && user) {
+        apis.initialize(token)
+        props.setToken(token);
+        props.setUser(_user);
+      }
+    }, [history])
 
     const checkLow = () => {
         let count = 0;
@@ -194,4 +209,8 @@ const mapStatesToProps = ({ auth, role, item }) => {
     }
 }
 
-export default connect(mapStatesToProps, null)(App);
+const mapDispatchToProps = (dispatch) => {
+  return bindActionCreators({ setToken, setUser }, dispatch);
+};
+
+export default connect(mapStatesToProps, mapDispatchToProps)(App);
