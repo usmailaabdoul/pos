@@ -23,7 +23,7 @@ const customStyles = {
   }
 };
 
-const CustomerReport = props => {
+const PhotocopyReport = props => {
 
   const currentDate = new Date()
   const startMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0)
@@ -31,7 +31,7 @@ const CustomerReport = props => {
   const [endDate, setEndDate] = useState(currentDate)
   const [rangeType, setRangeType] = useState("day")
   const [isDatePickerOPen, setDatePickerOpen] = useState(false)
-  const [customerData, setCustomerData] = useState([])
+  const [photocopyData, setphotocopyData] = useState([])
   const [isPrintModalOpen, setPrintModalOpen] = useState(false)
 
   const handleDatePickerSaved = (dates) => {
@@ -48,7 +48,7 @@ const CustomerReport = props => {
   }
 
   useEffect(() => {
-    getCustomers()
+    getSales()
   }, [])
 
   function pad(num, size) {
@@ -57,21 +57,27 @@ const CustomerReport = props => {
     return s;
   }
 
-  const getCustomers = async () => {
-    const res = await apis.customerApi.customers()
+  const getSales = async () => {
+    let photocopies = [];
+    let date = '';
 
-    let customers = res;
-    customers = customers.map(customer => {
-      let totalDepts = 0
-      customer.debtPayments.forEach(db => {
-        totalDepts += db.amount
-      })
-      customer.totalDepts = totalDepts
-      customer.balance = customer.debt - customer.totalDepts
-      return customer
+    const res = await apis.saleApi.sales()
+    let sales = res.filter(sale => {
+      let saleDate = new Date(sale.created_at)
+      date =  startDate <= saleDate && saleDate <= endDate
+      return date;
     })
 
-    setCustomerData(customers)
+    sales.forEach(sale => {
+      sale.lineItems.forEach(li => {
+        if (li.item.name === 'Photocopy') {
+          li.created_at = date;
+          photocopies.push(li)
+        }
+      })
+    });
+
+    setphotocopyData(photocopies);
   }
 
   const downloadClick = () => {
@@ -79,7 +85,7 @@ const CustomerReport = props => {
     var opt = {
       margin: 1,
       filename:
-        "customers_report_" +
+        "photocopy_report_" +
         d.getFullYear() +
         pad(d.getMonth(), 2) +
         pad(d.getDay(), 2) +
@@ -104,10 +110,10 @@ const CustomerReport = props => {
   return (
     <div>
       <div className="text-center mt-2 mb-2">
-        <h3>Customer summary report</h3>
+        <h3>Photocopy summary report</h3>
         <div className="mt-2 mb-2">
           From {startDate.toLocaleDateString()} To:
-                            {endDate.toLocaleDateString()}<button className="ml-2 btn btn-primary btn-sm" onClick={() => setDatePickerOpen(true)}><EditIcon style={{ fontSize: 20 }} /></button> &nbsp; <button className="btn btn-sm btn-primary" onClick={getCustomers}  ><RefreshIcon style={{ fontSize: 20 }}></RefreshIcon></button>
+                            {endDate.toLocaleDateString()}<button className="ml-2 btn btn-primary btn-sm" onClick={() => setDatePickerOpen(true)}><EditIcon style={{ fontSize: 20 }} /></button> &nbsp; <button className="btn btn-sm btn-primary" onClick={getSales}  ><RefreshIcon style={{ fontSize: 20 }}></RefreshIcon></button>
           {isDatePickerOPen && <DateRangePicker label="dashboard" default="week" onClose={() => setDatePickerOpen(false)} onSave={handleDatePickerSaved}></DateRangePicker>}
           <button onClick={() => setPrintModalOpen(true)} className="btn btn-primary ml-5">Print</button>
         </div>
@@ -128,28 +134,28 @@ const CustomerReport = props => {
           <div id="print">
             <div className="text-center mb-2">
               <h4>Office and Communication House Limbe</h4>
-              <span>Customer report: {startDate.toLocaleDateString()} - {endDate.toLocaleTimeString()}</span>
+              <span>Photocopy report: {startDate.toLocaleDateString()} - {endDate.toLocaleTimeString()}</span>
             </div>
             <table className="table table-bordered table-sm">
               <thead>
                 <th>#</th>
                 <th>Date</th>
-                <th>Name</th>
-                <th>Phone Number</th>
-                <th>Dept (XAF)</th>
-                <th>Total Depts Paid</th>
-                <th>Balance</th>
+                <th>Qty</th>
+                <th>Total(XAF)</th>
+                <th>Retial Price (XAf)</th>
+                <th>Discount</th>
+                <th>Whole Sale</th>
               </thead>
               <tbody>
-                {customerData.map((customer, i) => {
+                {photocopyData.map((p, i) => {
                   return <tr key={i}>
                     <td>{i + 1}</td>
-                    <td>{new Date(customer.created_at).toLocaleString()}</td>
-                    <td>{customer.name}</td>
-                    <td>{customer.phoneNumber}</td>
-                    <td>{customer.debt}</td>
-                    <td>{customer.totalDepts}</td>
-                    <td>{customer.balance}</td>
+                    <td>{new Date(p.created_at).toLocaleString()}</td>
+                    <td>{p.qty}</td>
+                    <td>{p.total}</td>
+                    <td>{p.retailPrice}</td>
+                    <td>{p.discount}</td>
+                    <td>{p.isWholeSale ? 'Yes' : 'No'}</td>
                   </tr>
                 })}
               </tbody>
@@ -162,11 +168,11 @@ const CustomerReport = props => {
         showPagination={true}
         showPageSizeOptions={false}
         minRows={0}
-        data={customerData}
+        data={photocopyData}
         defaultPageSize={10}
         style={{ textAlign: "center" }}
         loadingText="Loading Products ..."
-        noDataText="No customers found"
+        noDataText="No products found"
         className="-highlight -striped rt-rows-height ReactTable"
         columns={[
           {
@@ -185,26 +191,28 @@ const CustomerReport = props => {
             },
           },
           {
-            Header: "Name",
-            accessor: "name",
+            Header: "Qty",
+            maxWidth: 50,
+            accessor: "qty",
           },
           {
-            Header: "Phone Number",
-            accessor: "phoneNumber",
+            Header: "Total (XAF)",
+            accessor: "total",
           },
           {
-            Header: "Dept (XAF)",
-            accessor: "debt",
+            Header: "Retial Price (XAF)",
+            accessor: "retailPrice",
           },
           {
-            Header: "Total paid",
-            accessor: "totalDepts",
+            Header: "Discount",
+            accessor: "discount",
           },
           {
-            Header: "Balance",
-            accessor: "balance",
+            Header: "Whole Sale",
+            Cell: (row) => {
+              return <div>{row.original.isWholeSale ? 'Yes' : 'No'}</div>;
+            },
           },
-
         ]} />
     </div>
   );
@@ -212,4 +220,4 @@ const CustomerReport = props => {
 
 
 
-export default CustomerReport;
+export default PhotocopyReport;
