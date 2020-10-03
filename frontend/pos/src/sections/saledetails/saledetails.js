@@ -32,6 +32,7 @@ const SaleDetailsReport = props => {
     const [rangeType, setRangeType] = useState("day")
     const [isDatePickerOPen, setDatePickerOpen] = useState(false)
     const [itemsData, setItemsData] = useState([])
+    const [filteredItemsData, setFilteredItemsData] = useState([])
     const [isPrintModalOpen, setPrintModalOpen] = useState(false)
     const [totalSale, setTotalSale] = useState(0)
     const [totalCost, setTotalCost] = useState(0)
@@ -92,6 +93,7 @@ const SaleDetailsReport = props => {
             return sale
         })
         setItemsData(items)
+        setFilteredItemsData(items)
         setTotalSale(_totalSale)
         setTotalCost(_totalCost)
         setTotalProfit(_totalProfit)
@@ -124,6 +126,12 @@ const SaleDetailsReport = props => {
         setPrintModalOpen(false)
     };
 
+    const handleSearch = (event) => {
+        let key = event.target.value.toLowerCase()
+        let filtered = itemsData.filter(li => li.item.name.toLowerCase().indexOf(key) >= 0)
+        setFilteredItemsData(filtered)
+    }
+
     return (
         <div>
             <div className="text-center mt-2 mb-2">
@@ -151,7 +159,7 @@ const SaleDetailsReport = props => {
                     <div id="print">
                         <div className="text-center mb-2">
                             <h4>Office and Communication House Limbe</h4>
-                            <span>Sales report: {startDate.toLocaleDateString()} - {endDate.toLocaleTimeString()}</span>
+                            <span>Sales details report: {startDate.toLocaleDateString()} - {endDate.toLocaleTimeString()}</span>
                         </div>
                         <table className="table table-bordered table-sm">
                             <thead>
@@ -167,7 +175,7 @@ const SaleDetailsReport = props => {
                                 <th>Profit</th>
                             </thead>
                             <tbody>
-                                {itemsData.map((li, i) => {
+                                {filteredItemsData.map((li, i) => {
                                     return <tr key={i}>
                                         <td>{i + 1}</td>
                                         <td>{new Date(li.created_at).toLocaleString()}</td>
@@ -192,11 +200,15 @@ const SaleDetailsReport = props => {
                 </div>
             </Modal>
 
+            <div>
+                <input type="text" className="form-control text input mb-2" placeholder="search item name" onChange={handleSearch} />
+            </div>
+
             <ReactTable
                 showPagination={true}
                 showPageSizeOptions={false}
                 minRows={0}
-                data={itemsData}
+                data={filteredItemsData}
                 defaultPageSize={10}
                 style={{ textAlign: "center" }}
                 loadingText="Loading Products ..."
