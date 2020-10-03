@@ -4,7 +4,24 @@ import EditIcon from '@material-ui/icons/Edit';
 import ReactTable from 'react-table';
 import apis from "../../apis/apis";
 import RefreshIcon from '@material-ui/icons/Refresh';
+import html2pdf from "html2pdf.js";
+import Swal from 'sweetalert2';
+import Modal from 'react-modal';
 
+
+const customStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    width: "90%",
+    height: "90%",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+    borderRadius: "10px"
+  }
+};
 
 const SalesReport = props => {
 
@@ -15,6 +32,7 @@ const SalesReport = props => {
   const [rangeType, setRangeType] = useState("day")
   const [isDatePickerOPen, setDatePickerOpen] = useState(false)
   const [saleData, setSaleData] = useState([])
+  const [isPrintModalOpen, setPrintModalOpen] = useState(false)
 
   const handleDatePickerSaved = (dates) => {
     let _startDate = new Date(dates.start);
@@ -32,6 +50,12 @@ const SalesReport = props => {
   useEffect(() => {
     getSales()
   }, [])
+
+  function pad(num, size) {
+    var s = num + "";
+    while (s.length < size) s = "0" + s;
+    return s;
+  }
 
   const getSales = async () => {
     const res = await apis.saleApi.sales()
@@ -54,6 +78,33 @@ const SalesReport = props => {
     setSaleData(sales)
   }
 
+  const downloadClick = () => {
+    var d = new Date();
+    var opt = {
+      margin: 1,
+      filename:
+        "sales_report_" +
+        d.getFullYear() +
+        pad(d.getMonth(), 2) +
+        pad(d.getDay(), 2) +
+        ".pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "cm", format: "A4", orientation: "portrait" }
+    };
+    var element = document.getElementById("print");
+    html2pdf()
+      .set(opt)
+      .from(element)
+      .save();
+    Swal.fire(
+      'Saved!',
+      `report saved successfully`,
+      'success'
+    )
+    setPrintModalOpen(false)
+  };
+
   return (
     <div>
       <div className="text-center mt-2 mb-2">
@@ -62,8 +113,52 @@ const SalesReport = props => {
           From {startDate.toLocaleDateString()} To:
                             {endDate.toLocaleDateString()}<button className="ml-2 btn btn-primary btn-sm" onClick={() => setDatePickerOpen(true)}><EditIcon style={{ fontSize: 20 }} /></button> &nbsp; <button className="btn btn-sm btn-primary" onClick={getSales}  ><RefreshIcon style={{ fontSize: 20 }}></RefreshIcon></button>
           {isDatePickerOPen && <DateRangePicker label="dashboard" default="week" onClose={() => setDatePickerOpen(false)} onSave={handleDatePickerSaved}></DateRangePicker>}
+          <button onClick={() => setPrintModalOpen(true)} className="btn btn-primary ml-5">Print</button>
         </div>
+
       </div>
+
+
+      <Modal
+        isOpen={isPrintModalOpen}
+        contentLabel="Dashboard"
+        style={customStyles}
+        shouldCloseOnOverlayClick={false}>
+        <div>
+          <div className="text-cent mt-3">
+            <button onClick={() => setPrintModalOpen(false)} className="btn btn-danger">Close</button> &nbsp; &nbsp;
+            <button onClick={downloadClick} className="btn btn-primary">Print</button>
+          </div>
+          <div id="print">
+            <div className="text-center mb-2">
+              <h4>Office and Communication House Limbe</h4>
+              <span>Sales report: {startDate.toLocaleDateString()} - {endDate.toLocaleTimeString()}</span>
+            </div>
+            <table className="table table-bordered table-condensed">
+              <thead>
+                <th>#</th>
+                <th>Date</th>
+                <th>Qty</th>
+                <th>Total(XAF)</th>
+                <th>Cost (XAf)</th>
+                <th>Profit(XAF)</th>
+              </thead>
+              <tbody>
+                {saleData.map((sale, i) => {
+                  return <tr key={i}>
+                    <td>{i + 1}</td>
+                    <td>{new Date(sale.created_at).toLocaleString()}</td>
+                    <td>{sale.qty}</td>
+                    <td>{sale.total}</td>
+                    <td>{sale.cost}</td>
+                    <td>{sale.profit}</td>
+                  </tr>
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </Modal>
 
       <ReactTable
         showPagination={true}
@@ -112,5 +207,7 @@ const SalesReport = props => {
     </div>
   );
 };
+
+
 
 export default SalesReport;
