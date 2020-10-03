@@ -7,7 +7,7 @@ import Moment from 'react-moment';
 import apis from "../../apis/apis";
 
 const Backups = () => {
-  const [latestBackup, setLatestBackup] = useState({ path: '', created_at: '' })
+  const [latestBackup, setLatestBackup] = useState(null)
   let date = new Date();
 
   const makeBackup = async () => {
@@ -38,7 +38,7 @@ const Backups = () => {
           <h4>Backups</h4>
           <div className="d-flex justify-content-center align-items-center flex-column">
             <div className="w-50">
-              <p className="text-center text m-0">Backups are saved in <strong>{latestBackup.path}</strong></p>
+              <p className="text-center text m-0">Backups are saved in <strong>{latestBackup ? latestBackup.path : ""}</strong></p>
             </div>
             <img src={backupImg} alt="backup image" style={{ width: 100, height: 100, margin: '2rem 0' }} />
             <button onClick={() => makeBackup()} className="btn btn-primary mb-3 ">
@@ -48,7 +48,7 @@ const Backups = () => {
             </button>
             <p className="text d-flex justify-content-center align-items-center">
               {
-                latestBackup.created_at.length ?
+                latestBackup ?
                   <>
                     <CachedIcon /> <span className="ml-2">Last backup was on, <Moment date={new Date(latestBackup.created_at)} format="ddd MMM DD, HH:mm" /></span>
                   </>
