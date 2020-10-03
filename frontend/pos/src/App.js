@@ -23,7 +23,7 @@ const App = ({ token, items, user }) => {
     const [showLowStock, setShowLowStock] = useState(false);
 
     useEffect(() => {
-        setInterval(checkLow, 10000)
+        setInterval(checkLow, 900000) //15 mins
     })
 
     useEffect(() => { checkLow() }, [items])
