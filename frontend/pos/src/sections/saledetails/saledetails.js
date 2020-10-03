@@ -140,7 +140,6 @@ const SaleDetailsReport = props => {
                     From {startDate.toLocaleDateString()} To:
                             {endDate.toLocaleDateString()}<button className="ml-2 btn btn-primary btn-sm" onClick={() => setDatePickerOpen(true)}><EditIcon style={{ fontSize: 20 }} /></button> &nbsp; <button className="btn btn-sm btn-primary" onClick={getSales}  ><RefreshIcon style={{ fontSize: 20 }}></RefreshIcon></button>
                     {isDatePickerOPen && <DateRangePicker label="dashboard" default="week" onClose={() => setDatePickerOpen(false)} onSave={handleDatePickerSaved}></DateRangePicker>}
-                    <button onClick={() => setPrintModalOpen(true)} className="btn btn-primary ml-5">Print</button>
                 </div>
 
             </div>
@@ -200,8 +199,9 @@ const SaleDetailsReport = props => {
                 </div>
             </Modal>
 
-            <div>
-                <input type="text" className="form-control text input mb-2" placeholder="search item name" onChange={handleSearch} />
+            <div className="mb-2">
+                <input type="text" className="text input" placeholder="search item name" onChange={handleSearch} />
+                <button onClick={() => setPrintModalOpen(true)} className="btn btn-primary ml-5">Print</button>
             </div>
 
             <ReactTable

@@ -2,19 +2,20 @@ import React, { Component } from 'react';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './reports.css';
+import { Dashboard, InventoryReport, Sales, Customer } from '../../sections';
 import SaleDetailsReport from '../../sections/saledetails/saledetails';
-import { Dashboard, Sales, Customer } from '../../sections';
 
 const routes = [
   { id: 1, name: 'Dashboard' },
   { id: 2, name: 'Sales' },
   { id: 3, name: 'Sales Details' },
-  { id: 4, name: 'Customer' },
-  { id: 5, name: 'Print' },
-  { id: 6, name: 'Spiral' },
-  { id: 7, name: 'Scan' },
-  { id: 8, name: 'Payment' },
-  { id: 9, name: 'Audit Trail' },
+  { id: 4, name: 'Inventory' },
+  { id: 5, name: 'Customer' },
+  { id: 6, name: 'Print' },
+  { id: 7, name: 'Spiral' },
+  { id: 8, name: 'Scan' },
+  { id: 9, name: 'Payment' },
+  { id: 10, name: 'Audit Trail' },
 ];
 
 class Reports extends Component {
@@ -36,9 +37,9 @@ class Reports extends Component {
       case 3:
         return < SaleDetailsReport />
       case 4:
-        return <Customer />;
+        return <InventoryReport />
       case 5:
-        return <div>sales page loading</div>;
+        return <Customer />;
       case 6:
         return <div>sales page loading</div>;
       case 7:
