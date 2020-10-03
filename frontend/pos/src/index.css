@@ -132,3 +132,7 @@ th {
 .pd {
   padding-top: 63px;
 }
+.my-container-xsm {
+    padding-left: 5rem !important;
+  padding-right: 5rem !important;
+}
