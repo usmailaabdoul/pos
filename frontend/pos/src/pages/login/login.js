@@ -43,7 +43,14 @@ class Login extends Component {
             this.props.setToken(res.token)
             this.props.setUser(res.user)
             this.props.setRoles(roles)
-            this.props.history.push("/sales")
+            console.log(res.user.roles[0].name);
+            if (res.user.roles[0].name === "Administrator") {
+                this.props.history.push("/sales")
+            } else {
+                let page = res.user.roles[0].name;
+                this.props.history.push(`/${page}`)
+            }
+
         } catch (e) {
             Swal.fire({
                 icon: 'error',
@@ -52,6 +59,7 @@ class Login extends Component {
             })
         }
     }
+
 
     render() {
         let { username, password } = this.state
