@@ -55,7 +55,7 @@ class Login extends Component {
             Swal.fire({
                 icon: 'error',
                 title: 'error',
-                text: e.message
+                text: e.response.data.error
             })
         }
     }
