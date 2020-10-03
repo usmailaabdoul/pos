@@ -35,7 +35,7 @@ function Nav(props) {
         switch (userRole) {
             case "Administrator":
                 return (
-                    <div className="nav__container nav__" key={key}>
+                    <div className="nav__container " key={key}>
                         <NavLink className="nav__item" to="/sales" activeClassName="is-active">
                             <ShoppingCartIcon />
                             <p className="nav__text">Sales</p>
@@ -72,18 +72,7 @@ function Nav(props) {
                             <SettingsIcon />
                             <p className="nav__text">Settings</p>
                         </NavLink>
-                        <div className="nav__item">
-                            <Popover {...popoverProps} style={{ width: '20%' }}>
-                                <div onClick={() => setShow(!show)} className="nav__item mx-1 px-4 x" >
-                                    <AccountCircle />
-                                    <p className="nav__text">Profile</p>
-                                </div>
-                            </Popover>
-                            <EditProfileModal
-                                editModal={editModal}
-                                setEditModal={() => setEditModal(false)}
-                            />
-                        </div>
+
                     </div>
                 )
             case "Items":
@@ -93,18 +82,7 @@ function Nav(props) {
                             <LibraryBooksIcon />
                             <p className="nav__text">Items</p>
                         </NavLink>
-                        <div>
-                            <Popover {...popoverProps} style={{ width: '20%' }}>
-                                <div onClick={() => setShow(!show)} className="nav__item mx-1 px-4 x" >
-                                    <AccountCircle />
-                                    <p className="nav__text">Profile</p>
-                                </div>
-                            </Popover>
-                            <EditProfileModal
-                                editModal={editModal}
-                                setEditModal={() => setEditModal(false)}
-                            />
-                        </div>
+
                     </div>
                 )
             case "Sales":
@@ -114,18 +92,7 @@ function Nav(props) {
                             <ShoppingCartIcon />
                             <p className="nav__text">Sales</p>
                         </NavLink>
-                        <div className="nav__item">
-                            <Popover {...popoverProps} style={{ width: '20%' }}>
-                                <div onClick={() => setShow(!show)} className="nav__item mx-1 px-4 x" >
-                                    <AccountCircle />
-                                    <p className="nav__text">Profile</p>
-                                </div>
-                            </Popover>
-                            <EditProfileModal
-                                editModal={editModal}
-                                setEditModal={() => setEditModal(false)}
-                            />
-                        </div>
+
                     </div>
 
                 );
@@ -140,18 +107,7 @@ function Nav(props) {
                             <PeopleAltIcon />
                             <p className="nav__text">Customers</p>
                         </NavLink>
-                        <div className="nav__item" >
-                            <Popover {...popoverProps} style={{ width: '20%' }}>
-                                <div onClick={() => setShow(!show)} className="nav__item mx-1 px-4 x" >
-                                    <AccountCircle />
-                                    <p className="nav__text">Profile</p>
-                                </div>
-                            </Popover>
-                            <EditProfileModal
-                                editModal={editModal}
-                                setEditModal={() => setEditModal(false)}
-                            />
-                        </div>
+
                     </div>
 
                 );
@@ -162,18 +118,7 @@ function Nav(props) {
                             <ShowChartIcon />
                             <p className="nav__text">Reports</p>
                         </NavLink>
-                        <div className="nav__item">
-                            <Popover {...popoverProps} style={{ width: '20%' }}>
-                                <div onClick={() => setShow(!show)} className="nav__item mx-1 px-4 x" >
-                                    <AccountCircle />
-                                    <p className="nav__text">Profile</p>
-                                </div>
-                            </Popover>
-                            <EditProfileModal
-                                editModal={editModal}
-                                setEditModal={() => setEditModal(false)}
-                            />
-                        </div>
+
                     </div>
 
                 );
@@ -188,18 +133,7 @@ function Nav(props) {
                             <GroupAddIcon />
                             <p className="nav__text">Employees</p>
                         </NavLink>
-                        <div className="nav__item">
-                            <Popover {...popoverProps} style={{ width: '20%' }}>
-                                <div onClick={() => setShow(!show)} className="nav__item mx-1 px-4 x" >
-                                    <AccountCircle />
-                                    <p className="nav__text">Profile</p>
-                                </div>
-                            </Popover>
-                            <EditProfileModal
-                                editModal={editModal}
-                                setEditModal={() => setEditModal(false)}
-                            />
-                        </div>
+
                     </div>
 
                 );
@@ -210,18 +144,6 @@ function Nav(props) {
                             <SettingsIcon />
                             <p className="nav__text">Settings</p>
                         </NavLink>
-                        <div className="nav__item">
-                            <Popover {...popoverProps} style={{ width: '20%' }}>
-                                <div onClick={() => setShow(!show)} className="nav__item mx-1 px-4 x" >
-                                    <AccountCircle />
-                                    <p className="nav__text">Profile</p>
-                                </div>
-                            </Popover>
-                            <EditProfileModal
-                                editModal={editModal}
-                                setEditModal={() => setEditModal(false)}
-                            />
-                        </div>
                     </div>
 
                 );
@@ -246,14 +168,27 @@ function Nav(props) {
 
     return (
         <nav className="nav__container">
-            { user.roles &&
-                user.roles.map((role, key) => {
-                    return (
-                        renderNav(role.name, key)
-                    )
-                })
-            }
-
+            <div className="nav__list">
+                {user.roles &&
+                    user.roles.map((role, key) => {
+                        return (
+                            renderNav(role.name, key)
+                        )
+                    })
+                }
+            </div>
+            <div className="">
+                <Popover {...popoverProps} style={{ width: '20%' }}>
+                    <div onClick={() => setShow(!show)} className="nav__item mx-1 px-4 x" >
+                        <AccountCircle />
+                        <p className="nav__text">Profile</p>
+                    </div>
+                </Popover>
+                <EditProfileModal
+                    editModal={editModal}
+                    setEditModal={() => setEditModal(false)}
+                />
+            </div>
         </nav>
     );
 }
