@@ -4,5 +4,18 @@ import SaleDetailReport from './saledetails/saledetails'
 import Customer from './customer/customer';
 import InventoryReport from './inventory/inventory'
 import PrintReport from './print/print';
+import PhotocopyReport from './photocopy/photocopy';
+import SpiralReport from './spiral/spiral';
+import ScanReport from './scan/scan';
 
-export { Dashboard, Sales, SaleDetailReport, InventoryReport, Customer, PrintReport }
+export { 
+  Dashboard,
+  Sales,
+  SaleDetailReport,
+  InventoryReport,
+  Customer,
+  PrintReport,
+  PhotocopyReport,
+  SpiralReport,
+  ScanReport, 
+}
