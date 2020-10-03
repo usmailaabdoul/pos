@@ -36,7 +36,13 @@ func Connect() (c *mongo.Client, err error) {
 func connect() (c *mongo.Client, err error) {
 	var ctx = context.TODO()
 	mongoURL := os.Getenv("MONGODB_URL")
+	if mongoURL == "" {
+		mongoURL = "mongodb://localhost:27017"
+	}
 	dbName = os.Getenv("DATABASE_NAME")
+	if dbName == "" {
+		dbName = "pos"
+	}
 
 	clientOptions := options.Client().ApplyURI(mongoURL)
 	c, err = mongo.Connect(ctx, clientOptions)

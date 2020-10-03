@@ -37,7 +37,8 @@ func GetClaims(ctx echo.Context) *JWTCustomClaims {
 
 // IsDevelopment returns true if the server is running in dev mode.
 func IsDevelopment() bool {
-	return strings.HasPrefix(os.Getenv("ENV"), "d")
+	development := os.Getenv("ENV")
+	return strings.HasPrefix(development, "d")
 }
 
 func GetMD5Hash(text string) string {

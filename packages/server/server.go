@@ -74,6 +74,9 @@ func instance() *echo.Echo {
 	// Echo instance
 	e := echo.New()
 	jwtSecret = os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		jwtSecret = "secret"
+	}
 
 	// Middleware
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{

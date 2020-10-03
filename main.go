@@ -16,17 +16,11 @@ import (
 	"github.com/acha-bill/pos/plugins/item"
 	"github.com/acha-bill/pos/plugins/role"
 	"github.com/acha-bill/pos/plugins/user"
-	"github.com/joho/godotenv"
 	"github.com/labstack/gommon/log"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal(err.Error())
-		return
-	}
 }
 
 // @title pos API
@@ -51,13 +45,8 @@ func init() {
 // @in header
 // @name Authorization
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal(err.Error())
-		return
-	}
 
-	_, err = mongodb.Connect()
+	_, err := mongodb.Connect()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -98,7 +87,7 @@ func main() {
 	}
 
 	c := make(chan os.Signal, 1)
-	signal.Notify(c, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGKILL)
+	signal.Notify(c, syscall.SIGQUIT, syscall.SIGTERM)
 	go backupWorker(backupDir, c)
 
 	e.Logger.Fatal(e.Start(":8081"))
