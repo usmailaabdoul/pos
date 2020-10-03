@@ -3,11 +3,12 @@ import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './reports.css';
 import { Dashboard, Sales } from '../../sections';
+import SaleDetailsReport from '../../sections/saledetails/saledetails';
 
 const routes = [
   { id: 1, name: 'Dashboard' },
   { id: 2, name: 'Sales' },
-  { id: 3, name: 'Items' },
+  { id: 3, name: 'Sales Details' },
   { id: 4, name: 'Customer' },
   { id: 5, name: 'Print' },
   { id: 6, name: 'Spiral' },
@@ -33,7 +34,7 @@ class Reports extends Component {
       case 2:
         return <Sales />
       case 3:
-        return <div>sales page loading</div>;
+        return < SaleDetailsReport />
       case 4:
         return <div>sales page loading</div>;
       case 5:
@@ -52,7 +53,7 @@ class Reports extends Component {
 
     return (
       <div>
-        <div className="container">
+        <div className="my-container-xsm">
           <nav className="navbar navbar-expand-lg navbar-light py-3 mt-2 report-nav">
             <div className="collapse navbar-collapse">
               <ul className="navbar-nav mx-auto h5 f-1">
@@ -69,7 +70,7 @@ class Reports extends Component {
               </ul>
             </div>
           </nav>
-          <div className="container">
+          <div className="my-container-xsm">
             {this.renderRoutes()}
           </div>
         </div>

@@ -33,6 +33,9 @@ const SalesReport = props => {
   const [isDatePickerOPen, setDatePickerOpen] = useState(false)
   const [saleData, setSaleData] = useState([])
   const [isPrintModalOpen, setPrintModalOpen] = useState(false)
+  const [totalSale, setTotalSale] = useState(0)
+  const [totalCost, setTotalCost] = useState(0)
+  const [totalProfit, setTotalProfit] = useState(0)
 
   const handleDatePickerSaved = (dates) => {
     let _startDate = new Date(dates.start);
@@ -58,6 +61,9 @@ const SalesReport = props => {
   }
 
   const getSales = async () => {
+    let _totalSale = 0
+    let _totalProfit = 0
+    let _totalCost = 0
     const res = await apis.saleApi.sales()
     let sales = res.filter(sale => {
       let saleDate = new Date(sale.created_at)
@@ -73,9 +79,14 @@ const SalesReport = props => {
       sale.qty = qty
       sale.cost = cost
       sale.profit = sale.total - sale.cost
+      _totalSale += sale.total
+      _totalProfit += sale.profit
+      _totalCost += sale.cost
       return sale
     })
     setSaleData(sales)
+    setTotalSale(_totalSale)
+    setTotalProfit(_totalProfit)
   }
 
   const downloadClick = () => {
@@ -134,7 +145,7 @@ const SalesReport = props => {
               <h4>Office and Communication House Limbe</h4>
               <span>Sales report: {startDate.toLocaleDateString()} - {endDate.toLocaleTimeString()}</span>
             </div>
-            <table className="table table-bordered table-condensed">
+            <table className="table table-bordered table-sm">
               <thead>
                 <th>#</th>
                 <th>Date</th>
@@ -142,6 +153,7 @@ const SalesReport = props => {
                 <th>Total(XAF)</th>
                 <th>Cost (XAf)</th>
                 <th>Profit(XAF)</th>
+                <th>Cashier</th>
               </thead>
               <tbody>
                 {saleData.map((sale, i) => {
@@ -152,10 +164,16 @@ const SalesReport = props => {
                     <td>{sale.total}</td>
                     <td>{sale.cost}</td>
                     <td>{sale.profit}</td>
+                    <td>{sale.cashier.name}</td>
                   </tr>
                 })}
               </tbody>
             </table>
+            <div className="text-center mt-3 mb-2">
+              <div>Total gross sale: <b>{totalSale} XAF</b></div>
+              <div>Total cost: <b>{totalCost} XAF</b></div>
+              <div>Total gross profit: <b>{totalProfit} XAF</b></div>
+            </div>
           </div>
         </div>
       </Modal>
@@ -203,7 +221,18 @@ const SalesReport = props => {
             Header: "Profit (XAF)",
             accessor: "profit",
           },
+          {
+            Header: "Cashier",
+            Cell: (row) => {
+              return <div>{row.original.cashier.name}</div>;
+            },
+          },
         ]} />
+      <div className="text-center mt-3">
+        <div>Total gross sale: <b>{totalSale} XAF</b></div>
+        <div>Total cost: <b>{totalCost} XAF</b></div>
+        <div>Total gross profit: <b>{totalProfit} XAF</b></div>
+      </div>
     </div>
   );
 };
