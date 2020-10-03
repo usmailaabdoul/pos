@@ -60,10 +60,11 @@ const CustomerReport = props => {
   const getCustomers = async () => {
     const res = await apis.customerApi.customers()
 
-    let customers = res.filter(customer => {
-      let customerDate = new Date(customer.created_at)
-      return startDate <= customerDate && customerDate <= endDate
-    })
+    let customers = res;
+    //  = res.filter(customer => {
+    //   let customerDate = new Date(customer.created_at)
+    //   return startDate <= customerDate && customerDate <= endDate
+    // })
     customers = customers.map(customer => {
       let totalDepts = 0
       customer.debtPayments.forEach(db => {
