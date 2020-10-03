@@ -71,6 +71,7 @@ const CustomerReport = props => {
         totalDepts += db.amount
       })
       customer.totalDepts = totalDepts
+      customer.balance = customer.debt - customer.totalDepts
       return customer
     })
 
@@ -133,7 +134,7 @@ const CustomerReport = props => {
               <h4>Office and Communication House Limbe</h4>
               <span>Customer report: {startDate.toLocaleDateString()} - {endDate.toLocaleTimeString()}</span>
             </div>
-            <table className="table table-bordered table-condensed">
+            <table className="table table-bordered table-sm">
               <thead>
                 <th>#</th>
                 <th>Date</th>
@@ -141,6 +142,7 @@ const CustomerReport = props => {
                 <th>Phone Number</th>
                 <th>Dept (XAF)</th>
                 <th>Total Depts Paid</th>
+                <th>Balance</th>
               </thead>
               <tbody>
                 {customerData.map((customer, i) => {
@@ -151,6 +153,7 @@ const CustomerReport = props => {
                     <td>{customer.phoneNumber}</td>
                     <td>{customer.debt}</td>
                     <td>{customer.totalDepts}</td>
+                    <td>{customer.balance}</td>
                   </tr>
                 })}
               </tbody>
@@ -194,13 +197,18 @@ const CustomerReport = props => {
             accessor: "phoneNumber",
           },
           {
-            Header: "Depts (XAF)",
+            Header: "Dept (XAF)",
             accessor: "debt",
           },
           {
-            Header: "Total Depts Paid",
+            Header: "Total paid",
             accessor: "totalDepts",
           },
+          {
+            Header: "Balance",
+            accessor: "balance",
+          },
+
         ]} />
     </div>
   );
