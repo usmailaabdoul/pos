@@ -26,8 +26,6 @@ const App = ({ token, items, user }) => {
         setInterval(checkLow, 900000) //15 mins
     })
 
-    useEffect(() => { checkLow() }, [items])
-
     const checkLow = () => {
         let count = 0;
         items.forEach(item => {
