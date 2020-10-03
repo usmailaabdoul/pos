@@ -16,17 +16,22 @@ import EditProfileModal from '../editProfileModal/editProfileModal';
 import EditIcon from '@material-ui/icons/Edit';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import "./Navbar.css";
+import { useHistory } from 'react-router-dom';
 
 function Nav(props) {
     const { user } = props;
     const [editModal, setEditModal] = useState(false);
     const [show, setShow] = useState(false);
     const target = useRef(null);
+    const history = useHistory();
 
     useEffect(() => {
     }, [props])
 
     const logOut = () => {
+        sessionStorage.clear('TOKEN');
+        sessionStorage.clear('USER');
+        history.push("/login")
         props.setUser({});
         props.setToken('')
     };

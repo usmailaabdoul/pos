@@ -43,6 +43,10 @@ class Login extends Component {
             this.props.setToken(res.token)
             this.props.setUser(res.user)
             this.props.setRoles(roles)
+            
+            sessionStorage.setItem('TOKEN', res.token);
+            sessionStorage.setItem('USER', JSON.stringify(res.user));
+
             console.log(res.user.roles[0].name);
             if (res.user.roles[0].name === "Administrator") {
                 this.props.history.push("/sales")
@@ -59,10 +63,10 @@ class Login extends Component {
             })
         }
     }
-
-
+ 
     render() {
-        let { username, password } = this.state
+        let { username, password } = this.state;
+        console.log(this.props.history)
         return (
             <div className={"main-container d-flex justify-content-center align-items-center"}>
                 <div>
