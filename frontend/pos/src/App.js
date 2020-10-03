@@ -21,7 +21,6 @@ const App = ({ token, items, user }) => {
     const [showAlert, setShowAlert] = useState(false)
     const [showAgain, setShowAgain] = useState(true)
     const [showLowStock, setShowLowStock] = useState(false);
-    const [returnRoute, setReturnRoute] = useState('')
 
     useEffect(() => {
         setInterval(checkLow, 10000)
@@ -135,7 +134,7 @@ const App = ({ token, items, user }) => {
                                                 )
                                             case "Sales":
                                                 return (
-                                                    role.name === "Sale" ? (
+                                                    role.name === "Sales" ? (
                                                         <Route path="/sales" component={Sales} />
                                                     ) : (
                                                             <Route path="/login" component={Login} />
