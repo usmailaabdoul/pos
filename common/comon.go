@@ -1,6 +1,8 @@
 package common
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"os"
 	"strings"
 
@@ -36,4 +38,9 @@ func GetClaims(ctx echo.Context) *JWTCustomClaims {
 // IsDevelopment returns true if the server is running in dev mode.
 func IsDevelopment() bool {
 	return strings.HasPrefix(os.Getenv("ENV"), "d")
+}
+
+func GetMD5Hash(text string) string {
+	hash := md5.Sum([]byte(text))
+	return hex.EncodeToString(hash[:])
 }

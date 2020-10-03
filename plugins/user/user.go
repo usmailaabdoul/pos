@@ -7,18 +7,15 @@ import (
 	"time"
 
 	"github.com/acha-bill/pos/common"
-
-	"github.com/acha-bill/pos/plugins/role"
-
 	"github.com/acha-bill/pos/models"
 	roleService "github.com/acha-bill/pos/packages/dblayer/role"
 	userService "github.com/acha-bill/pos/packages/dblayer/user"
 	"github.com/acha-bill/pos/plugins"
+	"github.com/acha-bill/pos/plugins/role"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -96,13 +93,13 @@ func Seed() (res []*models.User, err error) {
 
 	if users, err := userService.FindAll(); err == nil && len(users) == 0 {
 		for _, u := range defaultUsers {
-			hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+			hashedPassword := common.GetMD5Hash(u.Password)
 			_u, _ := userService.Create(models.User{
 				ID:        primitive.NewObjectID(),
 				Username:  u.Username,
 				Name:      u.Username,
 				Roles:     []primitive.ObjectID{r.ID},
-				Password:  string(hashedPassword),
+				Password:  hashedPassword,
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			})
@@ -207,8 +204,8 @@ func update(c echo.Context) error {
 		user.Username = req.Username
 	}
 	if req.Password != "" {
-		hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
-		user.Password = string(hashedPassword)
+		hashedPassword := common.GetMD5Hash(req.Password)
+		user.Password = hashedPassword
 	}
 	user.UpdatedAt = time.Now()
 	err = userService.UpdateByID(user.ID.Hex(), *user)
@@ -321,7 +318,7 @@ func create(c echo.Context) error {
 		})
 	}
 
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	hashedPassword := common.GetMD5Hash(req.Password)
 	var roles []primitive.ObjectID
 	for _, roleID := range req.Roles {
 		_r, err := primitive.ObjectIDFromHex(roleID)
@@ -357,7 +354,7 @@ func create(c echo.Context) error {
 		Username:    req.Username,
 		Name:        req.Name,
 		Roles:       roles,
-		Password:    string(hashedPassword),
+		Password:    hashedPassword,
 		PhoneNumber: req.PhoneNumber,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),

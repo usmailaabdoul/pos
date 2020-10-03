@@ -118,6 +118,14 @@ func login(c echo.Context) error {
 			}
 		}
 	}
+
+	hashedPassword := common.GetMD5Hash(req.Password)
+	if hashedPassword != u.Password {
+		return c.JSON(http.StatusBadRequest, errorResponse{
+			Error: "invalid password",
+		})
+	}
+
 	claims := &common.JWTCustomClaims{
 		Username: u.Username,
 		Id:       u.ID.Hex(),
