@@ -2,25 +2,19 @@ import React, { useEffect, useState } from 'react';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
-import {connect} from 'react-redux';
-import {setCategories} from '../../redux/actions/categoryActions';
-import {bindActionCreators} from 'redux';
+import { connect } from 'react-redux';
+import { setCategories } from '../../redux/actions/categoryActions';
+import { bindActionCreators } from 'redux';
 import Swal from 'sweetalert2'
 import ReactTable from 'react-table-v6'
 import 'react-table-v6/react-table.css'
 
 import { ActionModal } from '../../components';
-import Navbar from '../../components/Navbar';
 import './categories.css'
 import apis from '../../apis/apis'
 
-const data = [
-    { id: 1, name: 'General', isRetired: false },
-    { id: 2, name: 'Office', isRetired: false },
-]
-
 const Categories = (props) => {
-    const {categories} = props;
+    const { categories } = props;
     const [isEditCategoryModalVisible, setEditCategoryModalVisible] = useState(false)
     const [isNewCategoryModalVisible, setNewCategoryModalVisible] = useState(false)
     const [selectedCategory, setSelectedCategory] = useState(null)
@@ -30,9 +24,32 @@ const Categories = (props) => {
 
     useEffect(() => {
         getCategories()
-    },[])
+    }, [])
 
-    useEffect(() => {}, [_categories, filteredCategories, props])
+    useEffect(() => { }, [_categories, filteredCategories, props])
+
+    const getCategories = async () => {
+        setIsLoading(false)
+
+        try {
+            let res = await apis.categoryApi.categories();
+
+            // console.log(res)
+
+            setCategories(res)
+            props.setCategories(res)
+            setFilteredCategories(res)
+
+            setIsLoading(false)
+        } catch (e) {
+            setIsLoading(false)
+            Swal.fire({
+                icon: 'error',
+                title: 'error',
+                text: e.message
+            })
+        }
+    }
 
     const getCategories = async () => {
       setIsLoading(false)
@@ -82,18 +99,6 @@ const Categories = (props) => {
     }
 
     const deleteCategory = (cat) => {
-      if (cat.name === 'General') {
-        return Swal.fire({
-                  icon: 'error',
-                  title: 'error',
-                  text: 'Unable to delete this Category'
-              })
-      }
-        let index = data.findIndex((u) => u.id === cat.id);
-        if (index >= 0) {
-            data.splice(index, 1);
-        }
-
         Swal.fire({
             title: 'Are you sure?',
             icon: 'warning',
@@ -101,30 +106,32 @@ const Categories = (props) => {
             confirmButtonText: 'Yes, delete it!'
         }).then(async (result) => {
             if (result.isConfirmed) {
-              try{
-                let res = await apis.category().deleteCategory(cat.id);
-                getCategories()
-                Swal.fire(
-                  'Deleted!',
-                  `${cat.name} was successfully deleted`,
-                  'success'
-                )
-                console.log(res)
-              } catch (e) {
-                console.log(e);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'error',
-                    text: 'Something unexpected happened'
-                })
-              }
+                try {
+                    console.log(cat)
+                    let res = await apis.categoryApi.deleteCategory(cat._id);
+                    getCategories()
+                    Swal.fire(
+                        'Deleted!',
+                        `${cat.name} was successfully deleted`,
+                        'success'
+                    )
+                    console.log(res)
+                } catch (e) {
+                    console.log(e);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'error',
+                        text: 'Something unexpected happened'
+                    })
+                }
             }
         })
     }
 
+    let isNotRetiredCategories = filteredCategories.filter((categories) => !categories.isRetired);
+
     return (
         <div>
-            <Navbar />
             <div className="container">
                 <div className="row ml-0 my-3 d-flex justify-content-start align-items-center">
                     <div className="w-50 d-flex justify-content-start align-items-center employees-header">
@@ -141,69 +148,72 @@ const Categories = (props) => {
                     </div>
                 </div>
                 {
-                  isLoading ? 
-                    <div class="d-flex justify-content-center">
-                      <div class="spinner-border" style={{width: "3rem", height: "3rem", color: '#2980B9'}} role="status">
-                        <span class="sr-only">Loading...</span>
-                      </div>
-                    </div>
-                    :
-                    <ReactTable
-                      showPagination={true}
-                      showPageSizeOptions={false}
-                      minRows={0}
-                      data={filteredCategories}
-                      defaultPageSize={10}
-                      style={{
-                          // height: "45vh" // This will force the table body to overflow and scroll, since there is not enough room
-                      }}
-                      loadingText='Loading Products ...'
-                      noDataText='No products found'
-                      className="-highlight -striped rt-rows-height ReactTable"
-                      columns={[
-                          {
-                              Header: "",
-                              id: "row",
-                              maxWidth: 50,
-                              filterable: false,
-                              Cell: (row) => {
-                                  return <div>{row.index + 1}</div>;
-                              }
-                          },
-                          {
-                              Header: "Name",
-                              accessor: "name",
-                          },
-                          {
-                              Header: 'Actions',
-                              id: "actions",
-                              Cell: cat => {
-                                  return (
-                                      <div>
-                                          <span onClick={() => editCategory(cat.original)} className="mr-4 table-icons"><EditIcon style={{ fontSize: 20 }} /></span>
-                                          <span onClick={() => deleteCategory(cat.original)} className="table-icons"><DeleteIcon style={{ fontSize: 20 }} /></span>
-                                      </div>
-                                  )
-                              }
-                          }
-                      ]}
+                    isLoading ?
+                        <div class="d-flex justify-content-center">
+                            <div class="spinner-border" style={{ width: "3rem", height: "3rem", color: '#2980B9' }} role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        :
+                        <ReactTable
+                            showPagination={true}
+                            showPageSizeOptions={false}
+                            minRows={0}
+                            data={isNotRetiredCategories}
+                            defaultPageSize={10}
+                            style={{ textAlign: 'center' }}
+                            loadingText='Loading Products ...'
+                            noDataText='No products found'
+                            className="-highlight -striped rt-rows-height ReactTable"
+                            columns={[
+                                {
+                                    Header: "",
+                                    id: "row",
+                                    maxWidth: 50,
+                                    filterable: false,
+                                    Cell: (row) => {
+                                        return <div style={{ textAlign: 'center' }}>{row.index + 1}</div>;
+                                    }
+                                },
+                                {
+                                    Header: "Name",
+                                    accessor: "name",
+                                },
+                                {
+                                    Header: 'Actions',
+                                    id: "actions",
+                                    Cell: cat => {
+                                        return (
+                                            <div className="d-flex justify-content-center align-items-center">
+                                                {
+                                                    cat.row.name !== 'General' &&
+                                                    <>
+                                                        <span onClick={() => editCategory(cat.original)} className="mr-4 table-icons"><EditIcon style={{ fontSize: 20 }} /></span>
+                                                        <span onClick={() => deleteCategory(cat.original)} className="table-icons"><DeleteIcon style={{ fontSize: 20 }} /></span>
+                                                    </>
+                                                }
+                                            </div>
+                                        )
+                                    }
+                                }
+                            ]}
 
-                  />
+                        />
                 }
-                
+
                 {isEditCategoryModalVisible && (
-                    <EditCategory 
-                      setEditModalVisible={() => setEditCategoryModalVisible(false)} 
-                      isEditModalVisible={isEditCategoryModalVisible} 
-                      category={selectedCategory} 
-                      getCategories={() => getCategories()}
+                    <EditCategory
+                        setEditModalVisible={() => setEditCategoryModalVisible(false)}
+                        isEditModalVisible={isEditCategoryModalVisible}
+                        category={selectedCategory}
+                        getCategories={() => getCategories()}
                     />
                 )}
                 {isNewCategoryModalVisible && (
-                    <NewCategory 
-                      setNewCategoryModalVisible={() => setNewCategoryModalVisible(false)} 
-                      isNewCategoryModalVisible={isNewCategoryModalVisible} 
-                      getCategories={() => getCategories()}  
+                    <NewCategory
+                        setNewCategoryModalVisible={() => setNewCategoryModalVisible(false)}
+                        isNewCategoryModalVisible={isNewCategoryModalVisible}
+                        getCategories={() => getCategories()}
                     />
                 )}
 
@@ -222,24 +232,24 @@ const NewCategory = (props) => {
         setNewCategoryModalVisible(false)
     }
     const handleSuccessClick = async () => {
-      try{
-        let res = await apis.category().addCategory(name);
-        Swal.fire(
-          'Created!',
-          `category: ${res.name} created successfully`,
-          'success'
-        )
-        getCategories()
-        setNewCategoryModalVisible(false)
-        console.log(res)
-      } catch (e) {
-        console.log(e);
-        Swal.fire({
-            icon: 'error',
-            title: 'error',
-            text: 'Something unexpected happened'
-        })
-      }
+        try {
+            let res = await apis.categoryApi.addCategory({ name });
+            // console.log(res)
+            Swal.fire(
+                'Created!',
+                `category: ${res.name} created successfully`,
+                'success'
+            )
+            getCategories()
+            setNewCategoryModalVisible(false)
+        } catch (e) {
+            console.log(e);
+            Swal.fire({
+                icon: 'error',
+                title: 'error',
+                text: 'Something unexpected happened'
+            })
+        }
     }
 
     return (
@@ -273,23 +283,23 @@ const EditCategory = (props) => {
         setEditModalVisible(false)
     }
     const handleSuccessClick = async () => {
-        try{
-          let res = await apis.category().editCategory(category.id, name);
-          Swal.fire(
-            'Updated!',
-            `category: ${res.name} updated successfully`,
-            'success'
-        )
-          getCategories()
-          setEditModalVisible(false)
-          console.log(res)
+        try {
+            let res = await apis.categoryApi.editCategory(category._id, { name });
+            Swal.fire(
+                'Updated!',
+                `category: ${res.name} updated successfully`,
+                'success'
+            )
+            getCategories()
+            setEditModalVisible(false)
+            console.log(res)
         } catch (e) {
-          console.log(e);
-          Swal.fire({
-              icon: 'error',
-              title: 'error',
-              text: 'Something unexpected happened'
-          })
+            console.log(e);
+            Swal.fire({
+                icon: 'error',
+                title: 'error',
+                text: 'Something unexpected happened'
+            })
         }
     }
 
@@ -301,7 +311,7 @@ const EditCategory = (props) => {
             <div className="mx-5">
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <div><span className="w-25 text h6">Name</span></div>
-                    <input name="username" placeholder="name" value={category.name} onChange={handleNameInput} type="text"
+                    <input name="name" placeholder="name" value={name} onChange={handleNameInput} type="text"
                         className={"w-75 form-control input"} />
                 </div>
             </div>
@@ -316,14 +326,13 @@ const EditCategory = (props) => {
 }
 
 const mapStateToProps = ({ category }) => {
-
-  return {
-    categories: category.categories
-  }
+    return {
+        categories: category.categories
+    }
 }
 
 const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators({setCategories}, dispatch);
+    return bindActionCreators({ setCategories }, dispatch);
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Categories);

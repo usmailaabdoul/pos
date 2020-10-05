@@ -2,12 +2,13 @@ package item
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"sync"
 	"time"
 
 	"github.com/acha-bill/pos/models"
-	categoryService "github.com/acha-bill/pos/packages/dblayer/item"
+	categoryService "github.com/acha-bill/pos/packages/dblayer/category"
 	itemService "github.com/acha-bill/pos/packages/dblayer/item"
 	"github.com/acha-bill/pos/plugins"
 	"github.com/go-playground/validator/v10"
@@ -19,6 +20,8 @@ const (
 	// PluginName defines the name of the plugin
 	PluginName = "item"
 )
+
+var systemItems = []string{"Photocopy", "Print", "Scan", "Spiral"}
 
 var (
 	plugin   *Item
@@ -73,13 +76,38 @@ func Plugin() *Item {
 	return plugin
 }
 
+func Seed() (res []*models.Item, err error) {
+	for _, name := range systemItems {
+		item, err := itemService.FindByName(name)
+		if err != nil {
+			log.Panicf("error creating roles: %s", err.Error())
+		}
+		if item != nil {
+			continue
+		}
+		i := models.Item{
+			ID:        primitive.NewObjectID(),
+			Name:      name,
+			CreatedAt: time.Now(),
+			IsSystem:  true,
+		}
+		_i, err := itemService.Create(i)
+		if err != nil {
+			log.Panicf("error creating roles: %s", err.Error())
+		}
+		res = append(res, _i)
+	}
+
+	return
+}
+
 func init() {
 	auth := Plugin()
 	auth.AddHandler(http.MethodGet, "/", listItems)
 	auth.AddHandler(http.MethodPost, "/", createItem)
 	auth.AddHandler(http.MethodGet, "/:id", getItem)
 	auth.AddHandler(http.MethodPut, "/:id", updateItem)
-	auth.AddHandler(http.MethodPost, "/:id", deleteItem)
+	auth.AddHandler(http.MethodDelete, "/:id", deleteItem)
 
 }
 
@@ -96,7 +124,7 @@ func updateItem(c echo.Context) error {
 			Error: "item not found",
 		})
 	}
-	var req createRequest
+	var req editRequest
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: err.Error(),
@@ -109,26 +137,53 @@ func updateItem(c echo.Context) error {
 		})
 	}
 
-	cat, err := categoryService.FindById(req.Category)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, errorResponse{
-			Error: err.Error(),
-		})
+	if req.Category != "" {
+		cat, err := categoryService.FindById(req.Category)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, errorResponse{
+				Error: err.Error(),
+			})
+		}
+		if cat == nil {
+			return c.JSON(http.StatusBadRequest, errorResponse{
+				Error: fmt.Sprintf("category %s not found", req.Category),
+			})
+		}
+		item.Category = cat.ID
 	}
-	if cat == nil {
-		return c.JSON(http.StatusBadRequest, errorResponse{
-			Error: fmt.Sprintf("category %s not found", req.Category),
-		})
+	if req.Barcode != "" {
+		item.Barcode = req.Barcode
 	}
+	if req.Name != "" {
+		item.Name = req.Name
+	}
+	if req.CostPrice != 0 {
+		item.CostPrice = req.CostPrice
+	}
+	if req.PurchasePrice != 0 {
+		item.PurchasePrice = req.PurchasePrice
+	}
+	if req.MinRetailPrice != 0 {
+		item.MinRetailPrice = req.MinRetailPrice
+	}
+	if req.MaxRetailPrice != 0 {
+		item.MaxRetailPrice = req.MaxRetailPrice
+	}
+	if req.MinWholeSalePrice != 0 {
+		item.MinWholeSalePrice = req.MinWholeSalePrice
+	}
+	if req.MaxWholeSalePrice != 0 {
+		item.MaxWholeSalePrice = req.MaxWholeSalePrice
+	}
+	if req.Quantity != 0 {
+		item.Quantity = int(req.Quantity)
+	}
+	if req.MinStock != 0 {
+		item.MinStock = req.MinStock
+	}
+	item.UpdatedAt = time.Now()
 
-	err = itemService.UpdateById(item.ID.String(), models.Item{
-		Name:        req.Name,
-		Barcode:     req.Barcode,
-		Category:    cat.ID,
-		CostPrice:   req.CostPrice,
-		RetailPrice: req.RetailPrice,
-		UpdatedAt:   time.Now(),
-	})
+	err = itemService.UpdateById(item.ID.Hex(), *item)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: err.Error(),
@@ -158,9 +213,8 @@ func deleteItem(c echo.Context) error {
 			Error: "item not found",
 		})
 	}
-	err = itemService.UpdateById(item.ID.Hex(), models.Item{
-		IsRetired: true,
-	})
+	item.IsRetired = true
+	err = itemService.UpdateById(item.ID.Hex(), *item)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: err.Error(),
@@ -209,7 +263,33 @@ func createItem(c echo.Context) error {
 		})
 	}
 
-	cat, err := categoryService.FindById(req.Category)
+	for _, name := range systemItems {
+		if name == req.Name {
+			return c.JSON(http.StatusBadRequest, errorResponse{
+				Error: fmt.Sprintf("%s is a system item and cannot be created/updated", req.Name),
+			})
+		}
+	}
+
+	var categoryID string
+	if req.Category == "" {
+		cat, err := categoryService.FindByName("General")
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, errorResponse{
+				Error: err.Error(),
+			})
+		}
+		if cat == nil {
+			return c.JSON(http.StatusBadRequest, errorResponse{
+				Error: "General category has not been set",
+			})
+		}
+		categoryID = cat.ID.Hex()
+	} else {
+		categoryID = req.Category
+	}
+
+	cat, err := categoryService.FindById(categoryID)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: err.Error(),
@@ -221,16 +301,36 @@ func createItem(c echo.Context) error {
 		})
 	}
 
+	_item, err := itemService.FindByNameAndCategory(req.Name, cat.ID.Hex())
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, errorResponse{
+			Error: fmt.Sprintf("Category %s not found", req.Category),
+		})
+	}
+	if _item != nil {
+		_item.Quantity += int(req.Quantity)
+		_item.UpdatedAt = time.Now()
+		_ = itemService.UpdateById(_item.ID.Hex(), *_item)
+		updated, _ := itemService.FindById(_item.ID.Hex())
+		return c.JSON(http.StatusCreated, updated)
+	}
+
 	created, err := itemService.Create(models.Item{
-		ID:          primitive.NewObjectID(),
-		Name:        req.Name,
-		Barcode:     req.Barcode,
-		Category:    cat.ID,
-		CostPrice:   req.CostPrice,
-		RetailPrice: req.RetailPrice,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
-		IsRetired:   false,
+		ID:                primitive.NewObjectID(),
+		Name:              req.Name,
+		Quantity:          int(req.Quantity),
+		Barcode:           req.Barcode,
+		Category:          cat.ID,
+		CostPrice:         req.CostPrice,
+		PurchasePrice:     req.PurchasePrice,
+		MinRetailPrice:    req.MinRetailPrice,
+		MaxRetailPrice:    req.MaxRetailPrice,
+		MinWholeSalePrice: req.MinWholeSalePrice,
+		MaxWholeSalePrice: req.MaxWholeSalePrice,
+		MinStock:          req.MinStock,
+		CreatedAt:         time.Now(),
+		UpdatedAt:         time.Now(),
+		IsRetired:         false,
 	})
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
@@ -245,10 +345,30 @@ type errorResponse struct {
 	Error string `json:"error"`
 }
 
+type editRequest struct {
+	Name              string  `json:"name"`
+	Barcode           string  `json:"barcode"`
+	Category          string  `json:"category"`
+	CostPrice         float64 `json:"costPrice"`
+	PurchasePrice     float64 `json:"purchasePrice"`
+	MinRetailPrice    float64 `json:"minRetailPrice"`
+	MaxRetailPrice    float64 `json:"maxRetailPrice"`
+	MinWholeSalePrice float64 `json:"minWholeSalePrice"`
+	MaxWholeSalePrice float64 `json:"maxWholeSalePrice"`
+	Quantity          int     `json:"qty"`
+	MinStock          int     `json:"minStock"`
+}
+
 type createRequest struct {
-	Name        string  `json:"name" validate:"required"`
-	Barcode     string  `json:"barcode"`
-	Category    string  `json:"category"`
-	CostPrice   float64 `json:"costPrice" validate:"required"`
-	RetailPrice float64 `json:"retailPrice" validate:"required"`
+	Name              string  `json:"name" validate:"required"`
+	Barcode           string  `json:"barcode"`
+	Category          string  `json:"category"`
+	CostPrice         float64 `json:"costPrice" validate:"required"`
+	PurchasePrice     float64 `json:"purchasePrice" validate:"required"`
+	MinRetailPrice    float64 `json:"minRetailPrice" validate:"required"`
+	MaxRetailPrice    float64 `json:"maxRetailPrice" validate:"required"`
+	MinWholeSalePrice float64 `json:"minWholeSalePrice"`
+	MaxWholeSalePrice float64 `json:"maxWholeSalePrice"`
+	Quantity          int     `json:"qty"`
+	MinStock          int     `json:"minStock"`
 }

@@ -29,3 +29,5 @@ testNodes/*
 
 config.json
 .env
+
+backups/

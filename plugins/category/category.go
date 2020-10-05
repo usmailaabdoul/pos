@@ -165,9 +165,8 @@ func deleteCategory(c echo.Context) error {
 			Error: "cannot delete category that has items. Delete all items first",
 		})
 	}
-	err = categoryService.UpdateById(cat.ID.String(), models.Category{
-		IsRetired: true,
-	})
+	cat.IsRetired = true
+	err = categoryService.UpdateById(cat.ID.Hex(), *cat)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: err.Error(),
@@ -250,13 +249,13 @@ func create(c echo.Context) error {
 		})
 	}
 
-	cats, err := categoryService.FindByName(req.Name)
+	cat, err := categoryService.FindByName(req.Name)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: err.Error(),
 		})
 	}
-	if len(cats) != 0 {
+	if cat != nil {
 		return c.JSON(http.StatusBadRequest, errorResponse{
 			Error: fmt.Sprintf("category: %s already exists", req.Name),
 		})

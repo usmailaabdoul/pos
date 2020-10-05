@@ -8,6 +8,16 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/acha-bill/pos/plugins/backup"
+
+	"github.com/acha-bill/pos/plugins/report"
+
+	"github.com/acha-bill/pos/plugins/customer"
+
+	"github.com/acha-bill/pos/plugins/sale"
+
+	"github.com/acha-bill/pos/plugins/user"
+
 	"github.com/acha-bill/pos/plugins/category"
 
 	"github.com/acha-bill/pos/plugins/item"
@@ -39,6 +49,11 @@ var (
 		role.Plugin(),
 		item.Plugin(),
 		category.Plugin(),
+		user.Plugin(),
+		sale.Plugin(),
+		customer.Plugin(),
+		report.Plugin(),
+		backup.Plugin(),
 	}
 )
 

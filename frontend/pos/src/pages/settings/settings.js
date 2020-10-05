@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import "./settings.css";
-import Navbar from "../../components/Navbar";
 import Roles from "../../components/SettingsComponents/Roles";
+import Backups from "../../components/SettingsComponents/Backups";
 
 const routes = [
   { id: 1, name: "Roles" },
-  { id: 2, name: "Store Information" },
-  { id: 3, name: "Store Settings" },
-  { id: 4, name: "Data Settings" },
+  { id: 2, name: "Backups" },
+  // { id: 3, name: "Store Information" },
+  // { id: 4, name: "Store Settings" },
+  // { id: 5, name: "Data Settings" },
 ];
 
 const Settings = () => {
@@ -18,12 +19,13 @@ const Settings = () => {
       case 1:
         return <Roles />;
       case 2:
-        return <p>The store information</p>;
-      case 3:
-        return <p>The store settings</p>;
-      case 4:
-        return <p>The data Settings</p>;
-
+        return <Backups />;
+      // case 3:
+      //   return <p>The store information</p>;
+      // case 4:
+      //   return <p>The store settings</p>;
+      // case 5:
+      //   return <p>The data Settings</p>;
       default:
         return <Roles />;
     }
@@ -31,7 +33,6 @@ const Settings = () => {
 
   return (
     <div>
-      <Navbar />
       <div className="container">
         <nav className="navbar navbar-expand-lg navbar-light py-3 mt-2 report-nav settings__tab">
           <div className="collapse navbar-collapse">

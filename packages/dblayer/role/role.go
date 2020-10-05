@@ -66,6 +66,20 @@ func FindById(id string) (item *models.Role, err error) {
 	return
 }
 
+func FindByName(name string) (item *models.Role, err error) {
+	filter := bson.D{primitive.E{Key: "name", Value: name}}
+	rows, err := filterRows(filter)
+	if err != nil {
+		return
+	}
+	if len(rows) == 0 {
+		item = nil
+	} else {
+		item = rows[0]
+	}
+	return
+}
+
 func UpdateById(id string, item models.Role) error {
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -75,6 +89,7 @@ func UpdateById(id string, item models.Role) error {
 	value := bson.M{
 		"name":        item.Name,
 		"description": item.Description,
+		"created_at":  item.CreatedAt,
 		"updated_at":  time.Now(),
 	}
 	update := bson.D{primitive.E{Key: "$set", Value: value}}

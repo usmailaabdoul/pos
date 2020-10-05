@@ -2,19 +2,31 @@ import React, { Component } from 'react';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './reports.css';
-import { Dashboard, Sales } from '../../sections';
-import Navbar from '../../components/Navbar';
+import { 
+  Dashboard,
+  InventoryReport,
+  Sales,
+  Customer,
+  PrintReport,
+  PhotocopyReport,
+  SpiralReport,
+  ScanReport,
+} from '../../sections';
+import SaleDetailsReport from '../../sections/saledetails/saledetails';
+
 
 const routes = [
   { id: 1, name: 'Dashboard' },
   { id: 2, name: 'Sales' },
-  { id: 3, name: 'Items' },
-  { id: 4, name: 'Customer' },
-  { id: 5, name: 'Print' },
-  { id: 6, name: 'Spiral' },
-  { id: 7, name: 'Scan' },
-  { id: 8, name: 'Payment' },
-  { id: 9, name: 'Audit Trail' },
+  { id: 3, name: 'Sales Details' },
+  { id: 4, name: 'Inventory' },
+  { id: 5, name: 'Customer' },
+  { id: 6, name: 'Print' },
+  { id: 7, name: 'Photocopy' },
+  { id: 8, name: 'Spiral' },
+  { id: 9, name: 'Scan' },
+  { id: 10, name: 'Payment' },
+  { id: 11, name: 'Audit Trail' },
 ];
 
 class Reports extends Component {
@@ -34,15 +46,19 @@ class Reports extends Component {
       case 2:
         return <Sales />
       case 3:
-        return <div>sales page loading</div>;
+        return < SaleDetailsReport />
       case 4:
-        return <div>sales page loading</div>;
+        return <InventoryReport />
       case 5:
-        return <div>sales page loading</div>;
+        return <Customer />;
       case 6:
-        return <div>sales page loading</div>;
+        return <PrintReport />;
       case 7:
-        return <div>sales page loading</div>;
+        return <PhotocopyReport />;
+      case 8:
+        return <SpiralReport />;
+      case 9:
+        return <ScanReport />;
       default:
         return <Dashboard />;
     }
@@ -53,8 +69,7 @@ class Reports extends Component {
 
     return (
       <div>
-        <Navbar />
-        <div className="container">
+        <div className="my-container-xsm">
           <nav className="navbar navbar-expand-lg navbar-light py-3 mt-2 report-nav">
             <div className="collapse navbar-collapse">
               <ul className="navbar-nav mx-auto h5 f-1">
@@ -71,7 +86,7 @@ class Reports extends Component {
               </ul>
             </div>
           </nav>
-          <div className="container">
+          <div className="my-container-xsm">
             {this.renderRoutes()}
           </div>
         </div>
