@@ -4,7 +4,7 @@ import Modal from 'react-modal';
 import './ActionModal.css';
 
 const ActionModal = (props) => {
-  const { isVisible, setIsVisible, children } = props;
+  const { isVisible, setIsVisible, children, title } = props;
 
   return (
     <Modal
@@ -17,11 +17,11 @@ const ActionModal = (props) => {
     >
 
       <div className="d-flex justify-content-between align-items-center action-modal-header p-3 h5">
-        <div>Confirm</div>
+        <div>{title}</div>
         <div onClick={() => setIsVisible(false)} className="x">x</div>
       </div>
 
-      <div className="justify-content-center align-items-center my-5">
+      <div className="justify-content-center align-items-center mb-5 mt-4">
         {children}
       </div>
     </Modal>
@@ -37,13 +37,15 @@ const customStyles = {
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.45)'
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    zIndex: 1000,
   },
   content: {
-    top: '30%',
-    left: '30%',
+    top: '10%',
+    left: '35%',
     right: '30%',
-    bottom: '30%',
+    bottom: 'auto',
+    maxHeight: '80%',
     border: 'transparent',
     background: '#fcfbfb',
     overflow: 'auto',

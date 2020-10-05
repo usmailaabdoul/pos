@@ -1,3 +1,5 @@
+/node_modules
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -27,3 +29,5 @@ testNodes/*
 
 config.json
 .env
+
+backups/

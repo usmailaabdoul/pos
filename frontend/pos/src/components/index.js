@@ -1,3 +1,4 @@
 import ActionModal from './ActionModal/ActionModal';
+import DateRangePicker from './dateRangePicker/dateRangePicker'
 
-export {ActionModal}
+export { ActionModal, DateRangePicker }

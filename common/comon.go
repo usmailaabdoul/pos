@@ -1,6 +1,8 @@
 package common
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"os"
 	"strings"
 
@@ -9,27 +11,37 @@ import (
 )
 
 type JWTCustomClaims struct {
-	Username string `json:"username"`
-	IsAdmin  bool   `json:"isAdmin"`
-	Id       string `json:"_id"`
+	Username string   `json:"username"`
+	Roles    []string `json:"roles"`
+	Id       string   `json:"_id"`
 	jwt.StandardClaims
 }
 
-// IsAdmin returns true if the user is an admin
-func IsAdmin(ctx echo.Context) bool {
-	user := ctx.Get("user").(*jwt.Token)
-	claims := user.Claims.(JWTCustomClaims)
-	return claims.IsAdmin
+// HasRole checks if the user has the role specified.
+func HasRole(name string, c echo.Context) bool {
+	user := c.Get("user").(*jwt.Token)
+	roles := user.Claims.(JWTCustomClaims).Roles
+	for _, r := range roles {
+		if r == name {
+			return true
+		}
+	}
+	return false
 }
 
-// GetUsername returns the username of the user holding this context
-func GetUsername(ctx echo.Context) string {
+// GetClaims returns the claims of the signed in user.
+func GetClaims(ctx echo.Context) *JWTCustomClaims {
 	user := ctx.Get("user").(*jwt.Token)
-	claims := user.Claims.(JWTCustomClaims)
-	return claims.Username
+	return user.Claims.(*JWTCustomClaims)
 }
 
 // IsDevelopment returns true if the server is running in dev mode.
 func IsDevelopment() bool {
-	return strings.HasPrefix(os.Getenv("ENV"), "d")
+	development := os.Getenv("ENV")
+	return strings.HasPrefix(development, "d")
+}
+
+func GetMD5Hash(text string) string {
+	hash := md5.Sum([]byte(text))
+	return hex.EncodeToString(hash[:])
 }

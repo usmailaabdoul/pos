@@ -8,6 +8,22 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/acha-bill/pos/plugins/backup"
+
+	"github.com/acha-bill/pos/plugins/report"
+
+	"github.com/acha-bill/pos/plugins/customer"
+
+	"github.com/acha-bill/pos/plugins/sale"
+
+	"github.com/acha-bill/pos/plugins/user"
+
+	"github.com/acha-bill/pos/plugins/category"
+
+	"github.com/acha-bill/pos/plugins/item"
+
+	"github.com/acha-bill/pos/plugins/role"
+
 	"github.com/acha-bill/pos/common"
 	"github.com/acha-bill/pos/plugins"
 	"github.com/acha-bill/pos/plugins/auth"
@@ -30,6 +46,14 @@ var (
 var (
 	Plugins = []plugins.Plugin{
 		auth.Plugin(),
+		role.Plugin(),
+		item.Plugin(),
+		category.Plugin(),
+		user.Plugin(),
+		sale.Plugin(),
+		customer.Plugin(),
+		report.Plugin(),
+		backup.Plugin(),
 	}
 )
 

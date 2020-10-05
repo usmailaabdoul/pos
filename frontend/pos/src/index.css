@@ -1,6 +1,7 @@
 :root {
   --primary-clr: #2980B9;
   --secondary-clr: #EBEBEB;
+  --danger-clr: #dc3545;
 }
 
 body {
@@ -27,4 +28,111 @@ code {
 
 .btn {
   border: 0px !important;
+}
+
+.band-header {
+  background-color: #EBEBEB;
+  padding: 0.5rem 0rem;
+}
+
+th {
+  background-color: #2980b9;
+  color: #fff;
+  padding: 1rem;
+}
+
+.pagination {
+  width: 100%;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.pagination__left > button {
+  background-color: var(--primary-clr);
+  color: white;
+  border: 0px;
+  border-radius: 0.2rem;
+}
+
+.pagination__right > span > input {
+  border: 1px solid #cbcaca;
+  border-radius: 0.2rem;
+}
+
+.pagination__right > span > select {
+  border: 1px solid #cbcaca;
+  border-radius: 0.2rem;
+}
+
+.ReactTable .rt-thead .rt-resizable-header-content {
+  font-size: 1.3rem;
+}
+
+.ReactTable .-pagination .-btn {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 3px;
+  padding: 6px;
+  font-size: 1em;
+  color: var(--secondary-clr);
+  background: var(--primary-clr);
+  -webkit-transition: all 0.1s ease;
+  transition: all 0.1s ease;
+  cursor: pointer;
+  outline: none;
+}
+
+.ReactTable .-pagination .-btn {
+  background-color: var(--primary-clr) !important;
+  color: white !important;
+  border: none;
+}
+.ReactTable .-pagination .-btn[disabled] {
+  color: white !important;
+  cursor: pointer;
+  border: none;
+}
+.ReactTable .rt-thead.-header {
+  background-color: var(--primary-clr);
+  color: white;
+}
+.ReactTable .-pagination .-btn:not([disabled]):hover {
+  background-color: var(--primary-clr);
+  border-color: #b19c4d;
+}
+
+.swal2-icon {
+  border-color: var(--primary-clr) !important;
+  color: var(--primary-clr) !important;
+}
+
+.swal2-actions .swal2-confirm {
+  background-color: var(--primary-clr) !important;
+  border-radius: 10px !important;
+}
+.swal2-actions .swal2-cancel {
+  background-color: var(--danger-clr) !important;
+  border-radius: 10px !important;
+}
+
+.rt-noData {
+  background-color: white !important;
+  color: black !important;
+}
+ .my-container-sm {
+  padding-left: 10rem !important;
+  padding-right: 10rem !important;
+}
+.pd {
+  padding-top: 63px;
+}
+.my-container-xsm {
+    padding-left: 5rem !important;
+  padding-right: 5rem !important;
 }
