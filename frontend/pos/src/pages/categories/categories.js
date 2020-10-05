@@ -51,6 +51,29 @@ const Categories = (props) => {
         }
     }
 
+    const getCategories = async () => {
+      setIsLoading(false)
+
+      setCategories(data)
+      props.setCategories(data)
+      setFilteredCategories(data)
+      // try{
+      //     let res = await apis.category().getAllCategories();
+      // setCategories(data)
+      // props.setCategories(data)
+      // setFilteredCategories(data)
+      // setIsLoading(false)
+      //     console.log(res)
+      // } catch (e) {
+      // setIsLoading(false)
+      //     Swal.fire({
+      //         icon: 'error',
+      //         title: 'error',
+      //         text: e.message
+      //     })
+      // }
+    }  
+    
     const handleSearchInput = e => {
         if (!e) {
             setFilteredCategories([..._categories])
@@ -64,6 +87,13 @@ const Categories = (props) => {
     }
 
     const editCategory = (cat) => {
+      if (cat.name === 'General') {
+        return Swal.fire({
+                  icon: 'error',
+                  title: 'error',
+                  text: 'Unable to edit this Category'
+              })
+      }
         setSelectedCategory(cat);
         setEditCategoryModalVisible(true);
     }
@@ -296,7 +326,6 @@ const EditCategory = (props) => {
 }
 
 const mapStateToProps = ({ category }) => {
-
     return {
         categories: category.categories
     }

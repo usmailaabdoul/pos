@@ -9,6 +9,7 @@ import SaleApi from './sale';
 import ReportApi from "./report";
 import BackupApi from "./backup";
 
+
 class Apis {
     initialize(token) {
         this.token = token
@@ -24,6 +25,10 @@ class Apis {
         this.reportApi = new ReportApi(this.api)
         this.backupApi = new BackupApi(this.api)
 
+    }
+
+    category() {
+      return once.do(() => new CategoryApi(this.api))
     }
 }
 

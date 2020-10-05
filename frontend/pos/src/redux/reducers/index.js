@@ -6,6 +6,8 @@ import authReducer from './authReducer';
 import roleReducer from './roleReducers'
 import customerReducer from './customerReducer'
 
+import categoryReducer from './categoryReducer';
+
 const rootReducer = combineReducers({
     category: categoryReducer,
     employee: employeeReducer,
