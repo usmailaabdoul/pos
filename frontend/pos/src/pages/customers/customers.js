@@ -8,6 +8,7 @@ import ReactTable from 'react-table-v6'
 import { connect } from 'react-redux';
 import { setCustomers } from '../../redux/actions/customerActions';
 import { bindActionCreators } from 'redux';
+import PaymentIcon from '@material-ui/icons/Payment';
 import apis from '../../apis/apis';
 
 import "./customers.css";
@@ -19,6 +20,7 @@ const CustomersPage = (props) => {
   const [isEditCustomerModalVisible, setEditCustomerModalVisible] = useState(false)
   const [isPayDebtModalVisible, setPayDebtModalVisibile] = useState(false)
   const [isBasketDetailModalVisible, setBasketDetailModalVisible] = useState(false)
+  const [isViewDebtPaymentsModalVisible, setViewDebtPaymentsModalVisible] = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState(null)
   const [filteredCustomers, setFilterdCustomers] = useState([])
   const [transactions, setTransactions] = useState([])
@@ -93,6 +95,11 @@ const CustomersPage = (props) => {
   const viewTransactions = (customer) => {
     setSelectedCustomer(customer)
     getTransactions(customer._id)
+  }
+
+  const viewDebtPayments = (customer) => {
+    setSelectedCustomer(customer)
+    setViewDebtPaymentsModalVisible(true)
   }
 
   const viewBasketDetail = (basket) => {
@@ -186,6 +193,7 @@ const CustomersPage = (props) => {
                         return (
                           <div>
                             <span onClick={() => viewTransactions(customer.original)} className="mr-4 table-icons"><VisibilityIcon style={{ fontSize: 20 }} /></span>
+                            <span onClick={() => viewDebtPayments(customer.original)} className="mr-4 table-icons"><PaymentIcon style={{ fontSize: 20 }} /></span>
                             <span onClick={() => editCustomer(customer.original)} className="mr-4 table-icons"><EditIcon style={{ fontSize: 20 }} /></span>
                           </div>
                         )
@@ -194,6 +202,9 @@ const CustomersPage = (props) => {
                   ]}
                 />
             }
+            {isViewDebtPaymentsModalVisible && (
+              <DebtPayments setViewDebtPaymentsModalVisible={() => setViewDebtPaymentsModalVisible(false)} isViewDebtPaymentsModalVisible={isViewDebtPaymentsModalVisible} customer={selectedCustomer} />
+            )}
 
             {isNewCustomerModalVisible && (
               <NewCustomer
@@ -211,10 +222,10 @@ const CustomersPage = (props) => {
               />
             )}
             {isPayDebtModalVisible && (
-              <PayDebt 
-                setPayDebtModalVisibile={() => setPayDebtModalVisibile(false)} 
+              <PayDebt
+                setPayDebtModalVisibile={() => setPayDebtModalVisibile(false)}
                 isPayDebtModalVisible={isPayDebtModalVisible}
-                customer={selectedCustomer} 
+                customer={selectedCustomer}
                 getCustomers={() => getCustomers()}
               />
             )}
@@ -427,6 +438,53 @@ const EditCustomer = (props) => {
   )
 }
 
+const DebtPayments = (props) => {
+  const { customer, isViewDebtPaymentsModalVisible, setViewDebtPaymentsModalVisible } = props
+  return (
+    <ActionModal
+      isVisible={isViewDebtPaymentsModalVisible}
+      setIsVisible={() => setViewDebtPaymentsModalVisible(false)}
+      title="debt payments">
+      <ReactTable
+        showPagination={false}
+        showPageSizeOptions={false}
+        minRows={0}
+        data={customer.debtPayments}
+        defaultPageSize={10}
+        style={{ textAlign: 'center' }}
+        className="-highlight -striped rt-rows-height ReactTable"
+        columns={[
+          {
+            Header: "",
+            id: "row",
+            maxWidth: 50,
+            filterable: false,
+            Cell: (row) => {
+              return <div>{row.index + 1}</div>;
+            }
+          },
+          {
+            Header: "Date",
+            Cell: (row) => {
+              return <div>{new Date(row.original.created_at).toLocaleDateString()}</div>;
+            },
+          },
+          {
+            Header: "Amount",
+            accessor: "amount",
+          },
+          {
+            Header: "Cashier",
+            Cell: (row) => {
+              return <div>{row.original.cashier.name}</div>;
+            },
+          }
+        ]}
+      />
+    </ActionModal >
+  )
+}
+
 const PayDebt = (props) => {
   const { setPayDebtModalVisibile, isPayDebtModalVisible, customer, getCustomers } = props;
   const [name, setName] = useState(customer.name)
@@ -458,7 +516,7 @@ const PayDebt = (props) => {
         text: 'The amount entered is more than Dept'
       })
     }
-    
+
     try {
       let res = await apis.customerApi.payCustomerDept(customer._id, obj);
       Swal.fire(
