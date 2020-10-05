@@ -10,3 +10,6 @@ POS is a simple pos application
 4. Employees
 5. Reports and settings
 6. Auto backups
+
+## Looks
+![Alt text](./image.png?raw=true "Title")
