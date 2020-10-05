@@ -86,11 +86,11 @@ const validateMaxRetailPrice = (mrp) => {
 };
 
 const validateMaxWholeSalePrice = (mrp) => {
-  return validateRequiredNumberNegative(mrp, "MaxWholeSalePrice");
+    return validateRequiredNumberNegative(mrp, "MaxWholeSalePrice");
 };
 
 const validateMinWholeSalePrice = (mrp) => {
-  return validateRequiredNumberNegative(mrp, "MinWholeSalePrice");
+    return validateRequiredNumberNegative(mrp, "MinWholeSalePrice");
 };
 
 function Items(props) {
@@ -383,10 +383,10 @@ function Items(props) {
                             accessor: "minStock",
                         },
                         {
-                          Header: "Max-WholeSale Price",
-                          maxWidth: 150,
-                          accessor: "maxWholeSalePrice",
-                        }, 
+                            Header: "Max-WholeSale Price",
+                            maxWidth: 150,
+                            accessor: "maxWholeSalePrice",
+                        },
                         {
                             Header: "Min-WholeSale Quantity",
                             maxWidth: 150,
@@ -405,15 +405,15 @@ function Items(props) {
                                             <EditIcon style={{ fontSize: 20 }} />
                                         </span>
                                         {
-                                          !item.original.isSystem && 
+                                            !item.original.isSystem &&
                                             <span
-                                              onClick={() => deleteItem(item.original)}
-                                              className="table-icons"
-                                          >
-                                              <DeleteIcon style={{ fontSize: 20 }} />
-                                          </span>
+                                                onClick={() => deleteItem(item.original)}
+                                                className="table-icons"
+                                            >
+                                                <DeleteIcon style={{ fontSize: 20 }} />
+                                            </span>
                                         }
-                                        
+
                                     </div>
                                 );
                             },
@@ -444,6 +444,7 @@ function Items(props) {
                         getItems={() => getItems()}
                         item={selectedItem}
                         categories={categories}
+                        setCategories={setCategories}
                     />
                 )}
             </div>
@@ -452,7 +453,7 @@ function Items(props) {
 }
 
 const ImportFile = (props) => {
-    const { setImportModalVisible, isImportModalVisible, getItems, categories } = props;
+    const { setImportModalVisible, isImportModalVisible, getItems, categories, setCategories } = props;
     let [rows, setRows] = useState([]);
     const [isloading, setLoading] = useState(false);
 
@@ -571,10 +572,18 @@ const ImportFile = (props) => {
                 let _minWholeSalePrice = Number(itemObj.minWholeSalePrice);
                 let _maxWholeSalePrice = Number(itemObj.maxWholeSalePrice);
 
-                let cat = props.categories.find(c => c.name === itemObj.category)
+                let cat = categories.find(c => c.name.toLowerCase() === itemObj.category.toLowerCase())
                 if (!cat) {
-                    message = `category: ${itemObj.category} does not exist. Create it first. Row ${i}`;
-                    break;
+                    // message = `category: ${itemObj.category} does not exist. Create it first. Row ${i}`;
+                    // break;
+                    try {
+                        cat = await apis.categoryApi.addCategory({ name: itemObj.category })
+                        let allCats = await apis.categoryApi.categories()
+                        setCategories(allCats)
+                    } catch (e) {
+                        message = `error creating new category: ${itemObj.category}`
+                        break
+                    }
                 }
 
                 let res = await apis.itemApi.addItem({
